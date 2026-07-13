@@ -10,6 +10,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
     --ink:#22304f; --ink-2:#33446b; --gold:#b08840; --gold-soft:#e8dcc2;
@@ -165,6 +166,38 @@
   .rep-notice{display:flex;gap:12px;padding:9px 13px;border:1px solid var(--line);border-radius:9px;background:#fff}
   .rep-notice .nd{flex:0 0 46px;font-weight:800;color:var(--gold);font-size:12px}
   .rep-notice .nb{flex:1;font-size:12.5px;line-height:1.55}
+  .vc-head{font-family:"Nanum Myeongjo",serif;font-size:15px;font-weight:800;color:var(--ink);margin-bottom:10px}
+  .vc-two{display:flex;gap:20px;flex-wrap:wrap;margin-top:16px}
+  .vc-two>div{flex:1;min-width:200px}
+  .vc-k{font-size:11.5px;font-weight:800;color:var(--ink-2);margin-bottom:7px}
+  .vc-bars{display:flex;flex-direction:column;gap:7px}
+  .vc-bt{display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px}
+  .vc-bt b{color:var(--ink)}
+  .vc-bg{height:8px;background:var(--line-2);border-radius:5px;overflow:hidden}
+  .vc-bg i{display:block;height:100%;border-radius:5px}
+  .vc-ok{background:linear-gradient(90deg,#4a9d78,#2f7d5b)}
+  .vc-no{background:linear-gradient(90deg,#d9a06a,#b0703a)}
+  .vc-up{color:var(--ok);font-weight:800}
+  .vc-dn{color:var(--alert);font-weight:800}
+  .vc-ach{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+  .vc-chip{background:var(--gold-soft);color:#7a5f20;border-radius:99px;padding:4px 11px;font-size:11.5px;font-weight:700}
+  .vc-sub{font-size:11px;color:var(--muted);margin-top:8px;font-weight:600}
+  .vc-note{margin-top:14px;background:#faf9f6;border:1px solid var(--line);border-radius:8px;padding:10px 13px;font-size:12.5px;line-height:1.7}
+  .vc-goal{margin-top:8px;border-left:3px solid var(--gold);background:#fcf9f2;border-radius:0 8px 8px 0;padding:9px 12px;font-size:12.5px}
+  .rep-voca-html{border:1px solid var(--line);border-radius:9px;padding:12px;overflow-x:auto}
+  .rp-diag{background:linear-gradient(135deg,#f7f5ef,#fbfaf7);border:1px solid var(--gold-soft);border-left:4px solid var(--gold);border-radius:0 10px 10px 0;padding:14px 18px;margin:18px 0 4px}
+  .rp-diag .dg-k{font-family:"Nanum Myeongjo",serif;font-size:14px;font-weight:800;color:var(--ink);margin-bottom:7px}
+  .rp-diag ul{margin:0;padding-left:17px}
+  .rp-diag li{font-size:13px;line-height:1.75;color:var(--text)}
+  .rp-diag li b{color:var(--ink);font-weight:800}
+  .rp-diag .dg-f{font-size:10.5px;color:var(--muted);margin-top:7px;padding-top:6px;border-top:1px dashed var(--gold-soft)}
+  .rp-chart{margin-top:4px}
+  .rp-cwrap{position:relative}
+  .rp-goal,.rp-avg{position:absolute;left:0;right:0;height:0;border-top:2px dashed var(--gold);z-index:2;pointer-events:none}
+  .rp-avg{border-top:1px dashed #8a94a6}
+  .rp-goal span,.rp-avg span{position:absolute;right:0;top:-15px;font-size:9.5px;font-weight:800;color:var(--gold);background:#fff;padding:0 4px;border-radius:3px}
+  .rp-avg span{color:#6b7686}
+  .rp-sub{font-family:"Nanum Myeongjo",serif;font-size:13.5px;font-weight:800;color:var(--ink);margin:0 0 8px;padding-bottom:5px;border-bottom:1px solid var(--gold-soft)}
   .rep-road{position:relative;padding-left:20px;border-left:2px solid var(--line);margin-top:4px}
   .rep-road-item{position:relative;margin-bottom:13px}
   .rep-road-item::before{content:"";position:absolute;left:-25px;top:3px;width:9px;height:9px;border-radius:50%;background:var(--line);border:2px solid #fff}
@@ -230,6 +263,49 @@
   .sc-name{flex:1;min-width:60px;font-weight:700;border:1px solid var(--line);border-radius:6px;padding:6px;font-family:inherit;font-size:13px;background:#fff;color:var(--text)}
   .sc-cell{width:100%;min-width:94px;border:1px solid #ececec;border-radius:6px;padding:5px;font-family:inherit;font-size:12px;line-height:1.45;resize:vertical;background:#fff;color:var(--text)}
   .sc-f:disabled{background:#f4f3ef;color:#555}
+  /* 출석 일괄 */
+  .ci-at{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--ink-2);background:#faf9f6;border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+  .ci-at input[type=time]{padding:4px 7px;border:1px solid var(--line);border-radius:6px;font-family:inherit;font-size:12px}
+  .ci-tedit{display:inline-flex;align-items:center;gap:4px;background:#f4f2ec;border:1px solid var(--line);border-radius:7px;padding:3px 7px}
+  .ci-tedit em{font-style:normal;font-size:10.5px;font-weight:700;color:var(--muted)}
+  .ci-tin{border:none;background:transparent;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink);padding:1px 2px;cursor:pointer;width:76px}
+  .ci-tin:hover{background:#fff;border-radius:4px}
+  .ci-sm{font-size:11px;font-weight:800;color:var(--ok);background:var(--ok-bg);border-radius:9px;padding:3px 8px;align-self:center}
+  .ci-bulk{background:#faf9f6;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:14px}
+  .ci-bk{font-size:12px;font-weight:800;color:var(--ink);margin-bottom:8px}
+  .ci-brow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+  .ci-brow input[type=time]{padding:6px 9px;border:1px solid var(--line);border-radius:7px;font-family:inherit}
+  .ci-bn{font-size:12px;color:var(--muted);font-weight:700}
+  /* 순공 가져오기 */
+  .im-box{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#faf9f6;margin-top:10px}
+  .im-row{display:flex;gap:10px;align-items:center;font-size:12.5px;padding:3px 0}
+  .im-ok{color:var(--ok);font-weight:700}
+  .im-no{color:var(--alert);font-weight:700}
+  .im-tag{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:9px;background:#eef0f3;color:var(--muted)}
+  /* 관제탑 */
+  .tw-cq{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .tw-pill{background:#f4f2ec;border:1px solid var(--line);border-radius:20px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--ink);cursor:pointer}
+  .tw-pill.stuck{background:#f6e6e3;border-color:#e3c4bd;color:var(--alert)}
+  .tw-mx{border-collapse:separate;border-spacing:3px;width:100%}
+  .tw-mx th{background:transparent;color:var(--muted);font-size:10.5px;font-weight:700;padding:4px 2px;text-align:center;border:none}
+  .tw-mx th.nm{text-align:left;width:120px}
+  .tw-mx td{border:none;padding:0}
+  .tw-nm{font-size:12.5px;font-weight:700;color:var(--ink);white-space:nowrap;padding:4px 6px;cursor:pointer}
+  .tw-nm small{color:var(--muted);font-weight:600;margin-left:3px}
+  .cell{display:flex;align-items:center;justify-content:center;height:30px;border-radius:6px;font-size:10px;font-weight:800}
+  .c-done{background:#2f7d5b;color:#fff}
+  .c-prog{background:var(--gold);color:#fff}
+  .c-stuck{background:#f6e6e3;color:var(--alert);border:1.5px solid var(--alert)}
+  .c-wait{background:#eef0f3;color:#b4bec9}
+  .c-na{background:#f7f7f5;color:#dcdcd8}
+  .tw-lg{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:10px;align-items:center}
+  .tw-lg i{width:13px;height:13px;border-radius:4px;display:inline-block;vertical-align:middle;margin-right:4px}
+  .tw-dr{border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-top:14px;background:#faf9f6}
+  .tw-step{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line-2)}
+  .tw-step:last-child{border-bottom:none}
+  .tw-si{flex:0 0 26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:800}
+  .tw-coach{background:var(--ink);color:#d3dce5;border-radius:9px;padding:11px 13px;font-size:12px;margin-top:12px;line-height:1.6}
+  .tw-coach b{color:var(--gold-soft)}
   /* 저장된 주차 바로가기 */
   .wk-jump{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 2px}
   .wk-lab{font-size:11px;color:var(--muted);font-weight:600;margin-right:2px}
@@ -355,6 +431,7 @@
     <button data-tab="notice"><span class="mtag">실장</span>공지·일정</button>
     <button data-tab="mentor"><span class="mtag">멘토</span>멘토링 일지</button>
     <button data-tab="sched"><span class="mtag">멘토</span>주간 스케줄</button>
+    <button data-tab="tower"><span class="mtag">원장</span>관제탑</button>
     <button data-tab="wonjang"><span class="mtag">원장</span>입시상담</button>
     <span class="divider"></span>
     <button data-tab="analysis">분석</button>
@@ -418,11 +495,26 @@
     <div class="card">
       <div class="mod-banner"><span class="dot"></span>실장 모듈</div>
       <h2>출석 체크 — 실시간</h2>
-      <div class="hint">버튼을 누르면 <b>현재 시각이 즉시 기록·저장</b>됩니다. 학생 이름을 누르면 일일 기록에서 세부 조정할 수 있어요.</div>
+      <div class="hint">버튼을 누르면 시각이 기록됩니다. <b>기록된 시각은 언제든 눌러서 직접 고칠 수 있고</b>(순공시간 자동 재계산), 나중에 몰아서 입력할 땐 <b>‘기준 시각으로 기록’</b>을 켜세요.</div>
       <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px">
         <div class="field" style="max-width:180px;margin:0"><label class="f">날짜</label><input type="date" id="ciDate"></div>
         <div class="ci-clock" id="ciClock">--:--</div>
+        <label class="ci-at"><input type="checkbox" id="ciAtMode"> 기준 시각으로 기록 <input type="time" id="ciAtTime" value="08:30"></label>
         <div class="ci-summary" id="ciSummary" style="margin-left:auto"></div>
+      </div>
+      <div class="ci-bulk">
+        <div class="ci-bk">일괄 처리 <span style="font-weight:600;color:var(--muted);font-size:11px">— 학생마다 누르지 마세요</span></div>
+        <div class="ci-brow">
+          <input type="time" id="ciBulkIn" value="08:30">
+          <button class="btn ghost sm" id="ciAllIn" type="button">미등원 전원 등원 처리</button>
+          <span class="ci-bn" id="ciNotIn">–</span>
+        </div>
+        <div class="ci-brow">
+          <input type="time" id="ciBulkOut" value="22:00">
+          <button class="btn ghost sm" id="ciAllOut" type="button">미하원 전원 하원 처리</button>
+          <span class="ci-bn" id="ciNotOut">–</span>
+        </div>
+        <div class="hint" style="margin:6px 0 0">일괄 처리 후 <b>지각·조퇴·외출만 개별 조정</b>하면 됩니다. 순공시간은 <b>하원−등원−외출</b>로 자동 계산됩니다.</div>
       </div>
       <div id="ciBoard"></div>
     </div>
@@ -580,6 +672,37 @@
     </div>
   </section>
 
+  <!-- ============ 원장 모듈: 관제탑 ============ -->
+  <section id="tab-tower" hidden>
+    <div class="card">
+      <div class="mod-banner"><span class="dot"></span>원장 모듈</div>
+      <h2>관제탑 — 학생 × 단계 현황</h2>
+      <div class="hint">학생 지휘대(어디가·EBSi·함께학교 오케스트레이션)의 진행 상태입니다. <b>14일 이상 멈춘 단계는 정체</b>로 표시됩니다.</div>
+      <div style="margin:12px 0 6px"><div class="sec-eyebrow">COACHING QUEUE</div></div>
+      <div class="tw-cq" id="twQueue"></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:14px 0 10px">
+        <select id="twGrade" style="padding:7px 10px;border:1px solid var(--line);border-radius:7px;font-family:inherit"><option value="">전체 학년</option><option>고1</option><option>고2</option><option>고3</option><option>N수</option></select>
+        <button class="btn ghost sm" id="twStuck" type="button">정체만 보기</button>
+      </div>
+      <div style="overflow-x:auto"><table class="tw-mx" id="twMx"></table></div>
+      <div class="tw-lg">
+        <span><i style="background:#2f7d5b"></i>완료</span>
+        <span><i style="background:#b08840"></i>진행</span>
+        <span><i style="background:#f6e6e3;border:1.5px solid #a83722"></i>정체(14일+)</span>
+        <span><i style="background:#eef0f3"></i>대기</span>
+        <span><i style="background:#f7f7f5"></i>해당없음</span>
+      </div>
+      <div id="twDrawer"></div>
+    </div>
+    <div class="card">
+      <div class="sec-eyebrow">PILOT</div>
+      <h2>학생 앱 사용 현황 <span class="tag">파일럿 측정</span></h2>
+      <div class="hint">학생이 <b>실제로 여는 화면</b>입니다. 안 쓰는 기능은 접고, 쓰는 기능에 집중하기 위한 자료입니다.</div>
+      <div id="usSummary" style="margin-top:12px"></div>
+      <div id="usTable" style="margin-top:14px"></div>
+    </div>
+  </section>
+
   <!-- ============ 원장 모듈: 입시상담 ============ -->
   <section id="tab-wonjang" hidden>
     <div class="card">
@@ -668,6 +791,7 @@
       <div class="grid g3" style="margin-bottom:12px">
         <div class="field"><label class="f">목표 대학/학과 (선택)</label><input type="text" id="stTarget" placeholder="예) 강원대 컴퓨터공학"></div>
         <div class="field"><label class="f">학부모 연락처 (선택)</label><input type="text" id="stPhone" placeholder="010-1234-5678" inputmode="tel"></div>
+        <div class="field" style="grid-column:1/-1"><label class="f">학생 로그인 UID (선택) <span class="tag">학생 화면 연결</span></label><input type="text" id="stUid" placeholder="Firebase 인증에서 만든 학생 계정의 UID를 붙여넣기"><div class="hint" style="margin-top:4px">입력하면 그 학생이 학생 화면(student.html)에서 <b>본인 기록만</b> 볼 수 있습니다. 비우면 학생 로그인 불가.</div></div>
         <div class="field row-end" style="gap:9px"><button class="btn" id="addStudent" type="button">학생 추가</button><button class="btn ghost" id="cancelEdit" type="button" style="display:none">취소</button></div>
       </div>
     </div>
@@ -688,6 +812,45 @@
 
   <!-- ============ 데이터 ============ -->
   <section id="tab-data" hidden>
+    <div class="card">
+      <div class="sec-eyebrow">AUTO IMPORT</div>
+      <h2>순공시간 엑셀 자동 등록 <span class="tag">일일 입력 불필요</span></h2>
+      <div class="hint">기존에 쓰시던 <b>월별 순공시간 엑셀</b>을 그대로 올리면 등원·하원·외출·순공시간이 학생별·날짜별로 자동 입력되고 <b>리포트에 즉시 반영</b>됩니다. (열=학생, 6행=하루 형식)</div>
+      <div class="grid2">
+        <div class="field"><label class="f">기준 년월 <span class="req">*</span></label><input type="month" id="imMonth"></div>
+        <div class="field"><label class="f">엑셀 파일 (.xlsx)</label><input type="file" id="imFile" accept=".xlsx,.xls"></div>
+      </div>
+      <div id="imPreview" style="margin-top:6px"></div>
+      <div style="margin-top:12px;display:flex;gap:9px;flex-wrap:wrap;align-items:center">
+        <button class="btn" id="imRun" type="button" disabled>가져오기 실행</button>
+        <span id="imMeta" style="font-size:12px;color:var(--muted)"></span>
+      </div>
+      <div class="hint" style="margin-top:10px">※ 이미 입력된 <b>코멘트·단어점검·테스트 기록은 그대로 보존</b>되고, 시간 항목만 갱신됩니다.</div>
+    </div>
+
+    <div class="card">
+      <div class="sec-eyebrow">SUMMIT VOCA</div>
+      <h2>단어앱 결과 붙여넣기 <span class="tag">리포트 자동 반영</span></h2>
+      <div class="hint">써밋 보카에서 <b>복사</b>한 학습 결과를 그대로 붙여넣으면 학생별로 저장되고 <b>학부모 리포트의 단어 학습 섹션</b>에 자동 반영됩니다.</div>
+      <details style="margin-bottom:10px">
+        <summary style="cursor:pointer;font-size:12.5px;font-weight:700;color:var(--ink-2)">📋 붙여넣기 형식 (클릭)</summary>
+        <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.7">
+          한 줄에 한 기록. <b>탭 또는 쉼표</b>로 구분합니다. 헤더 줄이 있어도 됩니다.<br>
+          <code style="background:#f4f2ec;padding:2px 6px;border-radius:4px">이름 · 날짜 · 범위 · 맞은개수 · 총개수 · (학습시간분) · (유형)</code><br>
+          예시:<br>
+          <code style="background:#f4f2ec;padding:4px 6px;border-radius:4px;display:inline-block;margin-top:4px">복범수&nbsp;&nbsp;2026-07-10&nbsp;&nbsp;Day 12&nbsp;&nbsp;45&nbsp;&nbsp;50&nbsp;&nbsp;15&nbsp;&nbsp;영→한</code><br>
+          날짜는 <b>2026-07-10 / 2026.07.10 / 7/10</b> 모두 인식합니다.
+        </div>
+      </details>
+      <div class="field"><label class="f">결과 붙여넣기</label><textarea id="vpText" rows="7" placeholder="써밋 보카에서 복사한 내용을 여기에 붙여넣으세요 (Ctrl+V)" style="font-family:ui-monospace,monospace;font-size:12.5px"></textarea></div>
+      <div id="vpPreview"></div>
+      <div style="margin-top:12px;display:flex;gap:9px;align-items:center;flex-wrap:wrap">
+        <button class="btn ghost" id="vpParse" type="button">미리보기</button>
+        <button class="btn" id="vpRun" type="button" disabled>가져오기</button>
+        <span id="vpMeta" style="font-size:12px;color:var(--muted)"></span>
+      </div>
+    </div>
+
     <div class="card">
       <div class="sec-eyebrow">IMPORT</div><h2>통통통 출결 CSV 가져오기</h2>
       <div class="hint">통통통에서 내보낸 출결 CSV를 올리면 등원·하원을 일치 학생에게 반영합니다.</div>
@@ -778,6 +941,7 @@ function refresh(){
     try{ if($("tab-mentor")&&!$("tab-mentor").hidden){ let ed=false; try{ ed=document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#tab-mentor"); }catch(_){} if(!ed) renderMentorLog(); } }catch(e){}
     try{ if($("tab-sched")&&!$("tab-sched").hidden){ let ed=false; try{ ed=document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#tab-sched"); }catch(_){} if(!ed){ renderSchedule(); renderRoadmap(); } } }catch(e){}
     try{ if($("tab-checkin")&&!$("tab-checkin").hidden) renderCheckin(); }catch(e){}
+    try{ if($("tab-tower")&&!$("tab-tower").hidden){ renderTower(); renderUsage(); } }catch(e){}
     try{ if($("tab-notice")&&!$("tab-notice").hidden){ let ed=false; try{ ed=document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#tab-notice"); }catch(_){} if(!ed) renderNotice(); } }catch(e){}
     if($("tab-analysis")&&!$("tab-analysis").hidden){try{renderAnalysis();}catch(e){}}
     if($("tab-wonjang")&&!$("tab-wonjang").hidden){try{renderConsults();}catch(e){}}
@@ -787,12 +951,15 @@ function refresh(){
   },140);
 }
 function subscribeAll(){
-  teardownSubs(); S={students:[],logs:{},mocks:{},consults:{},mentorlogs:{},monthlyevals:{},schedules:{},roadmaps:{},academy:{notices:[],exams:[],admInfo:[]}};
+  teardownSubs(); S={students:[],logs:{},mocks:{},consults:{},mentorlogs:{},monthlyevals:{},schedules:{},roadmaps:{},conductor:{},vocasum:{},usage:{},academy:{notices:[],exams:[],admInfo:[]}};
   _unsub.push(db.collection("students").onSnapshot(snap=>{ S.students=snap.docs.map(d=>({id:d.id,...d.data()})); _hashFrom("students"); refresh(); }, fbErr));
   _unsub.push(db.collection("logs").onSnapshot(snap=>{ const logs={}; snap.forEach(d=>{ const x=d.data(); if(!x.sid||!x.date)return; (logs[x.sid]=logs[x.sid]||{})[x.date]={status:x.status,inTime:x.inTime||"",outTime:x.outTime||"",reason:x.reason||"",outings:x.outings||[],studyMin:x.studyMin||0,vocab:x.vocab||null,tests:x.tests||[],comments:x.comments||[],outStart:x.outStart||""}; }); S.logs=logs; _hashFrom("logs"); refresh(); }, fbErr));
   _unsub.push(db.collection("mentorlogs").onSnapshot(snap=>{ const m={}; snap.forEach(dd=>{ const x=dd.data(); if(!x.sid||!x.week)return; (m[x.sid]=m[x.sid]||{})[x.week]={subjects:x.subjects||[],nextTask:x.nextTask||"",wake:x.wake||"",bed:x.bed||"",sleepPractice:x.sleepPractice||"",sleepComment:x.sleepComment||"",mockFb:x.mockFb||""}; }); S.mentorlogs=m; refresh(); }, fbErr));
   _unsub.push(db.collection("monthlyevals").onSnapshot(snap=>{ const m={}; snap.forEach(dd=>{ const x=dd.data(); if(!x.sid||!x.ym)return; (m[x.sid]=m[x.sid]||{})[x.ym]=x.text||""; }); S.monthlyevals=m; refresh(); }, fbErr));
   _unsub.push(db.collection("schedules").onSnapshot(snap=>{ const m={}; snap.forEach(dd=>{ const x=dd.data(); if(!x.sid||!x.week)return; (m[x.sid]=m[x.sid]||{})[x.week]={rows:x.rows||[],keyPoints:x.keyPoints||"",mentorComment:x.mentorComment||""}; }); S.schedules=m; refresh(); }, fbErr));
+  _unsub.push(db.collection("vocasummary").onSnapshot(snap=>{ const m={}; snap.forEach(d=>{ const x=d.data(); if(!x.sid||!x.period)return; (m[x.sid]=m[x.sid]||{})[x.period]=x; }); S.vocasum=m; refresh(); }, fbErr));
+  _unsub.push(db.collection("usage").onSnapshot(snap=>{ const m={}; snap.forEach(d=>{ const x=d.data(); if(x.sid)m[x.sid]=x; }); S.usage=m; try{ if($("tab-tower")&&!$("tab-tower").hidden)renderUsage(); }catch(e){} }, fbErr));
+  _unsub.push(db.collection("conductor").onSnapshot(snap=>{ const m={}; snap.forEach(dd=>{ const x=dd.data(); if(x.sid)m[x.sid]=x.stages||{}; }); S.conductor=m; refresh(); }, fbErr));
   _unsub.push(db.collection("roadmaps").onSnapshot(snap=>{ const m={}; snap.forEach(dd=>{ const x=dd.data(); if(!x.sid)return; m[x.sid]=(x.items||[]).map(it=>({month:it.month||"",focus:it.focus||""})); }); S.roadmaps=m; refresh(); }, fbErr));
   _unsub.push(db.collection("settings").doc("academy").onSnapshot(d=>{ const x=d.exists?d.data():{}; S.academy={notices:x.notices||[],exams:x.exams||[],admInfo:x.admInfo||[]}; refresh(); }, fbErr));
   if(!isMgr()) return; // 멘토는 여기까지 구독 (모의/상담은 원장·실장 전용)
@@ -897,7 +1064,7 @@ function fillStudentSelects(){
 }
 
 /* ---------- tabs / role ---------- */
-const TABS=["siljang","checkin","grid","sms","notice","mentor","sched","wonjang","analysis","mock","report","students","data"];
+const TABS=["siljang","checkin","grid","sms","notice","mentor","sched","tower","wonjang","analysis","mock","report","students","data"];
 function switchTab(name){
   document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===name));
   TABS.forEach(t=>$("tab-"+t).hidden=(t!==name));
@@ -909,6 +1076,8 @@ function switchTab(name){
   if(name==="sched")scRenderAll();
   if(name==="checkin")renderCheckin();
   if(name==="notice")renderNotice();
+  if(name==="tower"){renderTower(); try{renderUsage();}catch(e){}}
+  if(name==="checkin")try{ciBulkTag();}catch(e){}
 }
 document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
 $("roleSel").onchange=()=>{ const map={실장:"siljang",멘토:"mentor",원장:"wonjang"}; switchTab(map[$("roleSel").value]); };
@@ -916,12 +1085,15 @@ $("monthSel").onchange=()=>{ renderSilRecent(); renderMtRecent(); renderAnalysis
 
 /* ===================================================== STUDENTS */
 let editingStudent=null;
-function resetStudentForm(){ editingStudent=null; ["stName","stSchool","stGoal","stTarget","stPhone"].forEach(i=>$(i).value=""); $("stGrade").value="고1"; $("stFormTitle").textContent="학생 등록"; $("addStudent").textContent="학생 추가"; $("cancelEdit").style.display="none"; }
+function resetStudentForm(){ editingStudent=null; ["stName","stSchool","stGoal","stTarget","stPhone","stUid"].forEach(i=>$(i).value=""); $("stGrade").value="고1"; $("stFormTitle").textContent="학생 등록"; $("addStudent").textContent="학생 추가"; $("cancelEdit").style.display="none"; }
 $("addStudent").onclick=()=>{
   const name=$("stName").value.trim(); if(!name)return alert("이름을 입력하세요.");
-  const data={name,school:$("stSchool").value.trim(),grade:$("stGrade").value,goalDailyMin:Number($("stGoal").value)||0,target:$("stTarget").value.trim(),phone:$("stPhone").value.trim()};
-  if(editingStudent){ const s=S.students.find(x=>x.id===editingStudent); if(s)Object.assign(s,data); toast("학생 정보가 수정되었습니다"); }
-  else { S.students.push({id:uid(),...data}); toast("학생이 추가되었습니다"); }
+  const suid=$("stUid").value.trim();
+  const data={name,school:$("stSchool").value.trim(),grade:$("stGrade").value,goalDailyMin:Number($("stGoal").value)||0,target:$("stTarget").value.trim(),phone:$("stPhone").value.trim(),uid:suid};
+  let sid;
+  if(editingStudent){ sid=editingStudent; const s=S.students.find(x=>x.id===editingStudent); if(s)Object.assign(s,data); toast("학생 정보가 수정되었습니다"); }
+  else { sid=uid(); S.students.push({id:sid,...data}); toast("학생이 추가되었습니다"); }
+  if(suid&&db) db.collection("studentLinks").doc(suid).set({sid}).then(()=>toast("학생 계정 연결됨")).catch(fbErr);
   resetStudentForm(); save();fillStudentSelects();renderStudents();renderSilRecent();renderMtRecent();
 };
 $("cancelEdit").onclick=resetStudentForm;
@@ -933,7 +1105,7 @@ $("bulkAdd").onclick=()=>{
 };
 $("stSearch").oninput=()=>renderStudents();
 function loadStudentForm(id){ const s=S.students.find(x=>x.id===id); if(!s)return; editingStudent=id;
-  $("stName").value=s.name;$("stSchool").value=s.school||"";$("stGrade").value=s.grade;$("stGoal").value=s.goalDailyMin||"";$("stTarget").value=s.target||"";$("stPhone").value=s.phone||"";
+  $("stName").value=s.name;$("stSchool").value=s.school||"";$("stGrade").value=s.grade;$("stGoal").value=s.goalDailyMin||"";$("stTarget").value=s.target||"";$("stPhone").value=s.phone||"";$("stUid").value=s.uid||"";
   $("stFormTitle").textContent="학생 수정 — "+s.name; $("addStudent").textContent="수정 저장"; $("cancelEdit").style.display="inline-block";
   window.scrollTo({top:0,behavior:"smooth"});
 }
@@ -943,13 +1115,46 @@ function renderStudents(){
   const q=(($("stSearch")&&$("stSearch").value)||"").trim();
   let list=S.students.slice(); if(q)list=list.filter(s=>(s.name+(s.school||"")).includes(q));
   if(!list.length){ t.innerHTML=`<div class="empty">검색 결과가 없습니다.</div>`; return; }
-  t.innerHTML=`<table><thead><tr><th>이름</th><th>학교</th><th>학년</th><th class="num">목표 학업/일</th><th>목표 대학</th><th>학부모 연락처</th><th>관리</th></tr></thead><tbody>`+
+  t.innerHTML=`<table><thead><tr><th>이름</th><th>학교</th><th>학년</th><th class="num">목표 학업/일</th><th>목표 대학</th><th>학부모 연락처</th><th>학생 계정</th><th>관리</th></tr></thead><tbody>`+
    list.map(s=>`<tr><td><b>${s.name}</b></td><td>${s.school||"–"}</td><td>${s.grade}</td><td class="num">${s.goalDailyMin?fmtMinShort(s.goalDailyMin):"–"}</td><td>${s.target||"–"}</td><td>${s.phone||"–"}</td>
+     <td>${s.uid?'<span class="tag" style="background:#e7f3ec;color:#2f7d5b">계정 연결</span>':'<span class="tag" style="background:#f3f1ec;color:#7c7a72">미연결</span>'}</td>
      <td style="white-space:nowrap"><button class="btn ghost sm" data-edit="${s.id}">수정</button> <button class="btn danger sm" data-del="${s.id}">삭제</button></td></tr>`).join("")+`</tbody></table>`;
   t.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>loadStudentForm(b.dataset.edit));
-  t.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{ if(!confirm("이 학생과 모든 기록을 삭제할까요?"))return;
-    const id=b.dataset.del; S.students=S.students.filter(s=>s.id!==id); delete S.logs[id]; delete S.mocks[id]; delete S.consults[id];
-    if(editingStudent===id)resetStudentForm(); save();fillStudentSelects();renderStudents();renderSilRecent();renderMtRecent(); });
+  t.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>purgeStudent(b.dataset.del));
+}
+
+/* ===================================================== 퇴원 처리 — 완전 삭제
+   학생 1명의 모든 개인정보를 전 컬렉션에서 제거한다. (개인정보 잔존 방지) */
+function purgeStudent(id){
+  if(!isMgr())return alert("원장·실장만 삭제할 수 있습니다.");
+  const s=S.students.find(x=>x.id===id); if(!s)return;
+  const n=s.name;
+  if(!confirm(`[퇴원 처리] ${n} 학생의 모든 기록을 완전히 삭제합니다.\n\n· 출결·순공시간 전체\n· 모의고사 성적\n· 입시 상담 기록\n· 멘토링 일지\n· 주간 스케줄 · 연간 로드맵\n· 지휘대(진로 궤) · 세특 탐색\n· 학습계획서 · 이행 체크\n· 단어 학습 요약\n· 학생 로그인 연결\n\n되돌릴 수 없습니다. 진행할까요?`))return;
+  if(!confirm(`정말 삭제합니다. 한 번 더 확인해주세요.\n\n삭제 대상: ${n}`))return;
+
+  // 메모리에서 제거
+  S.students=S.students.filter(x=>x.id!==id);
+  ["logs","mocks","consults","mentorlogs","monthlyevals","schedules","roadmaps","conductor","vocasum"].forEach(k=>{ if(S[k])delete S[k][id]; });
+
+  if(db){
+    // 문서ID = 학생ID 인 컬렉션
+    ["students","roadmaps","conductor","plans","usage"].forEach(c=>{
+      db.collection(c).doc(id).delete().catch(()=>{});
+    });
+    // sid 필드로 찾아 지우는 컬렉션
+    ["logs","mocks","consults","mentorlogs","monthlyevals","schedules","progress","vocasummary"].forEach(c=>{
+      db.collection(c).where("sid","==",id).get()
+        .then(q=>q.forEach(d=>d.ref.delete().catch(()=>{})))
+        .catch(()=>{});
+    });
+    // 학생 로그인 연결 해제
+    if(s.uid) db.collection("studentLinks").doc(s.uid).delete().catch(()=>{});
+  }
+  if(editingStudent===id)resetStudentForm();
+  save(); fillStudentSelects(); renderStudents(); renderSilRecent(); renderMtRecent();
+  try{ renderTower(); }catch(e){}
+  toast(`${n} 학생의 모든 기록이 삭제되었습니다`);
+  if(s.uid) setTimeout(()=>alert(`${n} 학생의 데이터는 모두 삭제되었습니다.\n\n로그인 계정까지 없애려면 Firebase 콘솔 → Authentication → Users 에서 아래 계정을 삭제하세요:\n\nUID: ${s.uid}`),300);
 }
 
 /* ===================================================== 실장 모듈 */
@@ -1374,6 +1579,389 @@ $("scSumSms").onclick=()=>{ const sid=$("scStudent").value; const ph=((S.student
 $("scSumShare").onclick=()=>{ const t=$("scSumText").value; if(navigator.share){ navigator.share({text:t}).catch(()=>{}); } else { navigator.clipboard.writeText(t).then(()=>toast("복사됨 — 카톡에 붙여넣기 하세요")); } };
 $("scSumCopy").onclick=()=>{ navigator.clipboard.writeText($("scSumText").value).then(()=>toast("복사되었습니다")); };
 
+function esc(s){ return (s==null?"":String(s)).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;"); }
+/* ===================================================== 단어앱 결과 붙여넣기 → 리포트 반영
+   계약: 써밋 보카가 내보내는 JSON  schema:"study-summary/v1"
+   같은 student+period 는 문서ID(sid__period)로 덮어써 중복 생성하지 않는다.
+   함께 제공되는 .html 스니펫을 붙여넣으면 리포트 본문에 그대로 삽입한다. */
+let _vp=null;
+function vpPeriod(p){
+  const s=String(p||"").trim();
+  let m=/^(\d{4})[-.\/](\d{1,2})/.exec(s);
+  if(m)return `${m[1]}-${String(+m[2]).padStart(2,"0")}`;
+  m=/^(\d{4})년\s*(\d{1,2})월/.exec(s);
+  if(m)return `${m[1]}-${String(+m[2]).padStart(2,"0")}`;
+  return s;
+}
+function vpClean(html){   // 붙여넣은 스니펫에서 실행 요소 제거
+  return String(html||"")
+    .replace(/<script[\s\S]*?<\/script>/gi,"")
+    .replace(/<iframe[\s\S]*?<\/iframe>/gi,"")
+    .replace(/\son\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi,"")
+    .replace(/javascript:/gi,"");
+}
+function vpTxt(raw){   // 사람이 .txt를 붙여넣은 경우
+  if(!/써밋\s*VOCA/i.test(raw))return null;
+  const g=(re)=>{ const m=re.exec(raw); return m?m[1].trim():""; };
+  const n=(re)=>{ const m=re.exec(raw); return m?Number(m[1]):null; };
+  const student=g(/\]\s*([^·\n]+?)\s*·/);
+  const period=vpPeriod(g(/·\s*(\d{4}\s*년\s*\d{1,2}\s*월)/));
+  if(!student||!period)return null;
+  const pair=(s)=>String(s||"").split(",").map(x=>{
+    const m=/^\s*(.+?)\s*\((\d+)%\)\s*$/.exec(x); return m?{type:m[1],rate:Number(m[2])}:null; }).filter(Boolean);
+  return [{
+    student, period,
+    klass:g(/반\s*:\s*([^·\n]+)/), teacher:g(/담당\s*:\s*([^\n]+)/),
+    metrics:{
+      studyDays:n(/학습일\s*:\s*(\d+)일/), monthDays:n(/학습일\s*:\s*\d+일\s*\/\s*(\d+)일/),
+      progressPct:n(/진도\s*:\s*(\d+)%/),
+      wordsStudied:n(/진도\s*:\s*\d+%\s*\((\d+)\//), curriculumTotal:n(/진도\s*:\s*\d+%\s*\(\d+\/(\d+)/),
+      accuracyPct:n(/정답률\s*:\s*(\d+)%/), accuracyDeltaPct:(()=>{ const m=/전월\s*대비\s*([+-]?\d+)%p/.exec(raw); return m?Number(m[1]):null; })(),
+      bestStreakDays:n(/최고\s*연속[^:]*:\s*(\d+)일/), totalReviews:n(/누적\s*복습[^:]*:\s*(\d+)/)
+    },
+    strengths:pair(g(/■\s*강점\s*:\s*([^\n]+)/)),
+    weaknesses:pair(g(/■\s*보완\s*:\s*([^\n]+)/)),
+    achievements:(g(/■\s*이달의\s*성취\s*:\s*([^\n]+)/)||"").split(",").map(x=>x.trim()).filter(Boolean),
+    teacherComment:g(/■\s*강사\s*코멘트\s*\n([\s\S]*?)(?=\n\s*■|\n\s*\()/),
+    nextGoal:g(/■\s*다음\s*달\s*목표\s*\n([\s\S]*?)(?=\n\s*■|\n\s*\()/),
+    html:""
+  }];
+}
+function vpParse(text){
+  const raw=String(text||"").trim();
+  if(!raw)return {err:"내용이 비어 있습니다."};
+  // HTML 스니펫
+  if(/^</.test(raw) && !/^\s*[\[{]/.test(raw)) return {html:vpClean(raw)};
+  let j;
+  try{ j=JSON.parse(raw); }
+  catch(e){
+    const t=vpTxt(raw);
+    if(t)return {items:t,err:[]};
+    return {err:"읽지 못했습니다. 써밋 VOCA의 JSON · HTML · 텍스트 중 하나를 그대로 붙여넣으세요."};
+  }
+  const arr=Array.isArray(j)?j:[j];
+  const items=[],err=[];
+  arr.forEach(o=>{
+    if(!o||typeof o!=="object"){ err.push("형식 오류"); return; }
+    if(o.schema && String(o.schema).indexOf("study-summary")<0){ err.push(`알 수 없는 schema: ${o.schema}`); return; }
+    if(!o.student){ err.push("student 없음"); return; }
+    const m=o.metrics||{};
+    items.push({
+      student:String(o.student).trim(),
+      period:vpPeriod(o.period),
+      klass:o.class||o.klass||"", teacher:o.teacher||"",
+      metrics:{
+        studyDays:m.studyDays??null, monthDays:m.monthDays??null,
+        wordsStudied:m.wordsStudied??null, curriculumTotal:m.curriculumTotal??null,
+        progressPct:m.progressPct??null, accuracyPct:m.accuracyPct??null,
+        accuracyDeltaPct:m.accuracyDeltaPct??null, bestStreakDays:m.bestStreakDays??null,
+        totalReviews:m.totalReviews??null
+      },
+      strengths:Array.isArray(o.strengths)?o.strengths:[],
+      weaknesses:Array.isArray(o.weaknesses)?o.weaknesses:[],
+      achievements:Array.isArray(o.achievements)?o.achievements:[],
+      teacherComment:o.teacherComment||"", nextGoal:o.nextGoal||"",
+      html:o.html?vpClean(o.html):""
+    });
+  });
+  return {items,err};
+}
+function vpRender(){
+  const box=$("vpPreview"); if(!box)return;
+  if(!_vp){ box.innerHTML=""; $("vpRun").disabled=true; return; }
+  if(_vp.err && !_vp.items){ box.innerHTML=`<div class="im-box"><div class="im-row"><span class="im-tag" style="background:#f6e6e3;color:var(--alert)">오류</span><span class="im-no">${ntEsc(_vp.err)}</span></div></div>`; $("vpRun").disabled=true; return; }
+  if(_vp.html){ box.innerHTML=`<div class="im-box"><div class="im-row"><span class="im-tag">HTML</span><span>스니펫으로 인식했습니다. <b>학생과 기준 월을 선택</b>한 뒤 가져오세요.</span></div>
+    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+      <select id="vpSid" style="padding:7px 10px;border:1px solid var(--line);border-radius:7px">${S.students.map(s=>`<option value="${s.id}">${ntEsc(s.name)}</option>`).join("")}</select>
+      <input type="month" id="vpMon" style="padding:7px 10px;border:1px solid var(--line);border-radius:7px" value="${$("monthSel")?$("monthSel").value:""}">
+    </div></div>`; $("vpRun").disabled=false; return; }
+  const known=new Map(); S.students.forEach(s=>known.set(s.name.trim(),s.id));
+  const use=(_vp.items||[]).filter(x=>known.has(x.student));
+  const miss=[...new Set((_vp.items||[]).filter(x=>!known.has(x.student)).map(x=>x.student))];
+  _vp.use=use;
+  box.innerHTML=`<div class="im-box">
+    <div class="im-row"><span class="im-tag">인식</span><span><b class="im-ok">${use.length}건</b>${use.length?` · ${use.map(u=>ntEsc(u.student)+" "+ntEsc(u.period)).join(" · ")}`:""}</span></div>
+    ${use.length?`<div class="im-row"><span class="im-tag">지표</span><span style="font-size:12px">${use.slice(0,3).map(u=>`정답률 ${u.metrics.accuracyPct??"–"}% · 진도 ${u.metrics.progressPct??"–"}%`).join(" / ")}</span></div>`:""}
+    ${miss.length?`<div class="im-row" style="align-items:flex-start"><span class="im-tag">미등록</span><span style="color:var(--alert);font-size:12px">${miss.map(ntEsc).join(" · ")}<br><span style="color:var(--muted)">학생관리에 없는 이름입니다. 건너뜁니다.</span></span></div>`:""}
+    ${(_vp.err&&_vp.err.length)?`<div class="im-row"><span class="im-tag" style="background:#f7efdc;color:#9a6a16">확인</span><span style="font-size:12px;color:#9a6a16">${_vp.err.slice(0,3).map(ntEsc).join(" · ")}</span></div>`:""}
+    <div class="im-row"><span class="im-tag">중복</span><span style="font-size:12px;color:var(--muted)">같은 학생·같은 기간이면 <b>새로 만들지 않고 갱신</b>합니다.</span></div>
+  </div>`;
+  $("vpRun").disabled=!use.length;
+}
+$("vpParse").onclick=()=>{ _vp=vpParse($("vpText").value); vpRender(); };
+$("vpRun").onclick=()=>{
+  if(!isMgr())return alert("원장·실장만 가져올 수 있습니다.");
+  if(!_vp)return;
+  if(_vp.html){
+    const sid=$("vpSid")&&$("vpSid").value, per=$("vpMon")&&$("vpMon").value;
+    if(!sid||!per)return alert("학생과 기준 월을 선택하세요.");
+    const st=S.students.find(x=>x.id===sid)||{};
+    const doc={sid,period:per,student:st.name||"",klass:"",teacher:"",metrics:{},strengths:[],weaknesses:[],teacherComment:"",nextGoal:"",html:_vp.html,updatedAt:new Date().toISOString()};
+    S.vocasum[sid]=S.vocasum[sid]||{}; S.vocasum[sid][per]=doc;
+    if(db) db.collection("vocasummary").doc(sid+"__"+per).set(doc).catch(fbErr);
+    toast("HTML 스니펫이 리포트에 반영됩니다"); $("vpMeta").textContent="✓ 1건 등록(HTML)";
+    $("vpText").value=""; _vp=null; vpRender(); return;
+  }
+  if(!_vp.use||!_vp.use.length)return;
+  const known=new Map(); S.students.forEach(s=>known.set(s.name.trim(),s.id));
+  let n=0;
+  _vp.use.forEach(x=>{
+    const sid=known.get(x.student); if(!sid||!x.period)return;
+    const doc={sid,period:x.period,student:x.student,klass:x.klass||"",teacher:x.teacher||"",
+      metrics:x.metrics,strengths:x.strengths||[],weaknesses:x.weaknesses||[],achievements:x.achievements||[],
+      teacherComment:x.teacherComment||"",nextGoal:x.nextGoal||"",html:x.html||"",updatedAt:new Date().toISOString()};
+    S.vocasum[sid]=S.vocasum[sid]||{}; S.vocasum[sid][x.period]=doc;   // 동일 학생·기간 → 갱신
+    if(db) db.collection("vocasummary").doc(sid+"__"+x.period).set(doc).catch(fbErr);
+    n++;
+  });
+  toast(`영어 어휘 학습 ${n}건 등록 — 리포트에 반영됩니다`);
+  $("vpMeta").textContent=`✓ ${n}건 등록/갱신 완료`;
+  $("vpText").value=""; _vp=null; vpRender();
+};
+
+/* ===================================================== 순공시간 엑셀 자동 등록
+   형식: 1행=학생명(“N.이름”), 2행부터 6행 블록 = [N일, 등원시각, 하원시각, 학원외출시간, 기타외출시간, 순공시간] */
+let _imRows=null, _imParsed=null;
+function imToMin(v){
+  if(v===null||v===undefined||v==="")return null;
+  if(typeof v==="number"){ const f=v%1; return Math.round(f*24*60); }         // 엑셀 시간 소수
+  if(v instanceof Date) return v.getHours()*60+v.getMinutes();
+  const s=String(v).trim(); if(!s)return null;
+  const m=/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(s);
+  if(m) return Number(m[1])*60+Number(m[2]);
+  return null;
+}
+function imCleanName(v){
+  if(v===null||v===undefined)return "";
+  let s=String(v).trim(); if(!s)return "";
+  s=s.replace(/^\s*\d+\s*[.．]\s*/,"");            // "1.노형찬" → "노형찬"
+  if(/^\d+$/.test(s))return "";                    // 빈 슬롯("7")
+  return s.trim();
+}
+function imParse(rows,month){
+  const head=rows[0]||[];
+  const cols=[];
+  for(let c=1;c<head.length;c++){ const nm=imCleanName(head[c]); if(nm)cols.push({c,name:nm}); }
+  const days=[];
+  for(let r=1;r<rows.length;r++){
+    const lab=String((rows[r]||[])[0]||"").trim();
+    const dm=/^(\d{1,2})일$/.exec(lab);
+    if(!dm)continue;
+    const day=Number(dm[1]);
+    const get=(off)=>rows[r+off]||[];
+    const rIn=get(1), rOut=get(2), rAcad=get(3), rEtc=get(4), rStudy=get(5);
+    // 라벨 정합성 확인
+    if(String(rIn[0]||"").indexOf("등원")<0) continue;
+    days.push({day,rIn,rOut,rAcad,rEtc,rStudy});
+  }
+  const recs=[];
+  const nameSet=new Set();
+  const dupNames=[]; const seen=new Set();
+  cols.forEach(({name})=>{ if(seen.has(name)&&dupNames.indexOf(name)<0)dupNames.push(name); seen.add(name); });
+  cols.forEach(({c,name})=>{
+    nameSet.add(name);
+    days.forEach(d=>{
+      const inM=imToMin(d.rIn[c]), outM=imToMin(d.rOut[c]);
+      const acad=imToMin(d.rAcad[c])||0, etc=imToMin(d.rEtc[c])||0;
+      const study=imToMin(d.rStudy[c]);
+      if(inM==null && (!study))return;                       // 미등원 → 기록 생성 안 함
+      const date=`${month}-${String(d.day).padStart(2,"0")}`;
+      const outings=[];
+      if(acad>0)outings.push({cat:"학원수업",purpose:"엑셀 자동",min:acad});
+      if(etc>0)outings.push({cat:"기타",purpose:"엑셀 자동",min:etc});
+      recs.push({name,date,
+        inTime: inM!=null?`${String(Math.floor(inM/60)).padStart(2,"0")}:${String(inM%60).padStart(2,"0")}`:"",
+        outTime: outM!=null?`${String(Math.floor(outM/60)).padStart(2,"0")}:${String(outM%60).padStart(2,"0")}`:"",
+        outings, studyMin: study||0});
+    });
+  });
+  return {names:[...nameSet],recs,dupNames};
+}
+function imRender(){
+  const box=$("imPreview"); if(!box)return;
+  if(!_imParsed){ box.innerHTML=""; $("imRun").disabled=true; return; }
+  const {names,recs}=_imParsed;
+  const known=new Map(); S.students.forEach(s=>known.set(s.name.trim(),s.id));
+  const matched=names.filter(n=>known.has(n));
+  const missing=names.filter(n=>!known.has(n));
+  const useRecs=recs.filter(r=>known.has(r.name));
+  _imParsed.useRecs=useRecs;
+  box.innerHTML=`<div class="im-box">
+    <div class="im-row"><span class="im-tag">학생</span><span><b class="im-ok">${matched.length}명 매칭</b>${missing.length?` · <b class="im-no">${missing.length}명 미등록</b>`:""}</span></div>
+    ${missing.length?`<div class="im-row" style="align-items:flex-start"><span class="im-tag">미등록</span><span style="color:var(--alert);font-size:12px">${missing.map(ntEsc).join(" · ")}<br><span style="color:var(--muted)">→ 학생관리에서 먼저 등록하면 함께 가져옵니다. (지금은 건너뜁니다)</span></span></div>`:""}
+    <div class="im-row"><span class="im-tag">기록</span><span><b>${useRecs.length}건</b> (매칭 학생 기준) · 미등록 학생 ${recs.length-useRecs.length}건 제외</span></div>
+    ${(_imParsed.dupNames&&_imParsed.dupNames.length)?`<div class="im-row" style="align-items:flex-start"><span class="im-tag" style="background:#f7efdc;color:#9a6a16">중복</span><span style="font-size:12px;color:#9a6a16"><b>동명이인 열이 있습니다: ${_imParsed.dupNames.map(ntEsc).join(" · ")}</b><br><span style="color:var(--muted)">엑셀에서 이름을 다르게(예: 이준희A / 이준희B) 구분한 뒤 다시 올리세요. 지금 진행하면 뒤 열이 앞 열을 덮어씁니다.</span></span></div>`:""}
+  </div>`;
+  $("imRun").disabled=!useRecs.length;
+  $("imMeta").textContent=useRecs.length?`${useRecs.length}건 준비됨`:"가져올 기록이 없습니다";
+}
+$("imFile").onchange=(e)=>{
+  const file=e.target.files&&e.target.files[0]; if(!file)return;
+  const month=$("imMonth").value; if(!month){ alert("기준 년월을 먼저 선택하세요."); $("imFile").value=""; return; }
+  const fr=new FileReader();
+  fr.onload=(ev)=>{
+    try{
+      const wb=XLSX.read(new Uint8Array(ev.target.result),{type:"array"});
+      const shName=wb.SheetNames.find(n=>n.indexOf("순공")>=0)||wb.SheetNames[0];
+      const rows=XLSX.utils.sheet_to_json(wb.Sheets[shName],{header:1,raw:true,defval:""});
+      _imRows=rows; _imParsed=imParse(rows,month);
+      if(!_imParsed.recs.length){ alert("읽을 기록이 없습니다. 시트 형식(열=학생, 6행=하루)을 확인하세요."); }
+      imRender();
+    }catch(err){ console.error(err); alert("엑셀을 읽지 못했습니다: "+err.message); }
+  };
+  fr.readAsArrayBuffer(file);
+};
+$("imMonth").onchange=()=>{ if(_imRows&&$("imMonth").value){ _imParsed=imParse(_imRows,$("imMonth").value); imRender(); } };
+$("imRun").onclick=()=>{
+  if(!isMgr())return alert("원장·실장만 가져올 수 있습니다.");
+  if(!_imParsed||!_imParsed.useRecs||!_imParsed.useRecs.length)return;
+  const known=new Map(); S.students.forEach(s=>known.set(s.name.trim(),s.id));
+  let n=0;
+  _imParsed.useRecs.forEach(r=>{
+    const sid=known.get(r.name); if(!sid)return;
+    S.logs[sid]=S.logs[sid]||{};
+    const prev=S.logs[sid][r.date]||{};
+    // 시간 항목만 갱신 — 코멘트·단어·테스트·사유는 보존
+    S.logs[sid][r.date]=Object.assign({},prev,{
+      status: prev.status && prev.status!=="정상" ? prev.status : "정상",
+      inTime:r.inTime, outTime:r.outTime, outings:r.outings, studyMin:r.studyMin,
+      reason: prev.reason||"", tests: prev.tests||[], comments: prev.comments||[],
+      vocab: prev.vocab!==undefined?prev.vocab:null
+    });
+    n++;
+  });
+  save();
+  toast(`${n}건 가져왔습니다 — 리포트에 자동 반영됩니다`);
+  $("imMeta").textContent=`✓ ${n}건 등록 완료 (${new Date().toLocaleTimeString("ko-KR")})`;
+  renderSilRecent(); renderAnalysis();
+};
+
+/* ===================================================== 파일럿: 학생 앱 사용 현황 */
+const US_LABEL={today:"오늘",cond:"지휘대",explore:"세특탐색",record:"내 기록",sched:"스케줄",mock:"성적",plan:"학습계획서",notice:"공지"};
+function renderUsage(){
+  if(!$("usTable"))return;
+  const rows=S.students.map(s=>({s,u:(S.usage||{})[s.id]})).filter(x=>x.u);
+  if(!rows.length){
+    $("usSummary").innerHTML=`<div class="hint">아직 학생 앱 접속 기록이 없습니다. 학생 계정을 연결하고 주소를 안내하세요.</div>`;
+    $("usTable").innerHTML=""; return;
+  }
+  // 탭별 총 열람 수
+  const tot={}; Object.keys(US_LABEL).forEach(k=>tot[k]=0);
+  rows.forEach(({u})=>{ Object.entries(u.tabs||{}).forEach(([k,v])=>{ if(k in tot)tot[k]+=Number(v)||0; }); });
+  const max=Math.max(1,...Object.values(tot));
+  const ranked=Object.entries(tot).sort((a,b)=>b[1]-a[1]);
+  $("usSummary").innerHTML=`<div style="display:flex;flex-direction:column;gap:6px">`+ranked.map(([k,v])=>
+    `<div style="display:flex;align-items:center;gap:9px">
+      <span style="flex:0 0 76px;font-size:12px;font-weight:700;color:${v?"var(--ink)":"var(--muted)"}">${US_LABEL[k]}</span>
+      <span style="flex:1;height:9px;background:var(--line-2);border-radius:5px;overflow:hidden"><i style="display:block;height:100%;width:${Math.round(v/max*100)}%;background:${v?"linear-gradient(90deg,#c9a24a,var(--gold))":"transparent"};border-radius:5px"></i></span>
+      <span style="flex:0 0 46px;text-align:right;font-size:12px;font-weight:800;color:${v?"var(--ink)":"var(--muted)"}">${v}회</span>
+    </div>`).join("")+`</div>
+    <div class="hint" style="margin-top:10px">0회인 화면은 <b>학생이 한 번도 안 연 기능</b>입니다.</div>`;
+
+  const _t=new Date(); const days7=[];
+  for(let i=0;i<7;i++){ const d=new Date(_t); d.setDate(d.getDate()-i);
+    days7.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`); }
+  $("usTable").innerHTML=`<table><thead><tr><th>학생</th><th class="num">접속일</th><th class="num">최근 7일</th><th>마지막 접속</th><th>가장 많이 본 화면</th></tr></thead><tbody>`+
+    rows.sort((a,b)=>(b.u.days||[]).length-(a.u.days||[]).length).map(({s,u})=>{
+      const days=(u.days||[]); const recent=days.filter(d=>days7.includes(d)).length;
+      const top=Object.entries(u.tabs||{}).sort((a,b)=>b[1]-a[1])[0];
+      const last=u.lastSeen?u.lastSeen.slice(0,10):"–";
+      const stale=u.lastSeen? Math.floor((Date.now()-new Date(u.lastSeen).getTime())/86400000):999;
+      return `<tr><td><b>${esc(s.name)}</b> <span class="tag">${esc(s.grade)}</span></td>
+        <td class="num">${days.length}일</td>
+        <td class="num" style="color:${recent>=3?"var(--ok)":recent>0?"var(--warn)":"var(--alert)"};font-weight:800">${recent}일</td>
+        <td style="color:${stale>=7?"var(--alert)":"var(--text)"}">${last}${stale>=7&&stale<999?` <span style="font-size:11px">(${stale}일 전)</span>`:""}</td>
+        <td>${top?US_LABEL[top[0]]+" ("+top[1]+"회)":"–"}</td></tr>`;
+    }).join("")+`</tbody></table>`;
+}
+
+/* ===================================================== 원장 모듈: 관제탑 (지휘대 상태 렌즈)
+   법 경계: 생기부 원문·상담 답변서 원문은 저장/표시하지 않는다. note = 방향(다음 행동)만. */
+const TW_STEPS=[
+  {key:"s0",label:"관심 정리",tool:"써밋",dir:"관심을 넓게 열어두게 하세요. 진로를 좁혀 끼워맞추지 말 것 — 교과 역량이 우선입니다."},
+  {key:"s1",label:"어디가 정보탐색",tool:"어디가",dir:"어디가 답변에 출처가 붙는지 학생과 함께 확인하세요. 출처 없는 판단은 쓰지 않습니다."},
+  {key:"s2",label:"조합·세특 통찰",tool:"써밋",dir:"닫힌 판정(\"이건 못 함\") 금지. \"이만큼 차 있고 여기 채우면 이렇게 이어진다\"는 열린 방향으로."},
+  {key:"s3",label:"함께학교 상담",tool:"함께학교",dir:"답변서 원문을 앱에 올리지 않게 하세요. 방향만 실행 항목으로. 신청서 질 = 답변 질이니 질문을 다듬어 주세요."},
+  {key:"s4",label:"실행 설계·추적",tool:"써밋",dir:"가이드지 대필이 아닙니다. 학교가 무대 — 정규 수업·수행 안에서 학생이 직접. 막연하면 구체적 한 걸음으로 좁혀 주세요."},
+  {key:"s5",label:"EBSi 정량 위치",tool:"EBSi",dir:"정량(교과·정시)은 그대로 신뢰. 단 종합전형은 이 숫자로 줄세우지 마세요 — 정성입니다."},
+  {key:"s6",label:"학종 상담",tool:"어디가",dir:"답변서 원문 미보관. 진단의 \"다음 행동\"만 실행 항목으로."},
+  {key:"s7",label:"원장 리포트",tool:"써밋",dir:"출처·근거를 학부모에게 보여주며 설득하세요. 날조 수치(합격률 등) 금지."},
+];
+const TW_GRADE={1:["s0","s1","s2","s3","s4","s7"],2:["s0","s1","s2","s3","s4","s5","s7"],3:["s0","s1","s2","s4","s5","s6","s7"]};
+function twGradeNum(g){ return g==="고1"?1:g==="고2"?2:3; }
+const TW_STALL_DAYS=14;
+function twCell(sid,key,gnum){
+  if(!(TW_GRADE[gnum]||[]).includes(key)) return {s:"na",days:null};
+  const st=((S.conductor||{})[sid]||{})[key];
+  if(!st||!st.status) return {s:"wait",days:null};
+  if(st.status==="done") return {s:"done",days:null};
+  let days=null;
+  if(st.updatedAt){ days=Math.floor((Date.now()-new Date(st.updatedAt).getTime())/86400000); }
+  if(days!=null&&days>=TW_STALL_DAYS) return {s:"stuck",days};   // 파생: 저장하지 않음
+  return {s:st.status==="prog"?"prog":"wait",days};
+}
+let twStuckOnly=false, twOpen=null;
+function twRows(){
+  const g=$("twGrade")?$("twGrade").value:"";
+  return S.students.filter(s=>!g||s.grade===g);
+}
+function renderTower(){
+  if(!$("twMx"))return;
+  const rows=twRows();
+  // 코칭 큐: 정체 단계 보유 학생
+  const q=[];
+  rows.forEach(s=>{ const gn=twGradeNum(s.grade);
+    (TW_GRADE[gn]||[]).forEach(k=>{ const c=twCell(s.id,k,gn); if(c.s==="stuck")q.push({sid:s.id,name:s.name,step:k,days:c.days}); }); });
+  q.sort((a,b)=>b.days-a.days);
+  $("twQueue").innerHTML=q.length?q.slice(0,8).map(x=>{
+    const st=TW_STEPS.find(t=>t.key===x.step);
+    return `<button class="tw-pill stuck" data-q="${x.sid}" type="button">${esc(x.name)} · ${st.label} ${x.days}일 정체</button>`;
+  }).join(""):`<span class="hint" style="margin:0">정체된 학생이 없습니다.</span>`;
+  $("twQueue").querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{ twOpen=b.dataset.q; renderTower(); });
+
+  const list=twStuckOnly? rows.filter(s=>q.some(x=>x.sid===s.id)) : rows;
+  const head=`<thead><tr><th class="nm">학생</th>${TW_STEPS.map(t=>`<th>${t.label}</th>`).join("")}</tr></thead>`;
+  const body=list.map(s=>{ const gn=twGradeNum(s.grade);
+    const tds=TW_STEPS.map(t=>{ const c=twCell(s.id,t.key,gn);
+      const txt=c.s==="done"?"✓":c.s==="prog"?"·":c.s==="stuck"?(c.days+"d"):c.s==="wait"?"":"";
+      return `<td><div class="cell c-${c.s}">${txt}</div></td>`; }).join("");
+    return `<tr><td><div class="tw-nm" data-open="${s.id}">${esc(s.name)}<small>${s.grade}</small></div></td>${tds}</tr>`;
+  }).join("");
+  $("twMx").innerHTML=head+`<tbody>${body||`<tr><td colspan="9" style="padding:14px;color:var(--muted);font-size:13px">해당 학생이 없습니다.</td></tr>`}</tbody>`;
+  $("twMx").querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{ twOpen=(twOpen===b.dataset.open?null:b.dataset.open); renderTower(); });
+  renderTwDrawer();
+}
+function renderTwDrawer(){
+  const box=$("twDrawer"); if(!box)return;
+  if(!twOpen){ box.innerHTML=""; return; }
+  const s=S.students.find(x=>x.id===twOpen); if(!s){ box.innerHTML=""; return; }
+  const gn=twGradeNum(s.grade);
+  const seq=(TW_GRADE[gn]||[]);
+  const stuck=seq.map(k=>({k,c:twCell(s.id,k,gn)})).find(x=>x.c.s==="stuck");
+  const nowK=seq.find(k=>twCell(s.id,k,gn).s!=="done");
+  const coachStep=TW_STEPS.find(t=>t.key===(stuck?stuck.k:nowK));
+  const steps=seq.map(k=>{ const t=TW_STEPS.find(x=>x.key===k); const c=twCell(s.id,k,gn);
+    const st=((S.conductor||{})[s.id]||{})[k]||{};
+    const lbl=c.s==="done"?"✓":c.s==="prog"?"·":c.s==="stuck"?c.days+"d":"";
+    return `<div class="tw-step"><div class="tw-si c-${c.s}">${lbl}</div>
+      <div style="flex:1"><div style="font-size:12.5px;font-weight:700;color:var(--ink)">${t.label} <span class="tag" style="background:#f0eee8;color:var(--muted)">${t.tool}</span></div>
+      ${st.note?`<div style="font-size:12px;color:var(--text);margin-top:3px">${esc(st.note)}</div>`:`<div style="font-size:11.5px;color:var(--muted);margin-top:3px">기록 없음</div>`}
+      ${st.updatedAt?`<div style="font-size:10.5px;color:var(--muted);margin-top:2px">${st.updatedAt.slice(0,10)}</div>`:""}</div></div>`;
+  }).join("");
+  box.innerHTML=`<div class="tw-dr">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+      <div><b style="font-size:15px;color:var(--ink)">${esc(s.name)}</b> <span class="tag">${s.grade}</span>${s.target?` <span style="font-size:12px;color:var(--muted)">목표 ${esc(s.target)}</span>`:""}</div>
+      <button class="btn ghost sm" type="button" data-close>닫기</button>
+    </div>
+    ${steps}
+    ${coachStep?`<div class="tw-coach"><b>원장 코칭 — ${coachStep.label}</b><br>${coachStep.dir}</div>`:`<div class="tw-coach">이번 사이클을 모두 마쳤습니다. 다음 사이클을 설계하세요.</div>`}
+    <div style="font-size:11px;color:var(--muted);margin-top:9px">기록은 학생이 입력한 <b>방향(다음 행동)</b>입니다. 생기부·상담 답변서 원문은 저장하지 않습니다.</div>
+  </div>`;
+  box.querySelector("[data-close]").onclick=()=>{ twOpen=null; renderTower(); };
+}
+$("twGrade").onchange=renderTower;
+$("twStuck").onclick=()=>{ twStuckOnly=!twStuckOnly; $("twStuck").textContent=twStuckOnly?"전체 보기":"정체만 보기"; renderTower(); };
+
 /* ===================================================== 실장 모듈: 학원 공지·일정 */
 function ntEsc(s){ return (s==null?"":String(s)).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;"); }
 let _ntExams=[],_ntNotices=[],_ntInfo=[];
@@ -1431,24 +2019,45 @@ function renderCheckin(){
     if(st==="정상")cN++; else if(st==="지각")cL++; else if(st==="조퇴")cE++; else if(st==="결석")cA++; else cNone++;
     const isOut=!!l.outStart; if(isOut)cOut++;
     const chip=(v,label)=>`<button class="ci-st ${st===v?("on s-"+CI_KEY[v]):""}" data-act="st" data-sid="${s.id}" data-v="${v}">${label}</button>`;
-    const inBtn = l.inTime? `<span class="ci-time">등원 ${l.inTime}</span>` : `<button class="ci-mini" data-act="in" data-sid="${s.id}">등원 찍기</button>`;
-    const outBtn = l.outTime? `<span class="ci-time">하원 ${l.outTime}</span>` : `<button class="ci-mini ghost" data-act="out" data-sid="${s.id}">하원 찍기</button>`;
+    const inBtn = l.inTime
+      ? `<span class="ci-tedit"><em>등원</em><input type="time" class="ci-tin" data-t="in" data-sid="${s.id}" value="${l.inTime}"></span>`
+      : `<button class="ci-mini" data-act="in" data-sid="${s.id}">등원 찍기</button>`;
+    const outBtn = l.outTime
+      ? `<span class="ci-tedit"><em>하원</em><input type="time" class="ci-tin" data-t="out" data-sid="${s.id}" value="${l.outTime}"></span>`
+      : `<button class="ci-mini ghost" data-act="out" data-sid="${s.id}">하원 찍기</button>`;
     const goBtn = isOut? `<button class="ci-mini warn" data-act="back" data-sid="${s.id}">복귀 (외출 ${l.outStart}~)</button>` : `<button class="ci-mini ghost" data-act="go" data-sid="${s.id}">외출</button>`;
     return `<div class="ci-row ${st==="결석"?"absent":""}">
       <div class="ci-name" data-act="detail" data-sid="${s.id}"><b>${ciEsc(s.name)}</b><span class="tag">${ciEsc(s.grade)}</span>${isOut?'<span class="ci-badge">외출중</span>':''}</div>
       <div class="ci-stwrap">${chip("정상","출석")}${chip("지각","지각")}${chip("조퇴","조퇴")}${chip("결석","결석")}</div>
-      <div class="ci-times">${inBtn}${outBtn}${goBtn}</div>
+      <div class="ci-times">${inBtn}${outBtn}${goBtn}${l.studyMin?`<span class="ci-sm">순공 ${fmtMinShort(l.studyMin)}</span>`:""}</div>
     </div>`;
   }).join("");
   if($("ciSummary"))$("ciSummary").innerHTML=`<span class="ci-sum s-normal">출석 ${cN}</span><span class="ci-sum s-late">지각 ${cL}</span><span class="ci-sum s-early">조퇴 ${cE}</span><span class="ci-sum s-absent">결석 ${cA}</span><span class="ci-sum">미체크 ${cNone}</span>${cOut?`<span class="ci-sum s-out">외출중 ${cOut}</span>`:""}`;
   box.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>ciAct(b.dataset.act,b.dataset.sid,b.dataset.v));
+  box.querySelectorAll("[data-t]").forEach(inp=>inp.onchange=()=>ciSetTime(inp.dataset.sid,inp.dataset.t,inp.value));
+  ciBulkTag();
+}
+/* 등원·하원 시각 직접 수정 → 순공 자동 재계산 */
+function ciSetTime(sid,kind,val){
+  if(!isMgr())return alert("원장·실장만 수정할 수 있습니다.");
+  const date=$("ciDate").value||ciTodayISO();
+  S.logs[sid]=S.logs[sid]||{};
+  const base={status:"",inTime:"",outTime:"",reason:"",outings:[],studyMin:0,vocab:null,tests:[],comments:[],outStart:""};
+  const l=Object.assign({},base,S.logs[sid][date]||{});
+  if(kind==="in")l.inTime=val; else l.outTime=val;
+  if(!l.status)l.status="정상";
+  const im=toMin(l.inTime),om=toMin(l.outTime);
+  if(im!=null&&om!=null&&om<=im){ alert("하원 시각이 등원 시각보다 빠릅니다. 다시 확인하세요."); renderCheckin(); return; }
+  S.logs[sid][date]=ciRecalc(l);
+  save(); renderCheckin();
+  toast(`${(S.students.find(s=>s.id===sid)||{}).name} ${kind==="in"?"등원":"하원"} ${val} 수정 — 순공 ${fmtMinShort(S.logs[sid][date].studyMin||0)}`);
 }
 function ciAct(act,sid,v){
   const date=$("ciDate").value||ciTodayISO();
   S.logs[sid]=S.logs[sid]||{};
   const base={status:"",inTime:"",outTime:"",reason:"",outings:[],studyMin:0,vocab:null,tests:[],comments:[],outStart:""};
   const l=Object.assign({},base,S.logs[sid][date]||{});
-  const t=nowHM();
+  const t=ciNow();
   if(act==="detail"){ switchTab("siljang"); $("silStudent").value=sid; $("silDate").value=date; try{loadSil(sid,date);}catch(e){} return; }
   if(act==="st"){
     l.status=v;
@@ -1462,9 +2071,62 @@ function ciAct(act,sid,v){
   S.logs[sid][date]=l;
   save();
   renderCheckin();
+  ciBulkTag();
   const msg={st:v+" 처리",in:"등원 "+t,out:"하원 "+t,go:"외출 시작 "+t,back:"복귀 "+t}[act]||"저장";
   toast(msg);
 }
+function ciNow(){   // 기준 시각이 지정돼 있으면 그 시각으로 기록 (나중에 몰아서 입력 가능)
+  const m=$("ciAtMode"), v=$("ciAtTime");
+  if(m&&m.checked&&v&&v.value)return v.value;
+  return nowHM();
+}
+function ciRecalc(l){
+  if(l.status==="결석")return l;
+  const im=toMin(l.inTime),om=toMin(l.outTime);
+  const outMin=(l.outings||[]).reduce((a,o)=>a+(Number(o.min)||0),0);
+  if(im!=null&&om!=null&&om>im)l.studyMin=Math.max(0,om-im-outMin);
+  return l;
+}
+function ciPending(){
+  const date=$("ciDate").value||todayISO();
+  const base={status:"",inTime:"",outTime:"",reason:"",outings:[],studyMin:0,vocab:null,tests:[],comments:[],outStart:""};
+  const noIn=[],noOut=[];
+  S.students.forEach(s=>{
+    const l=Object.assign({},base,(S.logs[s.id]||{})[date]||{});
+    if(l.status==="결석")return;
+    if(!l.inTime)noIn.push(s.id);
+    else if(!l.outTime)noOut.push(s.id);
+  });
+  return {date,noIn,noOut};
+}
+function ciBulkTag(){
+  if(!$("ciNotIn"))return;
+  const {noIn,noOut}=ciPending();
+  $("ciNotIn").textContent=noIn.length?`대상 ${noIn.length}명`:"대상 없음";
+  $("ciNotOut").textContent=noOut.length?`대상 ${noOut.length}명`:"대상 없음";
+}
+function ciBulk(kind){
+  if(!isMgr())return alert("원장·실장만 가능합니다.");
+  const {date,noIn,noOut}=ciPending();
+  const list=kind==="in"?noIn:noOut;
+  const t=(kind==="in"?$("ciBulkIn").value:$("ciBulkOut").value);
+  if(!t)return alert("시각을 입력하세요.");
+  if(!list.length)return alert(kind==="in"?"등원 처리할 학생이 없습니다.":"하원 처리할 학생이 없습니다.");
+  const names=list.map(id=>(S.students.find(s=>s.id===id)||{}).name).filter(Boolean);
+  if(!confirm(`${names.length}명을 ${t}에 ${kind==="in"?"등원":"하원"} 처리합니다.\n\n${names.slice(0,10).join(", ")}${names.length>10?` 외 ${names.length-10}명`:""}\n\n진행할까요?`))return;
+  const base={status:"",inTime:"",outTime:"",reason:"",outings:[],studyMin:0,vocab:null,tests:[],comments:[],outStart:""};
+  list.forEach(sid=>{
+    S.logs[sid]=S.logs[sid]||{};
+    const l=Object.assign({},base,S.logs[sid][date]||{});
+    if(kind==="in"){ l.inTime=t; if(!l.status)l.status="정상"; }
+    else { l.outTime=t; if(!l.status)l.status="정상"; if(l.outStart){ const mins=Math.max(0,(toMin(t)||0)-(toMin(l.outStart)||0)); l.outings=(l.outings||[]).concat([{cat:"외출",purpose:"",min:mins}]); l.outStart=""; } }
+    S.logs[sid][date]=ciRecalc(l);
+  });
+  save(); renderCheckin();
+  toast(`${list.length}명 ${kind==="in"?"등원":"하원"} 일괄 처리 (${t})`);
+}
+$("ciAllIn").onclick=()=>ciBulk("in");
+$("ciAllOut").onclick=()=>ciBulk("out");
 $("ciDate").onchange=renderCheckin;
 setInterval(()=>{ if($("ciClock"))$("ciClock").textContent=nowHM(); if($("tab-checkin")&&!$("tab-checkin").hidden){ const b=$("ciBoard"); /* 분 갱신만, 입력 없음 */ } },20000);
 
@@ -1688,6 +2350,10 @@ $("genReport").onclick=()=>{
   const rankList=S.students.map(s=>({id:s.id,t:summary(s.id,month).total})).filter(x=>x.t>0).sort((a,b)=>b.t-a.t);
   const rIdx=rankList.findIndex(x=>x.id===sid); const rankShow=rankList.length>=3&&rIdx>=0;
   const _wlogo=(document.querySelector(".brand img")||{}).src||LOGO_NAVY;
+  const _mx=Math.max(1,...sm.ls.map(l=>(Number(l.studyMin)||0)+(l.outings||[]).reduce((a,o)=>a+(["학원수업","보강"].includes(o.cat)?(Number(o.min)||0):0),0)));
+  const goalPct=(st.goalDailyMin&&st.goalDailyMin<=_mx)?Math.round(st.goalDailyMin/_mx*100):null;
+  const avgPct=(sm.dayAvg&&sm.dayAvg<=_mx)?Math.round(sm.dayAvg/_mx*100):null;
+
   const aca=S.academy||{notices:[],exams:[],admInfo:[]};
   const repSec=(t,sub)=>`<div class="rep-sec"><span class="mk"></span><div class="t">${t}${sub?` <small>${sub}</small>`:""}</div></div>`;
   const DL_=["월","화","수","목","금","토","일"];
@@ -1711,6 +2377,49 @@ $("genReport").onclick=()=>{
     </div>`;
     const srows=["kor","math","eng","sci"].map(k=>{ const rc=last.g[k]; let sb=null; mPts.forEach(p=>{ if(p.g[k]!=null&&(sb==null||p.g[k]<sb))sb=p.g[k]; }); return (rc!=null||sb!=null)?`<tr><td class="s">${SK[k]}</td><td>${rc!=null?rc+"등급":"–"}</td><td>${sb!=null?sb+"등급":"–"}</td></tr>`:""; }).join("");
     mockBlock=repSec("모의고사 성적","그래프 · 분석 통계")+stat+`<div class="mk-graph">${bars}</div><div class="mk-dates">${dates}</div><div class="mk-legend">막대가 높을수록 우수(평균 등급이 낮음) · 막대 위 숫자는 평균 등급</div>`+(srows?`<table class="rep-mini"><thead><tr><th>과목</th><th>최근 등급</th><th>기간 최고</th></tr></thead><tbody>${srows}</tbody></table>`:"");
+  }
+  // 이달의 진단 (규칙 기반 · 추정 없음)
+  const _dg=[];
+  if(pmS.total&&totDiff>0)_dg.push(`전월 대비 총 학업시간이 <b>${fmtMinShort(Math.abs(totDiff))} 증가</b>했습니다.`);
+  else if(pmS.total&&totDiff<0)_dg.push(`전월 대비 총 학업시간이 <b>${fmtMinShort(Math.abs(totDiff))} 감소</b>했습니다.`);
+  if(st.goalDailyMin&&sm.dayAvg)_dg.push(sm.dayAvg>=st.goalDailyMin?`일평균이 목표(${fmtMinShort(st.goalDailyMin)})를 <b>충족</b>했습니다.`:`일평균이 목표 대비 <b>${fmtMinShort(st.goalDailyMin-sm.dayAvg)} 부족</b>합니다.`);
+  if(sm.late+sm.absent+sm.early>0)_dg.push(`출결 특이사항 <b>${sm.late+sm.absent+sm.early}건</b>(지각 ${sm.late}·조퇴 ${sm.early}·결석 ${sm.absent})이 있었습니다.`);
+  if(sm.focusRate!=null)_dg.push(`센터 체류 대비 순공률은 <b>${sm.focusRate}%</b>입니다.`);
+  if(mPts&&mPts.length>1){ const _l=mPts[mPts.length-1],_p=mPts[mPts.length-2]; const d=_l.avg-_p.avg;
+    if(d<0)_dg.push(`모의고사 평균 등급이 <b>${Math.abs(d).toFixed(1)}등급 개선</b>됐습니다.`);
+    else if(d>0)_dg.push(`모의고사 평균 등급이 <b>${Math.abs(d).toFixed(1)}등급 하락</b>했습니다.`); }
+  const diagBlock=_dg.length?`<div class="rp-diag"><div class="dg-k">이달의 진단</div><ul>${_dg.slice(0,4).map(x=>`<li>${x}</li>`).join("")}</ul><div class="dg-f">위 내용은 입력된 출결·학업시간·성적 기록에서 직접 산출된 사실이며, 예측·추정은 포함하지 않습니다.</div></div>`:"";
+  // 영어 어휘 학습 (써밋 보카 · study-summary/v1)
+  const _vs=((S.vocasum||{})[sid]||{})[month]||null;
+  let vocaBlock="";
+  if(_vs){
+    if(_vs.html){
+      vocaBlock=repSec("영어 어휘 학습","써밋 보카")+`<div class="rep-voca-html">${_vs.html}</div>`;
+    } else {
+      const m=_vs.metrics||{};
+      const dl=m.accuracyDeltaPct;
+      const arrow=(dl==null||dl==="")?"":(Number(dl)>=0?`<span class="vc-up">▲ ${Math.abs(Number(dl))}%p</span>`:`<span class="vc-dn">▼ ${Math.abs(Number(dl))}%p</span>`);
+      const bar=(list,cls)=> (list||[]).length? `<div class="vc-bars">`+list.map(x=>{
+          const rate=Number(x.rate)||0;
+          return `<div class="vc-b"><div class="vc-bt"><span>${ntEsc(x.type||"")}</span><b>${rate}%</b></div><div class="vc-bg"><i class="${cls}" style="width:${Math.max(2,Math.min(100,rate))}%"></i></div></div>`;
+        }).join("")+`</div>` : `<div class="rline"><div class="rv" style="color:var(--muted)">해당 없음</div></div>`;
+      vocaBlock=repSec("영어 어휘 학습",`${ntEsc(_vs.klass||"")}${_vs.klass&&_vs.teacher?" · ":""}${ntEsc(_vs.teacher||"")}`)
+      +`<div class="vc-head">${ntEsc(_vs.student||st.name)} · ${ntEsc(_vs.period||month)} 영어 어휘 학습</div>
+        <div class="stat-grid">
+          <div class="stat"><div class="k">학습일</div><div class="v">${m.studyDays??"–"}<small>${m.monthDays!=null?" / "+m.monthDays+"일":"일"}</small></div><div class="d flat">${(m.studyDays!=null&&m.monthDays)?Math.round(m.studyDays/m.monthDays*100)+"% 참여":"&nbsp;"}</div></div>
+          <div class="stat"><div class="k">진도</div><div class="v">${m.progressPct??"–"}<small>%</small></div><div class="d flat">${(m.wordsStudied!=null&&m.curriculumTotal!=null)?`${m.wordsStudied} / ${m.curriculumTotal} 단어`:"&nbsp;"}</div></div>
+          <div class="stat"><div class="k">정답률</div><div class="v">${m.accuracyPct??"–"}<small>%</small></div><div class="d">${arrow||"&nbsp;"}</div></div>
+          <div class="stat"><div class="k">최고 연속</div><div class="v">${m.bestStreakDays??"–"}<small>일</small></div><div class="d flat">연속 학습</div></div>
+        </div>
+        <div class="vc-two">
+          <div><div class="vc-k">강점</div>${bar(_vs.strengths,"vc-ok")}</div>
+          <div><div class="vc-k">보완</div>${bar(_vs.weaknesses,"vc-no")}</div>
+        </div>
+        ${(_vs.achievements&&_vs.achievements.length)?`<div class="vc-ach">${_vs.achievements.map(a=>`<span class="vc-chip">★ ${ntEsc(a)}</span>`).join("")}</div>`:""}
+        ${m.totalReviews!=null?`<div class="vc-sub">누적 복습 ${m.totalReviews.toLocaleString()}회</div>`:""}
+        ${_vs.teacherComment?`<div class="vc-note"><b>담당 교사 코멘트</b><br>${ntEsc(_vs.teacherComment).replace(/\n/g,"<br>")}</div>`:""}
+        ${_vs.nextGoal?`<div class="vc-goal"><b>다음 목표</b> · ${ntEsc(_vs.nextGoal).replace(/\n/g,"<br>")}</div>`:""}`;
+    }
   }
   // 생활관리 (실장 코멘트)
   const lifeNotes=[]; sm.ls.forEach(l=>(l.comments||[]).forEach(c=>{ if(c&&c.role==="실장"&&c.text)lifeNotes.push({date:l.date,text:c.text}); }));
@@ -1751,6 +2460,7 @@ $("genReport").onclick=()=>{
       <div class="rc-student"><div class="rc-name">${st.name}<small>${st.school||""} ${st.grade}${st.target?" · 목표 "+st.target:""}</small></div><div class="rc-period">${month.replace("-","년 ")}월</div></div>
     </div>
     <div class="rep-body">
+    ${diagBlock}
     ${repSec("핵심 지표","이번 달 학습 요약")}
 
     <div class="stat-grid" style="margin:14px 0 8px">
@@ -1763,13 +2473,20 @@ $("genReport").onclick=()=>{
       ${rankShow?`<div class="stat"><div class="k">센터 내 순위</div><div class="v" style="font-size:18px">${rIdx+1}위 / ${rankList.length}명</div><div class="d flat">총학업 기준</div></div>`:""}
     </div>
 
-    <div class="grp">일자별 학업시간</div>
-    <div class="chart-box"><div class="barrow">${rBars}</div><div class="barlabels">${rLabs}</div></div>
-    <div class="legend"><span><i style="background:var(--center)"></i>센터 순공</span><span><i style="background:var(--ext)"></i>외부 학업(학원·보강)</span></div>
+    ${repSec("학습 추이","일자별 · 주차별 · 요일별")}
+    <div class="rp-chart">
+      <div class="rp-cwrap">
+        ${goalPct!=null?`<div class="rp-goal" style="bottom:${goalPct}%"><span>목표 ${fmtMinShort(st.goalDailyMin)}</span></div>`:""}
+        ${avgPct!=null?`<div class="rp-avg" style="bottom:${avgPct}%"><span>평균 ${fmtMinShort(sm.dayAvg)}</span></div>`:""}
+        <div class="barrow">${rBars}</div>
+      </div>
+      <div class="barlabels">${rLabs}</div>
+    </div>
+    <div class="legend"><span><i style="background:var(--center)"></i>센터 순공</span><span><i style="background:var(--ext)"></i>외부 학업(학원·보강)</span><span><i style="background:var(--gold);height:2px;border-radius:0"></i>목표선</span></div>
 
-    <div style="display:flex;gap:26px;flex-wrap:wrap;margin-top:16px">
-      <div style="flex:1;min-width:220px"><div class="grp">주차별 학업량</div><div class="wkbars">${rWk}</div></div>
-      <div style="flex:1;min-width:240px"><div class="grp">요일별 평균</div>${rDow}</div>
+    <div style="display:flex;gap:26px;flex-wrap:wrap;margin-top:20px">
+      <div style="flex:1;min-width:220px"><div class="rp-sub">주차별 학업량</div><div class="wkbars">${rWk}</div></div>
+      <div style="flex:1;min-width:240px"><div class="rp-sub">요일별 평균</div>${rDow}</div>
     </div>
 
     ${repSec("출결 · 시간 상세","핵심 지표")}
@@ -1785,6 +2502,7 @@ $("genReport").onclick=()=>{
 
     ${sm.vCount?`<div class="grp">단어 테스트</div><div class="rline"><div class="rk">누적</div><div class="rv">총 ${sm.vCount}회${sm.vPct!=null?` · 평균 정답률 ${sm.vPct}%`:""}${sm.vList.length&&sm.vList[sm.vList.length-1].range?` · 최근 ${sm.vList[sm.vList.length-1].range}`:""}</div></div>`:""}
     ${(sm.tPass+sm.tRetry)>0?`<div class="grp">학습 점검</div><div class="rline"><div class="rk">실시</div><div class="rv">총 ${sm.tPass+sm.tRetry}회 — 통과 ${sm.tPass} / 재점검 ${sm.tRetry}${Object.keys(sm.tSub).length?" · "+Object.entries(sm.tSub).map(([k,v])=>k+" "+v).join(", "):""}</div></div>`:""}
+    ${vocaBlock}
     ${mockBlock}
     ${lifeBlock}
     ${mentorBlock}
