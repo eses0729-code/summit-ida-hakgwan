@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>써밋대치IDA 학생 학습 화면</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+:root{
+  --ink:#22304f;--ink-2:#33446b;--gold:#b08840;--gold-soft:#e8dcc2;
+  --paper:#f5f3ee;--surface:#ffffff;--line:#e3e0d8;--line-2:#eeece4;
+  --muted:#7c7a72;--text:#2a2a28;
+  --ok:#2f7d5b;--ok-bg:#e7f3ec;--warn:#9a6a16;--warn-bg:#f7efdc;--alert:#a83722;--alert-bg:#f6e6e3;
+  --r:10px;--rs:7px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:"Pretendard",system-ui,-apple-system,sans-serif;background:var(--paper);color:var(--text);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3,.serif{font-family:"Nanum Myeongjo",serif}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:14px}
+.wrap{max-width:960px;margin:0 auto;padding:0 18px 80px}
+
+header.mast{background:var(--ink);color:#fff;border-bottom:3px solid var(--gold)}
+.mastin{max-width:960px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand .sym{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,#3b5180,#22304f);border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-family:"Nanum Myeongjo",serif;font-weight:800;color:var(--gold-soft);font-size:17px}
+.brand h1{margin:0;font-size:18px;letter-spacing:-.01em;color:#fff}
+.brand .sub{font-size:11px;color:#aeb8cf;margin-top:1px;font-family:"Pretendard"}
+.ctx{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ctx .who{background:#2b3a5c;color:#fff;border:1px solid #3f527b;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:600}
+.ctx button{background:transparent;color:#c9d2e6;border:1px solid #3f527b;border-radius:8px;padding:7px 11px;font-size:12.5px;font-weight:600}
+
+nav.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin:18px 0 20px;overflow-x:auto}
+nav.tabs button{background:none;border:none;padding:11px 15px;font-size:14px;color:var(--muted);font-weight:600;border-bottom:2px solid transparent;white-space:nowrap}
+nav.tabs button.active{color:var(--ink);border-bottom-color:var(--gold)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;margin-bottom:16px}
+.card h2{margin:0 0 4px;font-size:19px;color:var(--ink)}
+.eyebrow{font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--gold);margin-bottom:5px}
+.hint{font-size:12.5px;color:var(--muted);margin-bottom:12px}
+.tag{display:inline-block;background:var(--gold-soft);color:#6b5220;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:10px;vertical-align:middle}
+
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stat{background:#faf9f6;border:1px solid var(--line);border-radius:9px;padding:12px 13px}
+.stat .k{font-size:11px;color:var(--muted);font-weight:600;margin-bottom:4px}
+.stat .v{font-size:22px;font-weight:800;color:var(--ink)}
+.stat .v small{font-size:12px;font-weight:600;color:var(--muted);margin-left:2px}
+.stat .d{font-size:11px;margin-top:3px;font-weight:600;color:var(--muted)}
+.stat .d.up{color:var(--ok)} .stat .d.down{color:var(--alert)}
+
+.btn{background:var(--ink);color:#fff;border:1px solid var(--ink);border-radius:8px;padding:9px 15px;font-size:13.5px;font-weight:700}
+.btn.ghost{background:#fff;color:var(--ink);border-color:var(--line)}
+.btn.sm{padding:6px 11px;font-size:12.5px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11.5px;font-weight:700;color:var(--ink-2);margin-bottom:5px}
+.field input,.field textarea,.field select{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:var(--rs);background:#fff;color:var(--text)}
+
+table{border-collapse:collapse;width:100%}
+th{background:#f4f2ec;color:var(--ink);font-size:11.5px;font-weight:700;padding:7px 9px;text-align:left;border:1px solid var(--line)}
+td{border:1px solid var(--line);padding:7px 9px;font-size:13px;vertical-align:top}
+td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
+
+/* 오늘 할 일 / 이행 체크 */
+.todo{display:flex;flex-direction:column;gap:8px}
+.titem{display:flex;align-items:flex-start;gap:11px;border:1px solid var(--line);border-radius:9px;padding:11px 13px;background:#fff}
+.titem.done{background:#f4f8f5;border-color:#cfe4d8}
+.titem input[type=checkbox]{width:20px;height:20px;margin-top:1px;accent-color:var(--gold);flex:0 0 auto;cursor:pointer}
+.titem .tx{flex:1}
+.titem .sub{font-size:11px;color:var(--muted);font-weight:700;margin-bottom:2px}
+.titem .bd{font-size:13.5px;line-height:1.5}
+.titem.done .bd{color:var(--muted);text-decoration:line-through}
+.prog{height:9px;background:var(--line-2);border-radius:6px;overflow:hidden;margin:8px 0 4px}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,#c9a24a,var(--gold))}
+
+/* 그래프 */
+.bars{display:flex;align-items:flex-end;gap:4px;height:110px;border-bottom:1px solid var(--line);padding-top:14px}
+.bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}
+.bar i{display:block;width:70%;max-width:26px;background:linear-gradient(180deg,#3b5180,var(--ink));border-radius:3px 3px 0 0;min-height:3px}
+.bar em{font-size:9px;color:var(--muted);font-style:normal;margin-bottom:3px}
+.axis{display:flex;gap:4px;margin-top:4px}
+.axis span{flex:1;text-align:center;font-size:9px;color:var(--muted)}
+.mk-fill{background:linear-gradient(180deg,#c9a24a,var(--gold))!important}
+
+.rd{position:relative;padding-left:20px;border-left:2px solid var(--line)}
+.rd-i{position:relative;margin-bottom:13px}
+.rd-i::before{content:"";position:absolute;left:-25px;top:3px;width:9px;height:9px;border-radius:50%;background:var(--line);border:2px solid #fff}
+.rd-i.cur::before{background:var(--gold);box-shadow:0 0 0 3px rgba(176,136,64,.18)}
+.rd-m{font-weight:800;color:var(--ink);font-size:13px}
+.rd-i.cur .rd-m{color:var(--gold)}
+.rd-f{font-size:12.5px;color:var(--text);margin-top:2px}
+
+.notice{display:flex;gap:12px;padding:10px 13px;border:1px solid var(--line);border-radius:9px;background:#fff;margin-bottom:8px}
+.notice .nd{flex:0 0 48px;font-weight:800;color:var(--gold);font-size:12px}
+.exam{display:flex;align-items:center;gap:12px;padding:9px 13px;border:1px solid var(--line);border-radius:9px;margin-bottom:7px;background:#fff}
+.exam.up{border-color:var(--gold);background:#fcf9f2}
+.exam .dt{flex:0 0 84px;font-weight:800;color:var(--ink)}
+.exam .nm{flex:1;font-size:13px}
+.exam .bg{background:var(--gold);color:#fff;font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px}
+
+/* 로그인 */
+.gate{position:fixed;inset:0;background:linear-gradient(150deg,#22304f,#1a2540);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+.gate .box{background:#fff;border-radius:14px;padding:30px 26px;width:100%;max-width:380px}
+.gate .sym{width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,#3b5180,#22304f);display:flex;align-items:center;justify-content:center;font-family:"Nanum Myeongjo",serif;font-weight:800;color:var(--gold-soft);font-size:22px;margin-bottom:14px}
+.gate h2{margin:0 0 3px;font-size:21px;color:var(--ink)}
+.gate p{margin:0 0 18px;font-size:12.5px;color:var(--muted)}
+.gate .err{color:var(--alert);font-size:12.5px;margin-top:9px;display:none}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:9px;font-size:13.5px;font-weight:600;opacity:0;transition:.25s;z-index:60}
+.toast.on{transform:translateX(-50%) translateY(0);opacity:1}
+.empty{font-size:13px;color:var(--muted);padding:14px 0}
+.lawbox{font-size:11.5px;color:#96661a;background:#fdf6e9;border:1px solid #ecdcbb;border-radius:8px;padding:9px 12px;line-height:1.6}
+.ex-t{border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin-bottom:10px;background:#fff}
+.ex-t .th{font-weight:800;color:var(--ink);font-size:14px;margin-bottom:5px}
+.ex-t .bridge{font-size:11px;font-weight:700;color:var(--gold);margin-bottom:6px;letter-spacing:.02em}
+.ex-t .why{font-size:12.5px;color:var(--text);line-height:1.6;margin-bottom:8px}
+.ex-k{font-size:11px;font-weight:800;color:var(--ink-2);margin:8px 0 3px}
+.ex-t ul{margin:0;padding-left:16px}
+.ex-t li{font-size:12.5px;line-height:1.6;color:var(--text)}
+.ex-pick{margin-top:9px}
+.ex-saved{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:9px 12px;margin-bottom:7px;background:#faf9f6}
+.ex-saved .d{flex:0 0 44px;font-size:11px;color:var(--muted);font-weight:700}
+/* 지휘대 */
+.cd-now{background:linear-gradient(150deg,#22304f,#1a2540);color:#fff;border-radius:12px;padding:16px 18px;margin-bottom:16px}
+.cd-now .k{font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--gold-soft)}
+.cd-now .t{font-family:"Nanum Myeongjo",serif;font-size:19px;font-weight:800;margin-top:5px}
+.cd-now .g{font-size:12.5px;color:#c9d2e6;margin-top:5px;line-height:1.55}
+.cd-ridge{position:relative;padding-left:26px;border-left:2px solid var(--line)}
+.cd-st{position:relative;margin-bottom:14px;border:1px solid var(--line);border-radius:11px;background:#fff;padding:14px 16px}
+.cd-st::before{content:"";position:absolute;left:-32px;top:16px;width:11px;height:11px;border-radius:50%;background:var(--line);border:2px solid #fff}
+.cd-st.done::before{background:var(--ok)}
+.cd-st.now::before{background:var(--gold);box-shadow:0 0 0 4px rgba(176,136,64,.2)}
+.cd-st.now{border-color:var(--gold);box-shadow:0 2px 12px rgba(176,136,64,.10)}
+.cd-st.done{background:#f8faf9}
+.cd-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px}
+.cd-h .ti{font-weight:800;color:var(--ink);font-size:14.5px;flex:1;min-width:180px}
+.bdg{font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px;letter-spacing:.02em}
+.b-summit{background:var(--ink);color:#fff}
+.b-adiga{background:#e3ebf7;color:#2a5599}
+.b-ebsi{background:#e6f2ec;color:#2f7d5b}
+.b-together{background:#f7ecdc;color:#96661a}
+.st-chip{font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px}
+.st-done{background:var(--ok-bg);color:var(--ok)}
+.st-prog{background:var(--gold-soft);color:#6b5220}
+.st-wait{background:#eef0f3;color:#95999f}
+.cd-goal{font-size:12.5px;color:var(--text);line-height:1.6;margin-bottom:9px}
+.cd-path{font-size:11.5px;color:var(--muted);background:#f6f5f1;border-radius:7px;padding:6px 10px;margin-bottom:9px;font-weight:600}
+.cd-act{margin:0 0 9px;padding-left:17px}
+.cd-act li{font-size:12.5px;margin-bottom:3px}
+.cd-use{font-size:12px;color:#4a5875;background:#f4f6fa;border-left:3px solid var(--ink-2);border-radius:0 7px 7px 0;padding:8px 11px;margin-top:9px;line-height:1.55}
+.cd-lab{font-size:11px;font-weight:800;color:var(--ink-2);margin-bottom:4px}
+.cd-warn{font-size:11px;color:#96661a;background:#fdf6e9;border:1px solid #ecdcbb;border-radius:6px;padding:5px 9px;margin-top:5px}
+.cd-btns{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.lnk{background:#fff;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:8px 13px;font-size:12.5px;font-weight:700;text-decoration:none;display:inline-block}
+.lnk:hover{border-color:var(--gold)}
+.cd-dir{font-size:11.5px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+@media(max-width:640px){ .mastin{padding:12px 14px} .brand h1{font-size:16px} .card{padding:15px 14px} }
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <div class="box">
+    <div class="sym">S</div>
+    <h2>학생 로그인</h2>
+    <p>써밋대치IDA 학습관 · 개인 학습 화면</p>
+    <div class="field"><label>아이디(이메일)</label><input type="email" id="gEmail" autocomplete="username"></div>
+    <div class="field"><label>비밀번호</label><input type="password" id="gPw" autocomplete="current-password"></div>
+    <button class="btn" id="gBtn" style="width:100%">로그인</button>
+    <div class="err" id="gErr"></div>
+  </div>
+</div>
+
+<header class="mast">
+  <div class="mastin">
+    <div class="brand">
+      <div class="sym">S</div>
+      <div><h1>써밋대치IDA</h1><div class="sub">학생 학습 화면</div></div>
+    </div>
+    <div class="ctx">
+      <span class="who" id="who">—</span>
+      <button id="logout">로그아웃</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="tabs">
+    <button data-tab="today" class="active">오늘</button>
+    <button data-tab="cond">지휘대</button>
+    <button data-tab="explore">세특 탐색</button>
+    <button data-tab="record">내 기록</button>
+    <button data-tab="sched">스케줄</button>
+    <button data-tab="mock">성적</button>
+    <button data-tab="plan">학습계획서</button>
+    <button data-tab="notice">공지</button>
+  </nav>
+
+  <!-- 오늘 -->
+  <section id="tab-today">
+    <div class="card">
+      <div class="eyebrow">TODAY</div>
+      <h2 id="tdTitle">오늘</h2>
+      <div class="hint" id="tdDate">—</div>
+      <div class="stat-grid" id="tdStats"></div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">TODAY'S PLAN</div>
+      <h2>오늘 할 일</h2>
+      <div class="hint">주간 스케줄에서 오늘 요일 항목입니다. 완료하면 체크하세요. <span class="tag">체크는 나만 가능</span></div>
+      <div class="prog"><i id="tdBar" style="width:0%"></i></div>
+      <div style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:10px" id="tdRate">이행률 —</div>
+      <div class="todo" id="tdList"></div>
+    </div>
+  </section>
+
+  <!-- 지휘대 -->
+  <section id="tab-cond" hidden>
+    <div class="card">
+      <div class="eyebrow">CONDUCTOR</div>
+      <h2>지휘대 — 나의 진로·학습 궤</h2>
+      <div class="hint">공공 도구(어디가·EBSi·함께학교)에서 <b>무엇을 하고 무엇을 가져올지</b> 순서대로 안내합니다. 가져온 것은 <b>방향(다음 행동)만</b> 적습니다.</div>
+      <div class="prog"><i id="cdBar" style="width:0%"></i></div>
+      <div style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:14px" id="cdRate">—</div>
+      <div id="cdNow"></div>
+      <div class="cd-ridge" id="cdList"></div>
+    </div>
+  </section>
+
+  <!-- 세특 탐색 -->
+  <section id="tab-explore" hidden>
+    <div class="card">
+      <div class="eyebrow">SUBJECT INQUIRY</div>
+      <h2>세특 탐색 — 과목별 탐구 방향</h2>
+      <div class="hint">과목 수업에서 <b>어떤 탐구로 뻗어갈 수 있는지</b> 방향을 찾는 도구입니다. 정한 방향은 지휘대 <b>실행 설계</b>로 이어집니다.</div>
+      <div class="lawbox">
+        ⚖️ <b>이 도구가 하지 않는 것</b> — 생기부 내용을 <b>기록·저장·분석하지 않습니다.</b> 세특 문구를 대신 써주지도 않습니다.
+        탐구는 <b>학교 정규 수업·수행평가 안에서 학생이 직접</b> 하는 것이며, 여기서는 <b>방향 탐색</b>만 돕습니다.
+      </div>
+      <div class="field" style="margin-top:14px"><label>과목 선택</label><select id="exSubj"></select></div>
+      <div id="exBody"></div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">MY DIRECTION</div>
+      <h2>내가 정한 탐구 방향</h2>
+      <div class="hint">고른 방향을 <b>내 문장으로</b> 적어두세요. (생기부 원문 아님 · 다음 행동만)</div>
+      <div id="exSaved"></div>
+      <div class="field" style="margin-top:10px"><label>탐구 방향 한 줄</label><input type="text" id="exNote" placeholder="예: 화학Ⅰ 완충용액 → 혈액 pH 조절로 수행평가 주제 잡기"></div>
+      <button class="btn" id="exSave" type="button">방향 저장</button>
+    </div>
+  </section>
+
+  <!-- 내 기록 -->
+  <section id="tab-record" hidden>
+    <div class="card">
+      <div class="eyebrow">CUMULATIVE</div>
+      <h2>학습 누적</h2>
+      <div class="hint">등원 이후 전체 누적 기록입니다.</div>
+      <div class="stat-grid" id="rcTotal"></div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">THIS MONTH</div>
+      <h2>이번 달 <select id="rcMonth" style="width:auto;padding:5px 9px;border:1px solid var(--line);border-radius:7px;font-size:14px;margin-left:6px"></select></h2>
+      <div class="stat-grid" id="rcStats" style="margin-top:10px"></div>
+      <div style="margin-top:18px">
+        <div style="font-size:12px;font-weight:700;color:var(--ink-2);margin-bottom:4px">일자별 순공시간</div>
+        <div class="bars" id="rcBars"></div>
+        <div class="axis" id="rcAxis"></div>
+      </div>
+      <div style="margin-top:18px" id="rcAtt"></div>
+    </div>
+  </section>
+
+  <!-- 스케줄 -->
+  <section id="tab-sched" hidden>
+    <div class="card">
+      <div class="eyebrow">WEEKLY</div>
+      <h2>주간 스케줄</h2>
+      <div class="hint">담당 선생님이 작성한 이번 주 계획입니다. 완료 항목을 체크하세요.</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+        <button class="btn ghost sm" id="scPrev" type="button">◀ 이전주</button>
+        <span id="scLabel" style="font-weight:800;color:var(--ink);background:#f4f2ec;padding:6px 12px;border-radius:8px">—</span>
+        <button class="btn ghost sm" id="scNext" type="button">다음주 ▶</button>
+      </div>
+      <div class="prog"><i id="scBar" style="width:0%"></i></div>
+      <div style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:12px" id="scRate">이행률 —</div>
+      <div id="scBody"></div>
+      <div id="scNote" style="margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">ROADMAP</div>
+      <h2>연 / 월 로드맵</h2>
+      <div class="hint">월별 학습 중점입니다.</div>
+      <div id="rmBody"></div>
+    </div>
+  </section>
+
+  <!-- 성적 -->
+  <section id="tab-mock" hidden>
+    <div class="card">
+      <div class="eyebrow">MOCK EXAM</div>
+      <h2>모의고사 성적</h2>
+      <div class="hint">막대가 높을수록 우수(평균 등급이 낮음)합니다.</div>
+      <div class="stat-grid" id="mkStats"></div>
+      <div style="margin-top:18px">
+        <div class="bars" id="mkBars"></div>
+        <div class="axis" id="mkAxis"></div>
+      </div>
+      <div id="mkTable" style="margin-top:16px"></div>
+    </div>
+  </section>
+
+  <!-- 학습계획서 -->
+  <section id="tab-plan" hidden>
+    <div class="card">
+      <div class="eyebrow">MY PLAN</div>
+      <h2>과목별 학습계획서</h2>
+      <div class="hint">과목별로 <b>내가 직접</b> 목표·교재·주간 계획을 씁니다. 선생님도 함께 봅니다. <span class="tag">내가 작성</span></div>
+      <div id="plList"></div>
+      <button class="btn ghost sm" id="plAdd" type="button" style="margin-top:8px">+ 과목 추가</button>
+      <div style="margin-top:14px"><button class="btn" id="plSave">저장</button></div>
+    </div>
+  </section>
+
+  <!-- 공지 -->
+  <section id="tab-notice" hidden>
+    <div class="card">
+      <div class="eyebrow">SCHEDULE</div>
+      <h2>모의고사 · 학사 일정</h2>
+      <div id="ntExams" style="margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">NOTICE</div>
+      <h2>학원 알림</h2>
+      <div id="ntNotices" style="margin-top:12px"></div>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CFG={apiKey:"AIzaSyCIvrt7_mgpOEWSaC6MDikT-IoL-8UkqEE",authDomain:"summit-ida-hakgwan.firebaseapp.com",projectId:"summit-ida-hakgwan",storageBucket:"summit-ida-hakgwan.firebasestorage.app",messagingSenderId:"371413466237",appId:"1:371413466237:web:9fbc7719d2ee745525c514"};
+const $=(id)=>document.getElementById(id);
+const DOW=["일","월","화","수","목","금","토"];
+const DL=["월","화","수","목","금","토","일"];
+let db=null,auth=null,SID=null,ME=null;
+let S={logs:{},schedules:{},roadmap:[],mocks:[],progress:{},plans:[],conductor:{stages:{},explore:[]},academy:{notices:[],exams:[]}};
+let curWeek=null,curMonth=null;
+
+function toast(m){ const t=$("toast"); t.textContent=m; t.classList.add("on"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("on"),2200); }
+function esc(s){ return (s==null?"":String(s)).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;"); }
+function ymd(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
+function todayISO(){ return ymd(new Date()); }
+function monday(iso){ const d=new Date((iso||todayISO())+"T00:00"); const k=(d.getDay()+6)%7; d.setDate(d.getDate()-k); return ymd(d); }
+function weekLabel(w){ const a=new Date(w+"T00:00"),b=new Date(w+"T00:00"); b.setDate(b.getDate()+6);
+  const wk=Math.ceil(a.getDate()/7); return `${a.getMonth()+1}월 ${wk}주 · ${a.getMonth()+1}/${a.getDate()} ~ ${b.getMonth()+1}/${b.getDate()}`; }
+function fmtMin(m){ if(m==null||isNaN(m))return"–"; m=Math.round(m); const h=Math.floor(m/60),x=m%60; return h>0?`${h}시간 ${x}분`:`${x}분`; }
+function fmtShort(m){ if(m==null||isNaN(m))return"–"; m=Math.round(m); return `${Math.floor(m/60)}:${String(m%60).padStart(2,"0")}`; }
+function toMin(t){ if(!t)return null; const [h,m]=t.split(":").map(Number); return h*60+m; }
+const ACAD=["학원수업","보강"];
+
+function fbErr(e){
+  console.error(e);
+  if(e&&e.code==="permission-denied") toast("접근 권한이 없습니다. 선생님께 문의하세요.");
+  else toast("오류가 발생했습니다.");
+}
+
+/* ── 로그인 ── */
+firebase.initializeApp(CFG); auth=firebase.auth(); db=firebase.firestore();
+$("gBtn").onclick=async()=>{
+  const em=$("gEmail").value.trim(), pw=$("gPw").value;
+  if(!em||!pw){ $("gErr").textContent="아이디와 비밀번호를 입력하세요."; $("gErr").style.display="block"; return; }
+  $("gBtn").disabled=true; $("gErr").style.display="none";
+  try{ await auth.signInWithEmailAndPassword(em,pw); }
+  catch(e){ $("gErr").textContent="로그인에 실패했습니다. 아이디·비밀번호를 확인하세요."; $("gErr").style.display="block"; $("gBtn").disabled=false; }
+};
+$("gPw").addEventListener("keydown",e=>{ if(e.key==="Enter")$("gBtn").onclick(); });
+$("logout").onclick=()=>auth.signOut();
+
+auth.onAuthStateChanged(async(user)=>{
+  if(!user){ $("gate").style.display="flex"; $("gBtn").disabled=false; SID=null; return; }
+  try{
+    const link=await db.collection("studentLinks").doc(user.uid).get();
+    if(!link.exists){
+      $("gErr").textContent="학생 계정으로 등록되지 않았습니다. 선생님께 문의하세요.";
+      $("gErr").style.display="block"; $("gBtn").disabled=false;
+      await auth.signOut(); return;
+    }
+    SID=link.data().sid;
+    const st=await db.collection("students").doc(SID).get();
+    ME=st.exists?st.data():{name:"학생"};
+    $("who").textContent=`${ME.name||"학생"} ${ME.grade?"· "+ME.grade:""}`;
+    $("gate").style.display="none";
+    subscribe();
+  }catch(e){ fbErr(e); $("gBtn").disabled=false; }
+});
+
+/* ── 데이터 구독 (본인 것만) ── */
+function subscribe(){
+  curWeek=monday(todayISO()); curMonth=todayISO().slice(0,7);
+  db.collection("logs").where("sid","==",SID).onSnapshot(sn=>{
+    const m={}; sn.forEach(d=>{ const x=d.data(); if(x.date)m[x.date]=x; }); S.logs=m; renderAll();
+  }, fbErr);
+  db.collection("schedules").where("sid","==",SID).onSnapshot(sn=>{
+    const m={}; sn.forEach(d=>{ const x=d.data(); if(x.week)m[x.week]={rows:x.rows||[],keyPoints:x.keyPoints||"",mentorComment:x.mentorComment||""}; }); S.schedules=m; renderAll();
+  }, fbErr);
+  db.collection("mocks").where("sid","==",SID).onSnapshot(sn=>{
+    const a=[]; sn.forEach(d=>a.push(d.data())); a.sort((x,y)=>x.date<y.date?-1:1); S.mocks=a; renderAll();
+  }, fbErr);
+  db.collection("progress").where("sid","==",SID).onSnapshot(sn=>{
+    const m={}; sn.forEach(d=>{ const x=d.data(); if(x.week)m[x.week]=x.done||[]; }); S.progress=m; renderAll();
+  }, fbErr);
+  db.collection("roadmaps").doc(SID).onSnapshot(d=>{ S.roadmap=d.exists?(d.data().items||[]):[]; renderAll(); }, fbErr);
+  db.collection("plans").doc(SID).onSnapshot(d=>{ S.plans=d.exists?(d.data().items||[]):[]; renderPlan(); }, fbErr);
+  db.collection("usage").doc(SID).get().then(d=>{ if(d.exists){ const x=d.data(); _use={tabs:x.tabs||{},days:x.days||[],lastSeen:x.lastSeen}; } }).catch(()=>{});
+  db.collection("conductor").doc(SID).onSnapshot(d=>{ const x=d.exists?d.data():{}; S.conductor={stages:x.stages||{},explore:x.explore||[]}; renderCond(); renderExplore(); }, fbErr);
+  db.collection("settings").doc("academy").onSnapshot(d=>{
+    const x=d.exists?d.data():{}; S.academy={notices:x.notices||[],exams:x.exams||[]}; renderNotice();
+  }, fbErr);
+}
+
+/* ── 탭 ── */
+const TABS=["today","cond","explore","record","sched","mock","plan","notice"];
+function switchTab(n){
+  TABS.forEach(t=>{ const el=$("tab-"+t); if(el)el.hidden=(t!==n); });
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===n));
+  window.scrollTo(0,0);
+  trackTab(n);
+}
+/* ── 사용 기록 (파일럿 측정용) — 어떤 화면을 실제로 쓰는지만 셈한다 ── */
+let _use={tabs:{},days:[]}, _useT=null;
+function trackTab(n){
+  if(!SID)return;
+  _use.tabs[n]=(_use.tabs[n]||0)+1;
+  const d=todayISO();
+  if(_use.days.indexOf(d)<0)_use.days.push(d);
+  _use.lastSeen=new Date().toISOString();
+  clearTimeout(_useT);
+  _useT=setTimeout(()=>{
+    db.collection("usage").doc(SID).set({sid:SID,tabs:_use.tabs,days:_use.days.slice(-60),lastSeen:_use.lastSeen})
+      .catch(()=>{});   // 실패해도 학생 화면에 영향 없음
+  },4000);
+}
+document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
+
+/* ── 계산 ── */
+function stayMin(l){
+  const i=toMin(l.inTime),o=toMin(l.outTime); if(i==null||o==null)return null;
+  let out=0; (l.outings||[]).forEach(x=>{ out+=Number(x.min)||0; });
+  return Math.max(0,(o-i)-out);
+}
+function extMin(l){ let e=0; (l.outings||[]).forEach(x=>{ if(ACAD.includes(x.cat)) e+=Number(x.min)||0; }); return e; }
+function totalMin(l){ return (Number(l.studyMin)||0)+extMin(l); }
+
+/* ── 오늘 ── */
+function renderToday(){
+  const t=todayISO(), l=S.logs[t];
+  const d=new Date(t+"T00:00");
+  $("tdDate").textContent=`${d.getMonth()+1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`;
+  $("tdTitle").textContent=`${ME&&ME.name?ME.name+"님":"오늘"}, 오늘도 화이팅`;
+  const st=l?stayMin(l):null;
+  const focus=(l&&st&&st>0)?Math.round((Number(l.studyMin)||0)/st*100):null;
+  $("tdStats").innerHTML=`
+    <div class="stat"><div class="k">오늘 상태</div><div class="v" style="font-size:18px">${l?esc(l.status||"–"):"미등원"}</div><div class="d">${l&&l.inTime?"등원 "+l.inTime:"기록 없음"}${l&&l.outTime?" · 하원 "+l.outTime:""}</div></div>
+    <div class="stat"><div class="k">오늘 순공시간</div><div class="v" style="font-size:19px">${l?fmtShort(l.studyMin||0):"–"}</div><div class="d">${l&&extMin(l)?"외부학업 +"+fmtShort(extMin(l)):"센터 학습"}</div></div>
+    <div class="stat"><div class="k">체류 · 순공률</div><div class="v" style="font-size:16px">${st!=null?fmtShort(st):"–"}${focus!=null?` <small>· ${focus}%</small>`:""}</div><div class="d">실제 집중 비율</div></div>
+    <div class="stat"><div class="k">목표 달성</div><div class="v">${(ME&&ME.goalDailyMin&&l)?Math.round(totalMin(l)/ME.goalDailyMin*100)+"<small>%</small>":"–"}</div><div class="d">${ME&&ME.goalDailyMin?"목표 "+fmtShort(ME.goalDailyMin):"목표 미설정"}</div></div>`;
+
+  // 오늘 할 일 (이번 주 스케줄의 오늘 요일)
+  const w=monday(t), sc=S.schedules[w];
+  const di=(new Date(t+"T00:00").getDay()+6)%7;
+  const items=[];
+  if(sc)(sc.rows||[]).forEach((r,ri)=>{ const txt=(r.days||[])[di]; if(txt&&txt.trim())items.push({key:`${ri}-${di}`,subj:r.subject||"과목",text:txt}); });
+  const done=S.progress[w]||[];
+  if(!items.length){ $("tdList").innerHTML=`<div class="empty">오늘 등록된 계획이 없습니다.</div>`; $("tdBar").style.width="0%"; $("tdRate").textContent="이행률 —"; return; }
+  const dn=items.filter(i=>done.includes(i.key)).length;
+  const pct=Math.round(dn/items.length*100);
+  $("tdBar").style.width=pct+"%"; $("tdRate").textContent=`이행률 ${pct}% (${dn}/${items.length})`;
+  $("tdList").innerHTML=items.map(i=>{
+    const on=done.includes(i.key);
+    return `<label class="titem${on?" done":""}"><input type="checkbox" data-k="${i.key}" data-w="${w}" ${on?"checked":""}><span class="tx"><span class="sub">${esc(i.subj)}</span><span class="bd">${esc(i.text).replace(/\n/g,"<br>")}</span></span></label>`;
+  }).join("");
+  $("tdList").querySelectorAll("input[type=checkbox]").forEach(c=>c.onchange=()=>toggleDone(c.dataset.w,c.dataset.k,c.checked));
+}
+
+function toggleDone(week,key,on){
+  const cur=(S.progress[week]||[]).slice();
+  const i=cur.indexOf(key);
+  if(on&&i<0)cur.push(key);
+  if(!on&&i>=0)cur.splice(i,1);
+  S.progress[week]=cur;
+  db.collection("progress").doc(SID+"__"+week).set({sid:SID,week,done:cur})
+    .then(()=>toast(on?"완료 체크":"체크 해제")).catch(fbErr);
+  renderToday(); renderSched();
+}
+
+/* ── 내 기록 ── */
+function renderRecord(){
+  const dates=Object.keys(S.logs).sort();
+  // 누적
+  let cum=0,cumCenter=0,cumExt=0,days=0;
+  dates.forEach(d=>{ const l=S.logs[d]; const t=totalMin(l); if(t>0)days++; cum+=t; cumCenter+=Number(l.studyMin)||0; cumExt+=extMin(l); });
+  $("rcTotal").innerHTML=`
+    <div class="stat"><div class="k">총 학습 누적</div><div class="v" style="font-size:20px">${fmtMin(cum)}</div><div class="d">기록 ${dates.length}일</div></div>
+    <div class="stat"><div class="k">센터 순공 누적</div><div class="v" style="font-size:20px">${fmtMin(cumCenter)}</div><div class="d">학습관 내</div></div>
+    <div class="stat"><div class="k">외부 학업 누적</div><div class="v" style="font-size:20px">${fmtMin(cumExt)}</div><div class="d">학원·보강</div></div>
+    <div class="stat"><div class="k">학습일 평균</div><div class="v" style="font-size:20px">${days?fmtShort(cum/days):"–"}</div><div class="d">학습한 ${days}일 기준</div></div>`;
+
+  // 월 선택
+  const months=[...new Set(dates.map(d=>d.slice(0,7)))].sort().reverse();
+  if(!months.length)months.push(todayISO().slice(0,7));
+  if(!curMonth||!months.includes(curMonth))curMonth=months[0];
+  $("rcMonth").innerHTML=months.map(m=>`<option value="${m}" ${m===curMonth?"selected":""}>${m.replace("-","년 ")}월</option>`).join("");
+  $("rcMonth").onchange=()=>{ curMonth=$("rcMonth").value; renderRecord(); };
+
+  const ml=dates.filter(d=>d.slice(0,7)===curMonth);
+  let tot=0,late=0,abs=0,early=0,pres=0,stayT=0,focusT=0;
+  ml.forEach(d=>{ const l=S.logs[d]; tot+=totalMin(l);
+    if(l.status==="지각")late++; if(l.status==="결석")abs++; if(l.status==="조퇴")early++;
+    if(l.status&&l.status!=="결석")pres++;
+    const s=stayMin(l); if(s){ stayT+=s; focusT+=Number(l.studyMin)||0; } });
+  const dayAvg=ml.length?tot/ml.length:0;
+  const attRate=ml.length?Math.round(pres/ml.length*100):null;
+  const fr=stayT?Math.round(focusT/stayT*100):null;
+  $("rcStats").innerHTML=`
+    <div class="stat"><div class="k">총 학업시간</div><div class="v" style="font-size:20px">${fmtMin(tot)}</div><div class="d">${ml.length}일 기록</div></div>
+    <div class="stat"><div class="k">일 평균</div><div class="v" style="font-size:20px">${fmtShort(dayAvg)}</div><div class="d">${ME&&ME.goalDailyMin?"목표 "+fmtShort(ME.goalDailyMin):"–"}</div></div>
+    <div class="stat"><div class="k">출석률</div><div class="v">${attRate!=null?attRate+"<small>%</small>":"–"}</div><div class="d ${abs?"down":""}">지각 ${late} · 조퇴 ${early} · 결석 ${abs}</div></div>
+    <div class="stat"><div class="k">순공률</div><div class="v">${fr!=null?fr+"<small>%</small>":"–"}</div><div class="d">체류 대비 실집중</div></div>`;
+
+  const mx=Math.max(60,...ml.map(d=>totalMin(S.logs[d])));
+  $("rcBars").innerHTML=ml.map(d=>{ const v=totalMin(S.logs[d]); const h=Math.max(3,Math.round(v/mx*100));
+    return `<div class="bar" title="${d} ${fmtMin(v)}"><em>${v?Math.round(v/60):""}</em><i style="height:${h}%"></i></div>`; }).join("")||`<div class="empty">기록이 없습니다.</div>`;
+  $("rcAxis").innerHTML=ml.map(d=>`<span>${d.slice(8)}</span>`).join("");
+
+  const notes=ml.filter(d=>["지각","결석","조퇴"].includes(S.logs[d].status));
+  $("rcAtt").innerHTML=notes.length?`<div style="font-size:12px;font-weight:700;color:var(--ink-2);margin-bottom:6px">출결 사유</div>`+
+    notes.map(d=>`<div style="font-size:12.5px;color:var(--muted)">${d.slice(5)} · ${S.logs[d].status}${S.logs[d].reason?" ("+esc(S.logs[d].reason)+")":""}</div>`).join(""):"";
+}
+
+/* ── 스케줄 ── */
+function renderSched(){
+  if(!curWeek)curWeek=monday(todayISO());
+  $("scLabel").textContent=weekLabel(curWeek);
+  const sc=S.schedules[curWeek];
+  const done=S.progress[curWeek]||[];
+  if(!sc||!(sc.rows||[]).length){
+    $("scBody").innerHTML=`<div class="empty">이 주에 등록된 스케줄이 없습니다.</div>`;
+    $("scNote").innerHTML=""; $("scBar").style.width="0%"; $("scRate").textContent="이행률 —";
+  } else {
+    let total=0,dn=0;
+    const rows=(sc.rows||[]).map((r,ri)=>{
+      const tds=(r.days||[]).map((v,di)=>{
+        if(!v||!v.trim())return `<td></td>`;
+        total++; const k=`${ri}-${di}`, on=done.includes(k); if(on)dn++;
+        return `<td style="background:${on?"#f4f8f5":"#fff"}"><label style="display:flex;gap:6px;align-items:flex-start;cursor:pointer">
+          <input type="checkbox" data-k="${k}" ${on?"checked":""} style="margin-top:2px;accent-color:var(--gold)">
+          <span style="font-size:11.5px;line-height:1.4;${on?"color:var(--muted);text-decoration:line-through":""}">${esc(v).replace(/\n/g,"<br>")}</span></label></td>`;
+      }).join("");
+      return `<tr><td class="s">${esc(r.subject)||"&nbsp;"}</td>${tds}</tr>`;
+    }).join("");
+    $("scBody").innerHTML=`<div style="overflow-x:auto"><table style="min-width:640px"><thead><tr><th style="width:56px">과목</th>${DL.map(d=>`<th style="text-align:center">${d}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div>`;
+    const pct=total?Math.round(dn/total*100):0;
+    $("scBar").style.width=pct+"%"; $("scRate").textContent=`이행률 ${pct}% (${dn}/${total})`;
+    $("scBody").querySelectorAll("input[type=checkbox]").forEach(c=>c.onchange=()=>toggleDone(curWeek,c.dataset.k,c.checked));
+    const nt=[];
+    if(sc.keyPoints)nt.push(`<div style="font-size:12.5px;margin-bottom:4px"><b>이번 주 중점</b> · ${esc(sc.keyPoints)}</div>`);
+    if(sc.mentorComment)nt.push(`<div style="font-size:12.5px"><b>선생님 코멘트</b> · ${esc(sc.mentorComment)}</div>`);
+    $("scNote").innerHTML=nt.length?`<div style="background:#faf9f6;border:1px solid var(--line);border-radius:8px;padding:10px 12px">${nt.join("")}</div>`:"";
+  }
+  // 로드맵
+  const cm=todayISO().slice(0,7);
+  $("rmBody").innerHTML=S.roadmap.length?`<div class="rd">`+S.roadmap.slice().sort((a,b)=>(a.month||"")<(b.month||"")?-1:1).map(r=>{
+    const cur=r.month===cm;
+    return `<div class="rd-i${cur?" cur":""}"><div class="rd-m">${r.month?r.month.replace("-","년 ")+"월":"·"}${cur?' <span class="tag" style="background:var(--gold);color:#fff">이번 달</span>':''}</div>${r.focus?`<div class="rd-f">${esc(r.focus).replace(/\n/g,"<br>")}</div>`:""}</div>`;
+  }).join("")+`</div>`:`<div class="empty">등록된 로드맵이 없습니다.</div>`;
+}
+$("scPrev").onclick=()=>{ const d=new Date(curWeek+"T00:00"); d.setDate(d.getDate()-7); curWeek=ymd(d); renderSched(); };
+$("scNext").onclick=()=>{ const d=new Date(curWeek+"T00:00"); d.setDate(d.getDate()+7); curWeek=ymd(d); renderSched(); };
+
+/* ── 성적 ── */
+function avgG(g){ const v=["kor","math","eng","sci"].map(k=>g&&g[k]).filter(x=>x!=null&&x!==""); if(!v.length)return null; return v.reduce((a,b)=>a+Number(b),0)/v.length; }
+function renderMock(){
+  const pts=S.mocks.map(m=>({date:m.date,source:m.source||"",g:m.grades||{},avg:avgG(m.grades)})).filter(x=>x.avg!=null);
+  if(!pts.length){ $("mkStats").innerHTML=`<div class="empty">등록된 모의고사 성적이 없습니다.</div>`; $("mkBars").innerHTML=""; $("mkAxis").innerHTML=""; $("mkTable").innerHTML=""; return; }
+  const last=pts[pts.length-1], best=pts.reduce((a,b)=>b.avg<a.avg?b:a), prev=pts.length>1?pts[pts.length-2]:null;
+  const dl=prev?(last.avg-prev.avg):null;
+  $("mkStats").innerHTML=`
+    <div class="stat"><div class="k">최근 평균 등급</div><div class="v">${last.avg.toFixed(1)}<small>등급</small></div><div class="d ${dl==null?"":dl<0?"up":dl>0?"down":""}">${dl==null?"첫 응시":dl<0?"▲ 개선 "+Math.abs(dl).toFixed(1):dl>0?"▼ 하락 "+Math.abs(dl).toFixed(1):"유지"}</div></div>
+    <div class="stat"><div class="k">최고 평균 등급</div><div class="v">${best.avg.toFixed(1)}<small>등급</small></div><div class="d">${best.date.slice(5).replace("-","/")}</div></div>
+    <div class="stat"><div class="k">응시 횟수</div><div class="v">${pts.length}<small>회</small></div><div class="d">${pts[0].date.slice(5).replace("-","/")} ~</div></div>
+    <div class="stat"><div class="k">최근 응시</div><div class="v" style="font-size:15px">${esc(last.source||"-")}</div><div class="d">${last.date.replace(/-/g,".")}</div></div>`;
+  $("mkBars").innerHTML=pts.map(p=>{ const h=Math.max(6,Math.round((9-p.avg)/8*100));
+    return `<div class="bar"><em>${p.avg.toFixed(1)}</em><i class="mk-fill" style="height:${h}%"></i></div>`; }).join("");
+  $("mkAxis").innerHTML=pts.map(p=>`<span>${p.date.slice(5).replace("-","/")}</span>`).join("");
+  const SK={kor:"국어",math:"수학",eng:"영어",sci:"탐구"};
+  const rows=["kor","math","eng","sci"].map(k=>{ const rc=last.g[k]; let sb=null; pts.forEach(p=>{ if(p.g[k]!=null&&p.g[k]!==""&&(sb==null||Number(p.g[k])<sb))sb=Number(p.g[k]); });
+    return (rc!=null&&rc!=="")||sb!=null?`<tr><td class="s">${SK[k]}</td><td>${rc!=null&&rc!==""?rc+"등급":"–"}</td><td>${sb!=null?sb+"등급":"–"}</td></tr>`:""; }).join("");
+  $("mkTable").innerHTML=rows?`<table><thead><tr><th>과목</th><th>최근 등급</th><th>최고 등급</th></tr></thead><tbody>${rows}</tbody></table>`:"";
+}
+
+/* ── 학습계획서 (학생 작성) ── */
+let plItems=[];
+function renderPlan(){
+  plItems=(S.plans||[]).map(x=>({subject:x.subject||"",goal:x.goal||"",book:x.book||"",weekly:x.weekly||""}));
+  plDraw();
+}
+function plDraw(){
+  const box=$("plList"); if(!box)return;
+  box.innerHTML=plItems.length?plItems.map((p,i)=>`
+    <div style="border:1px solid var(--line);border-radius:10px;padding:13px;margin-bottom:10px;background:#faf9f6">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:9px">
+        <input type="text" data-k="subject" data-i="${i}" value="${esc(p.subject)}" placeholder="과목 (예: 수학)" style="flex:0 0 140px;padding:8px 10px;border:1px solid var(--line);border-radius:7px">
+        <button type="button" data-del="${i}" style="margin-left:auto;background:none;border:1px solid var(--line);color:var(--alert);border-radius:6px;padding:5px 9px;font-weight:700">✕</button>
+      </div>
+      <div class="field"><label>목표</label><input type="text" data-k="goal" data-i="${i}" value="${esc(p.goal)}" placeholder="예: 6월 모의 2등급"></div>
+      <div class="field"><label>교재 / 자료</label><input type="text" data-k="book" data-i="${i}" value="${esc(p.book)}" placeholder="예: 수능특강, 기출 3개년"></div>
+      <div class="field" style="margin-bottom:0"><label>주간 실행 계획</label><textarea data-k="weekly" data-i="${i}" rows="3" placeholder="예: 월·수·금 기출 20문항 / 주말 오답 정리">${esc(p.weekly)}</textarea></div>
+    </div>`).join(""):`<div class="empty">과목을 추가해 나만의 학습계획을 작성하세요.</div>`;
+  box.querySelectorAll("[data-k]").forEach(el=>el.oninput=()=>{ plItems[+el.dataset.i][el.dataset.k]=el.value; });
+  box.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{ plItems.splice(+b.dataset.del,1); plDraw(); });
+}
+$("plAdd").onclick=()=>{ plItems.push({subject:"",goal:"",book:"",weekly:""}); plDraw(); };
+$("plSave").onclick=()=>{
+  const items=plItems.filter(p=>p.subject||p.goal||p.book||p.weekly);
+  db.collection("plans").doc(SID).set({sid:SID,items,updated:new Date().toISOString()})
+    .then(()=>toast("학습계획서가 저장되었습니다")).catch(fbErr);
+};
+
+/* ── 지휘대 (오케스트레이션) ──────────────────────────────
+   법 경계: 생기부 원문·공공 상담 답변서 원문을 저장하지 않는다.
+   note에는 학생이 받아온 "방향(다음 행동)"만 저장한다.
+   Summit(학습관)은 생기부를 취득·데이터화하지 않는다. */
+const TOOL={ summit:{name:"써밋",cls:"b-summit",url:""},
+             adiga:{name:"어디가",cls:"b-adiga",url:"https://www.adiga.kr"},
+             ebsi:{name:"EBSi",cls:"b-ebsi",url:"https://www.ebsi.co.kr"},
+             together:{name:"함께학교",cls:"b-together",url:"https://www.togetherschool.go.kr"} };
+const STAGES=[
+ {id:"s0",tool:"summit",title:"출발점 — 관심과 현재 위치 정리",
+  goal:"점수가 아니라 관심에서 시작합니다. 무엇에 끌리는지·희망 계열·현재 학년/성적을 정리하면, 다른 앱에서 무엇을 물어야 할지가 정해집니다.",
+  path:["써밋","관심·희망 계열 정리"],
+  action:["관심 키워드 3개와 희망 계열을 적는다","현재 이수 과목·내신을 정리한다"],
+  bring:"관심 계열 / 아직 막연한 부분을 한 줄로.",
+  hint:'예: "생명·환경에 관심, 그런데 학과가 너무 많아 뭘 봐야 할지 모르겠음"',
+  use:"이 출발점이 <b>어디가에 던질 질문</b>과 <b>함께학교 신청서</b>의 재료가 됩니다."},
+ {id:"s1",tool:"adiga",title:"정보 탐색 — 학과·전형·권장과목·입결",
+  goal:"대학·학과·전형 정보의 원천은 어디가입니다. 대화형 검색에 관심·성적을 넣으면 학과·전형 추천과 출처를 줍니다.",
+  path:["어디가","대화형 검색 / 대학·학과·전형 정보 / 권장과목"],
+  action:["관심 계열의 학과 3~5개를 추린다","각 학과의 전형 유형·권장과목·작년 입결을 확인한다"],
+  bring:"관심 학과 3개 + 각 권장과목/전형을 메모.",
+  hint:'예: "환경공학 — 물리·화학 권장, 종합/교과 / 생명과학과 — 생명·화학 권장"',
+  use:"가져온 권장과목을 <b>다음 단계에서 내 조합과 세특으로 통찰</b>합니다. 어디가는 나열까지, 통찰은 우리가."},
+ {id:"s2",tool:"summit",title:"통찰 — 과목 조합·위계·세특 연결",
+  goal:"어디가가 준 권장과목 리스트의 다음 단계입니다. 내 조합이 위계상 어디까지 찼는지, 이 과목이 어떤 탐구로 이어지는지를 연결해 봅니다.",
+  path:["써밋","선택과목 통찰 → 조합 분석"],
+  action:["어디가 권장과목 vs 내 현재 조합의 빈 곳을 본다","과목 → 탐구 소재 → 진로로 이어지는 한 줄기를 확인한다"],
+  bring:"채울 과목 / 끊긴 연결 하나를 정한다.",
+  hint:'예: "역학과에너지가 비어 있음 → 2학기 신청 검토"',
+  use:"여기서 나온 <b>채울 자리</b>가 함께학교 상담 질문과 실행 설계로 이어집니다."},
+ {id:"s3",tool:"together",title:"과목·진로 설계 상담 (교사)",
+  goal:"과목 선택·진로 설계는 함께학교의 현직 교사 지원단이 무료로 상담합니다. 우리는 이걸 대신하지 않습니다 — 더 나은 신청서를 쓰게 돕고, 받아온 방향을 실행으로 정리합니다.",
+  path:["함께학교","스터디카페 → 진로·학업설계 → 컨설팅 신청"],
+  action:["앞 단계에서 정리한 관심·조합·빈 곳을 신청서에 구체적으로 쓴다","답변서(1~2주 뒤)를 받는다"],
+  bring:"답변서에서 받은 <b>방향</b>을 실행 항목으로 (원문 아님).",
+  hint:'예: "선생님: 화학Ⅰ 먼저·2학년에 심화 권장 → 나: 1학기 화학Ⅰ 이수로 계획"',
+  use:"상담 <b>방향</b>을 이번 학기 <b>이 과목·이 탐구</b>의 실행 설계로 떨어뜨립니다.", warn:true},
+ {id:"s4",tool:"summit",title:"실행 설계 · 연속 추적 (매일의 자리)",
+  goal:"공공 상담은 1회성입니다. 여기가 우리만의 자리 — 상담 방향과 통찰을 이번 학기 이 탐구·이 활동으로 설계하고, 학기 내내 쌓아 성장을 눈에 보이게 합니다.",
+  path:["써밋","탐구 설계 → 주간 실행"],
+  action:["이번 학기 탐구 주제·활동을 설계한다","수행 뒤 과정·결과를 스스로 정리한다"],
+  bring:"이번 주 실제로 한 걸음 하나.",
+  hint:'예: "수업 중 질문에서 출발해 자료 2개 비교·정리함"',
+  use:"쌓인 실행이 <b>다음 상담의 재료</b>가 됩니다. 학교가 무대 — 정규 수업·수행 안에서 직접."},
+ {id:"s5",tool:"ebsi",title:"정량 위치 — 합격예측·모의지원·정시 기준선",
+  goal:"성적 기반 배치·합격예측은 EBSi가 무료로 줍니다. 여기서 정시 기준선과 지원권을 받아옵니다.",
+  path:["EBSi","대입정보 → 수시 합격예측 / 정시 맞춤대학 지원가이드"],
+  action:["모의고사 성적을 입력해 정시 지원권 대학을 본다","수시 합격예측으로 내 위치를 확인한다"],
+  bring:"정시 기준선 / 지원권 대학대(帶)를 메모.",
+  hint:'예: "6모 기준 정시로 OO~OO권 → 수시는 그 위로 상향 지원"',
+  use:"수시-정시를 나란히 놓아 <b>정시로 여기까지니 수시는 위/아래</b>의 기준으로 씁니다."},
+ {id:"s6",tool:"adiga",title:"학종 평가 상담 (교사)",
+  goal:"학생부종합전형 평가는 어디가 온라인 상담(현직 교사)이 무료로 해줍니다. 평가는 공공이 합니다.",
+  path:["어디가","온라인상담 → 학생부종합전형 상담 신청"],
+  action:["희망 전형으로 학종 상담을 신청한다","강·약점 분석 의견을 받는다"],
+  bring:"받은 진단을 <b>다음 행동</b>으로 (원문 아님).",
+  hint:'예: "정보축 강함·통합사회 끊김 지적 → 면접에서 이 부분 이렇게 보완"',
+  use:"진단을 <b>면접 보완·마무리 실행</b>으로 잇습니다. 평가는 공공, 실행은 우리.", warn:true},
+ {id:"s7",tool:"summit",title:"종합 · 원장 리포트 (지휘 마무리)",director:true,
+  goal:"흩어진 공공 산출(어디가 정보·EBSi 배치·상담 방향)을 원장이 한 궤로 꿰어 학부모 앞에 펼치는 리포트로 만듭니다.",
+  path:["써밋","원장 리포트 종합"],
+  action:["각 단계 결과를 한 흐름으로 검토한다","학부모용 리포트를 생성한다 (원장)"],
+  bring:"이번 사이클의 핵심 한 줄.",
+  hint:'예: "관심(생명)→과목(화학·생명)→탐구(효소)→정시 기준선 확인 = 한 줄기 완성"',
+  use:"이 리포트가 <b>다음 사이클의 출발점</b>이 됩니다."},
+];
+const ORDER={1:["s0","s1","s2","s3","s4","s7"],2:["s0","s1","s2","s3","s4","s5","s7"],3:["s0","s1","s2","s4","s5","s6","s7"]};
+function gradeNum(){ const g=(ME&&ME.grade)||"고2"; if(g==="고1")return 1; if(g==="고2")return 2; return 3; }
+function cdSeq(){ return (ORDER[gradeNum()]||ORDER[2]).map(id=>STAGES.find(s=>s.id===id)); }
+function cdStat(id){ const st=(S.conductor.stages||{})[id]; return st&&st.status?st.status:"wait"; }
+function cdNote(id){ const st=(S.conductor.stages||{})[id]; return st&&st.note?st.note:""; }
+function renderCond(){
+  if(!$("cdList"))return;
+  const seq=cdSeq();
+  const nowSt=seq.find(s=>cdStat(s.id)!=="done");
+  const dn=seq.filter(s=>cdStat(s.id)==="done").length;
+  const pct=seq.length?Math.round(dn/seq.length*100):0;
+  $("cdBar").style.width=pct+"%";
+  $("cdRate").textContent=`진행 ${pct}% (${dn}/${seq.length}단계) · 고${gradeNum()} 궤`;
+  $("cdNow").innerHTML=nowSt?`<div class="cd-now"><div class="k">NOW — 지금 할 것</div><div class="t">${esc(nowSt.title)}</div><div class="g">${nowSt.goal}</div></div>`
+    :`<div class="cd-now"><div class="k">COMPLETE</div><div class="t">이번 사이클을 모두 마쳤습니다</div><div class="g">선생님과 다음 사이클을 상의하세요.</div></div>`;
+  $("cdList").innerHTML=seq.map(s=>{
+    const stt=cdStat(s.id), isNow=nowSt&&nowSt.id===s.id, t=TOOL[s.tool];
+    const chip=stt==="done"?'<span class="st-chip st-done">완료</span>':stt==="prog"?'<span class="st-chip st-prog">진행중</span>':'<span class="st-chip st-wait">대기</span>';
+    const link=t.url?`<a class="lnk" href="${t.url}" target="_blank" rel="noopener">${t.name} 열기 ↗</a>`:"";
+    const ro=!!s.director;
+    return `<div class="cd-st ${stt==="done"?"done":""} ${isNow?"now":""}">
+      <div class="cd-h"><span class="bdg ${t.cls}">${t.name}</span><span class="ti">${esc(s.title)}</span>${chip}</div>
+      <div class="cd-goal">${s.goal}</div>
+      <div class="cd-path">📍 ${s.path.join(" → ")}</div>
+      <ul class="cd-act">${s.action.map(a=>`<li>${esc(a)}</li>`).join("")}</ul>
+      <div class="cd-lab">가져올 것 — ${s.bring}</div>
+      <textarea data-note="${s.id}" rows="2" placeholder='${esc(s.hint)}' ${ro?"disabled":""} style="width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:7px;font-size:12.5px">${esc(cdNote(s.id))}</textarea>
+      ${s.warn?`<div class="cd-warn">⚠ 답변서·생기부 <b>원문은 붙여넣지 마세요.</b> 받은 <b>방향(다음 행동)만</b> 적습니다.</div>`:""}
+      <div class="cd-use">🔗 ${s.use}</div>
+      <div class="cd-btns">
+        ${link}
+        ${ro?`<span style="font-size:12px;color:var(--muted);font-weight:700">원장 선생님이 진행하는 단계입니다</span>`
+            :`<button class="btn sm" data-save="${s.id}" type="button">저장</button>
+              <button class="btn ghost sm" data-done="${s.id}" type="button">${stt==="done"?"완료 취소":"완료로 표시"}</button>`}
+      </div>
+    </div>`;
+  }).join("");
+  $("cdList").querySelectorAll("[data-save]").forEach(b=>b.onclick=()=>{
+    const id=b.dataset.save; const ta=$("cdList").querySelector(`[data-note="${id}"]`);
+    cdSave(id,(ta&&ta.value||"").trim(),null);
+  });
+  $("cdList").querySelectorAll("[data-done]").forEach(b=>b.onclick=()=>{
+    const id=b.dataset.done; const ta=$("cdList").querySelector(`[data-note="${id}"]`);
+    cdSave(id,(ta&&ta.value||"").trim(), cdStat(id)==="done"?"prog":"done");
+  });
+}
+function cdSave(id,note,status){
+  const stages=Object.assign({},S.conductor.stages||{});
+  const prev=stages[id]||{};
+  const st=status||(note?"prog":(prev.status||"wait"));
+  stages[id]={status:st,note:note,updatedAt:new Date().toISOString()};
+  condSave({stages});
+  toast(status==="done"?"완료로 표시했습니다":status==="prog"?"완료를 취소했습니다":"저장되었습니다");
+  renderCond();
+}
+
+/* ── 세특 탐색 (탐구 방향 탐색 전용) ─────────────────────────
+   법 경계: 생기부 내용을 기록·저장·분석하지 않는다. 세특 문구를 생성하지 않는다.
+   저장되는 것은 학생이 스스로 적은 "탐구 방향(다음 행동)" 한 줄뿐이다. */
+const EX_DATA={
+ "국어":[
+  {t:"매체 언어와 정보 신뢰성",b:"화법과 작문 × 미디어",
+   why:"같은 사건을 다룬 두 기사의 표제·인용·수치 제시 방식을 비교하면, 언어 선택이 독자의 판단을 어떻게 유도하는지 드러납니다. 국어 수업의 '설득 전략' 개념을 실제 텍스트로 확인하는 자리입니다.",
+   act:["동일 사건 기사 2~3편의 표제·부제 비교표 만들기","인용문 출처와 수치의 근거 유무 점검","수업 발표에서 '언어가 만든 프레임' 사례로 제시"],
+   ext:["통계 인용의 왜곡(수학·확률과 통계)","여론 형성과 공론장(사회)"]},
+  {t:"문학 작품의 공간과 지역성",b:"문학 × 지역 탐구",
+   why:"작품 속 공간이 인물의 선택을 어떻게 제약하는지 분석하면 '배경=장치'라는 개념이 구체화됩니다. 자신이 사는 지역을 배경으로 한 작품이나, 지역을 다시 읽는 시도로 확장할 수 있습니다.",
+   act:["작품 속 공간 이동 경로를 지도로 정리","공간이 바뀔 때 인물의 언어가 어떻게 변하는지 표시","수업 감상문에 '공간이 없었다면' 가정 서술"],
+   ext:["도시 구조와 삶(사회·지리)","공간 데이터 시각화(정보)"]}],
+ "영어":[
+  {t:"원문과 번역의 의미 차이",b:"영어 독해 × 언어의 구조",
+   why:"교과서 지문의 특정 문장을 직접 번역해보고 기존 번역과 비교하면, 어순·태(態)·수식 구조의 차이가 의미에 어떤 영향을 주는지 보입니다. 문법이 규칙이 아니라 '의미 장치'로 이해되는 지점입니다.",
+   act:["수업 지문 3문장 직접 번역 후 차이 분석","수동태/능동태 전환 시 초점 이동 정리","영어 발표에서 번역 선택의 근거 설명"],
+   ext:["기계번역의 한계(정보·AI)","언어와 사고(국어·심리)"]},
+  {t:"영어 자료로 읽는 최신 연구",b:"영어 × 진로 분야",
+   why:"관심 분야의 영문 초록(abstract)을 읽으면 교과서 밖 언어를 만나고, 그 분야가 실제로 무엇을 묻고 있는지 알게 됩니다. 진로를 '직업명'이 아니라 '질문'으로 만나는 방법입니다.",
+   act:["관심 분야 영문 초록 1편 정독·요약","모르는 전문 용어 개념 정리","수업 발표에서 핵심 질문 한 줄로 소개"],
+   ext:["해당 분야 교과 심화(과학·사회)","연구 윤리(통합사회)"]}],
+ "수학":[
+  {t:"함수·수열로 실제 변화 모델링",b:"수학Ⅰ·Ⅱ × 현상",
+   why:"교과의 지수·로그·수열이 실제 데이터를 설명할 수 있는지 확인하면, 수식이 '문제 풀이 도구'에서 '현상 서술 언어'로 바뀝니다. 모델이 안 맞는 지점을 찾는 것이 오히려 좋은 탐구입니다.",
+   act:["공개 데이터(인구·물가 등)를 표로 정리","지수/선형 모델을 각각 적용해 오차 비교","'왜 안 맞는가'를 수업 보고서에 서술"],
+   ext:["통계적 추정(확률과 통계)","시뮬레이션(정보)"]},
+  {t:"확률·통계로 주장 검증하기",b:"확률과 통계 × 비판적 읽기",
+   why:"기사나 광고의 통계 주장을 표본·조건부확률 개념으로 뜯어보면, 같은 숫자가 다른 결론을 낼 수 있음을 확인하게 됩니다. 수학이 판단의 근거를 검증하는 도구가 됩니다.",
+   act:["통계가 인용된 자료 2편 수집","표본 크기·선택 편향·기준 시점 점검","조건부확률로 재해석해 발표"],
+   ext:["의사결정과 오류(사회)","데이터 윤리(정보)"]}],
+ "통합사회":[
+  {t:"지역 문제를 데이터로 보기",b:"사회 × 지역",
+   why:"내가 사는 지역의 인구·교통·상권 변화를 공개 통계로 확인하면, 교과의 '도시화·불균형' 개념이 추상어가 아니라 눈앞의 현상이 됩니다. 답보다 '무엇을 물어야 하는가'를 찾는 과정입니다.",
+   act:["지역 공개 통계 2~3개 지표 수집","시계열 그래프로 변화 추이 정리","수업 발표에서 원인 가설 2개 제시"],
+   ext:["통계 처리(수학)","공간 시각화(정보)"]},
+  {t:"제도의 딜레마 사례 분석",b:"사회 × 윤리",
+   why:"하나의 정책이 어떤 집단에는 이익, 다른 집단에는 비용이 되는 구조를 뜯어보면 '정의'가 단일 기준이 아님을 이해하게 됩니다. 찬반이 아니라 '무엇이 충돌하는가'를 보는 훈련입니다.",
+   act:["실제 정책 1건의 이해관계자 지도 그리기","각 입장의 근거를 원문에서 확인","수업 토론에서 양측의 최선 논거 정리"],
+   ext:["법과 제도(정치와 법)","비용·편익(경제)"]}],
+ "통합과학":[
+  {t:"생활 속 산-염기와 완충",b:"화학 × 생명",
+   why:"완충용액 개념은 실험실 밖에서 혈액 pH 유지처럼 생명 현상과 직결됩니다. 화학의 평형 개념이 생명 시스템의 안정성으로 이어지는 지점을 확인할 수 있습니다.",
+   act:["교과 실험의 pH 변화 데이터를 다시 정리","완충 작용이 없을 때를 가정한 결과 추론","수업 보고서에 생명 현상과의 연결 서술"],
+   ext:["항상성(생명과학)","평형 이동(화학Ⅰ)"]},
+  {t:"에너지 전환과 효율의 한계",b:"물리 × 환경",
+   why:"에너지는 보존되지만 '쓸 수 있는' 에너지는 줄어든다는 점이 효율 문제의 핵심입니다. 교과의 열역학 개념이 왜 재생에너지 논쟁의 바탕인지 이해하게 됩니다.",
+   act:["가정·학교의 에너지 사용 흐름도 작성","전환 단계마다 손실 지점 표시","수업 발표에서 효율 개선 지점 제안"],
+   ext:["열역학(물리)","기후·자원(사회)"]}],
+ "생명과학":[
+  {t:"효소 활성과 조건 변수",b:"생명 × 실험 설계",
+   why:"온도·pH를 바꿔가며 효소 활성을 보는 실험은 '변인 통제'를 몸으로 익히는 자리입니다. 결과보다 설계의 허점을 스스로 찾아내는 것이 더 깊은 탐구가 됩니다.",
+   act:["교과 실험에서 통제하지 못한 변인 목록화","재설계안을 표로 작성","수업 보고서에 한계와 개선안 명시"],
+   ext:["단백질 구조(화학)","측정 오차(수학)"]}],
+ "화학":[
+  {t:"반응 속도와 촉매의 역할",b:"화학 × 산업·환경",
+   why:"촉매는 반응 경로를 바꿔 활성화 에너지를 낮춥니다. 이 개념이 왜 산업 공정과 배기가스 저감의 핵심인지 연결하면, 교과 개념이 사회 문제로 확장됩니다.",
+   act:["교과 실험의 속도 변화 데이터 재정리","촉매 유무의 에너지 도표 직접 작성","수업에서 실제 적용 사례 조사·발표"],
+   ext:["에너지 전환(물리)","환경 규제(사회)"]}],
+ "물리":[
+  {t:"운동 분석과 오차의 정체",b:"물리 × 측정",
+   why:"실험값이 이론값과 다를 때, 그 차이가 '실수'인지 '모형의 한계'인지 구분하는 것이 물리의 핵심 훈련입니다. 마찰·공기저항을 무시한 가정을 되짚는 과정 자체가 탐구입니다.",
+   act:["교과 실험 데이터의 이론값 대비 편차 계산","무시한 가정 목록 작성","가정을 하나 넣었을 때의 예측 변화 서술"],
+   ext:["미분·기울기(수학)","모델링(정보)"]}],
+ "지구과학":[
+  {t:"지역 기후 데이터 읽기",b:"지구과학 × 지역",
+   why:"기상청 공개 데이터로 우리 지역의 기온·강수 추이를 직접 보면, 교과의 기후 개념이 통계로 확인됩니다. 장기 추세와 단기 변동을 구분하는 눈이 생깁니다.",
+   act:["지역 관측 데이터 10년치 수집","연평균·계절별 추이 그래프 작성","수업 발표에서 추세와 변동 구분해 설명"],
+   ext:["시계열 통계(수학)","기후 정책(사회)"]}],
+ "정보":[
+  {t:"알고리즘의 선택과 편향",b:"정보 × 윤리",
+   why:"추천·정렬 알고리즘이 무엇을 우선하도록 설계됐는지 따지면, 기술이 중립적이지 않다는 점이 드러납니다. 코드가 곧 가치 판단임을 확인하는 탐구입니다.",
+   act:["간단한 정렬·추천 규칙 직접 구현","기준을 바꿨을 때 결과 변화 비교","수업 발표에서 설계자의 선택 지점 설명"],
+   ext:["데이터 편향(사회)","확률·통계(수학)"]},
+  {t:"데이터 시각화로 설득하기",b:"정보 × 표현",
+   why:"같은 데이터도 축과 구간을 바꾸면 인상이 달라집니다. 시각화가 어떻게 오도할 수 있는지 직접 만들어 보면, 정직한 표현의 기준을 세우게 됩니다.",
+   act:["동일 데이터를 오도형·정직형 두 그래프로 제작","무엇이 달라 보이는지 비교 서술","수업에서 시각화 원칙 제안"],
+   ext:["통계 해석(수학)","매체 언어(국어)"]}]
+};
+function exFill(){
+  const sel=$("exSubj"); if(!sel||sel.options.length)return;
+  sel.innerHTML=Object.keys(EX_DATA).map(k=>`<option value="${k}">${k}</option>`).join("");
+  sel.onchange=exDraw;
+}
+function exDraw(){
+  const box=$("exBody"); if(!box)return;
+  const subj=$("exSubj").value||Object.keys(EX_DATA)[0];
+  const list=EX_DATA[subj]||[];
+  box.innerHTML=list.map((x,i)=>`<div class="ex-t">
+    <div class="bridge">개념다리 · ${esc(x.b)}</div>
+    <div class="th">${esc(x.t)}</div>
+    <div class="why">${esc(x.why)}</div>
+    <div class="ex-k">수업 안에서 할 수 있는 것</div><ul>${x.act.map(a=>`<li>${esc(a)}</li>`).join("")}</ul>
+    <div class="ex-k">더 뻗어갈 수 있는 방향</div><ul>${x.ext.map(a=>`<li>${esc(a)}</li>`).join("")}</ul>
+    <div class="ex-pick"><button class="btn ghost sm" data-pick="${i}" type="button">이 방향으로 정하기</button></div>
+  </div>`).join("")||`<div class="empty">준비된 탐색 자료가 없습니다.</div>`;
+  box.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{
+    const x=list[+b.dataset.pick];
+    $("exNote").value=`${subj} · ${x.t} → `;
+    $("exNote").focus();
+    toast("아래에 나만의 방향을 이어서 적으세요");
+  });
+}
+function renderExplore(){
+  exFill(); exDraw();
+  const box=$("exSaved"); if(!box)return;
+  const arr=(S.conductor.explore||[]).slice().reverse();
+  box.innerHTML=arr.length?arr.map((e,i)=>`<div class="ex-saved"><div class="d">${(e.ts||"").slice(5,10)}</div><div style="flex:1;font-size:13px">${esc(e.note)}</div><button type="button" data-xd="${arr.length-1-i}" style="background:none;border:none;color:var(--alert);font-weight:800;cursor:pointer">✕</button></div>`).join(""):`<div class="empty">아직 정한 방향이 없습니다.</div>`;
+  box.querySelectorAll("[data-xd]").forEach(b=>b.onclick=()=>{
+    const arr2=(S.conductor.explore||[]).slice(); arr2.splice(+b.dataset.xd,1); condSave({explore:arr2});
+  });
+}
+$("exSave").onclick=()=>{
+  const v=$("exNote").value.trim(); if(!v)return alert("탐구 방향을 적어주세요.");
+  const arr=(S.conductor.explore||[]).concat([{note:v,ts:new Date().toISOString()}]);
+  condSave({explore:arr}); $("exNote").value="";
+  toast("탐구 방향이 저장되었습니다");
+};
+/* conductor 문서 통합 저장 (stages + explore 함께 보존) */
+function condSave(patch){
+  const cur=S.conductor||{stages:{},explore:[]};
+  const next={stages:cur.stages||{},explore:cur.explore||[]};
+  Object.assign(next,patch||{});
+  S.conductor=next;
+  db.collection("conductor").doc(SID).set({sid:SID,stages:next.stages,explore:next.explore})
+    .catch(fbErr);
+  renderExplore();
+}
+
+/* ── 공지 ── */
+function renderNotice(){
+  const t=todayISO();
+  const exs=(S.academy.exams||[]).filter(e=>e.date).sort((a,b)=>a.date<b.date?-1:1);
+  $("ntExams").innerHTML=exs.length?exs.map(e=>{
+    const d=new Date(e.date+"T00:00"); const up=e.date>=t;
+    return `<div class="exam${up?" up":""}"><div class="dt">${d.getMonth()+1}/${d.getDate()} <span style="font-weight:600;color:var(--muted);font-size:11px">(${DOW[d.getDay()]})</span></div><div class="nm">${esc(e.name)}</div>${up?'<span class="bg">예정</span>':''}</div>`;
+  }).join(""):`<div class="empty">등록된 일정이 없습니다.</div>`;
+  const nts=(S.academy.notices||[]).filter(n=>n.text).sort((a,b)=>(a.date||"")<(b.date||"")?1:-1);
+  $("ntNotices").innerHTML=nts.length?nts.map(n=>`<div class="notice"><div class="nd">${n.date?n.date.slice(5).replace("-","/"):"·"}</div><div style="flex:1;font-size:13px">${esc(n.text).replace(/\n/g,"<br>")}</div></div>`).join(""):`<div class="empty">등록된 알림이 없습니다.</div>`;
+}
+
+function renderAll(){ renderToday(); renderRecord(); renderSched(); renderMock(); renderCond(); renderExplore(); }
+</script>
+</body>
+</html>
