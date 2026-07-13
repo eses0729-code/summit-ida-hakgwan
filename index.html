@@ -271,6 +271,8 @@
   .ci-tin{border:none;background:transparent;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink);padding:1px 2px;cursor:pointer;width:76px}
   .ci-tin:hover{background:#fff;border-radius:4px}
   .ci-sm{font-size:11px;font-weight:800;color:var(--ok);background:var(--ok-bg);border-radius:9px;padding:3px 8px;align-self:center}
+  .ci-clr{background:#fff;border:1px solid #e3c4bd;color:var(--alert);border-radius:7px;padding:5px 9px;font-size:11.5px;font-weight:700;align-self:center}
+  .ci-clr:hover{background:var(--alert-bg)}
   .ci-bulk{background:#faf9f6;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:14px}
   .ci-bk{font-size:12px;font-weight:800;color:var(--ink);margin-bottom:8px}
   .ci-brow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
@@ -2029,7 +2031,7 @@ function renderCheckin(){
     return `<div class="ci-row ${st==="결석"?"absent":""}">
       <div class="ci-name" data-act="detail" data-sid="${s.id}"><b>${ciEsc(s.name)}</b><span class="tag">${ciEsc(s.grade)}</span>${isOut?'<span class="ci-badge">외출중</span>':''}</div>
       <div class="ci-stwrap">${chip("정상","출석")}${chip("지각","지각")}${chip("조퇴","조퇴")}${chip("결석","결석")}</div>
-      <div class="ci-times">${inBtn}${outBtn}${goBtn}${l.studyMin?`<span class="ci-sm">순공 ${fmtMinShort(l.studyMin)}</span>`:""}</div>
+      <div class="ci-times">${inBtn}${outBtn}${goBtn}${l.studyMin?`<span class="ci-sm">순공 ${fmtMinShort(l.studyMin)}</span>`:""}${(st||l.inTime||l.outTime)?`<button class="ci-clr" data-act="clear" data-sid="${s.id}" title="이 날 기록 전체 삭제">지우기</button>`:""}</div>
     </div>`;
   }).join("");
   if($("ciSummary"))$("ciSummary").innerHTML=`<span class="ci-sum s-normal">출석 ${cN}</span><span class="ci-sum s-late">지각 ${cL}</span><span class="ci-sum s-early">조퇴 ${cE}</span><span class="ci-sum s-absent">결석 ${cA}</span><span class="ci-sum">미체크 ${cNone}</span>${cOut?`<span class="ci-sum s-out">외출중 ${cOut}</span>`:""}`;
@@ -2063,6 +2065,13 @@ function ciAct(act,sid,v){
     l.status=v;
     if(v==="결석"){ l.studyMin=0; l.outings=[]; l.outStart=""; }
     else { if(!l.inTime)l.inTime=t; if(v==="조퇴"&&!l.outTime)l.outTime=t; }
+  } else if(act==="clear"){
+    const nm=(S.students.find(x=>x.id===sid)||{}).name||"";
+    if(!confirm(`${nm} 학생의 ${date} 기록을 지웁니다.\n\n· 출결 상태 · 등원/하원 시각 · 외출 · 순공시간\n· 코멘트 · 단어점검 · 테스트 기록\n\n모두 삭제됩니다. 진행할까요?`))return;
+    if(S.logs[sid])delete S.logs[sid][date];
+    save(); renderCheckin(); renderSilRecent();
+    toast(`${nm} ${date} 기록 삭제됨`);
+    return;
   } else if(act==="in"){ l.inTime=t; if(!l.status)l.status="정상"; }
   else if(act==="out"){ l.outTime=t; if(!l.status)l.status="정상"; }
   else if(act==="go"){ l.outStart=t; if(!l.status)l.status="정상"; if(!l.inTime)l.inTime=t; }
