@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>써밋대치IDA 학생 학습 화면</title>
+<title>대치써밋 학생 학습 화면</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
@@ -168,7 +168,7 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
   <div class="box">
     <div class="sym">S</div>
     <h2>학생 로그인</h2>
-    <p>써밋대치IDA 학습관 · 개인 학습 화면</p>
+    <p>대치써밋 학습관 · 개인 학습 화면</p>
     <div class="field"><label>아이디(이메일)</label><input type="email" id="gEmail" autocomplete="username"></div>
     <div class="field"><label>비밀번호</label><input type="password" id="gPw" autocomplete="current-password"></div>
     <button class="btn" id="gBtn" style="width:100%">로그인</button>
@@ -180,7 +180,7 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
   <div class="mastin">
     <div class="brand">
       <div class="sym">S</div>
-      <div><h1>써밋대치IDA</h1><div class="sub">학생 학습 화면</div></div>
+      <div><h1>대치써밋</h1><div class="sub">학생 학습 화면</div></div>
     </div>
     <div class="ctx">
       <span class="who" id="who">—</span>
@@ -193,7 +193,7 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
   <nav class="tabs">
     <button data-tab="today" class="active">오늘</button>
     <button data-tab="cond">지휘대</button>
-    <button data-tab="explore">세특 탐색</button>
+    <button data-tab="explore">탐구 소재</button>
     <button data-tab="record">내 기록</button>
     <button data-tab="sched">스케줄</button>
     <button data-tab="mock">성적</button>
@@ -232,11 +232,11 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
     </div>
   </section>
 
-  <!-- 세특 탐색 -->
+  <!-- 탐구 소재 -->
   <section id="tab-explore" hidden>
     <div class="card">
       <div class="eyebrow">SUBJECT INQUIRY</div>
-      <h2>세특 탐색 — 과목별 탐구 방향</h2>
+      <h2>탐구 소재 — 과목별 탐구 방향</h2>
       <div class="hint">과목 수업에서 <b>어떤 탐구로 뻗어갈 수 있는지</b> 방향을 찾는 도구입니다. 정한 방향은 지휘대 <b>실행 설계</b>로 이어집니다.</div>
       <div class="lawbox">
         ⚖️ <b>이 도구가 하지 않는 것</b> — 생기부 내용을 <b>기록·저장·분석하지 않습니다.</b> 세특 문구를 대신 써주지도 않습니다.
@@ -373,6 +373,8 @@ function fbErr(e){
 
 /* ── 로그인 ── */
 firebase.initializeApp(CFG); auth=firebase.auth(); db=firebase.firestore();
+/* ── SSO 브리지: B2C 앱에서 ?token= 으로 자동 로그인 (1회 소진 후 URL 정리) ── */
+(function(){ const tok=new URLSearchParams(location.search).get("token"); if(tok){ history.replaceState(null,"",location.pathname); auth.signInWithCustomToken(tok).catch(e=>{ $("gErr").textContent="자동 로그인 실패: "+e.message; $("gErr").style.display="block"; }); } })();
 $("gBtn").onclick=async()=>{
   const em=$("gEmail").value.trim(), pw=$("gPw").value;
   if(!em||!pw){ $("gErr").textContent="아이디와 비밀번호를 입력하세요."; $("gErr").style.display="block"; return; }
@@ -755,7 +757,7 @@ function cdSave(id,note,status){
   renderCond();
 }
 
-/* ── 세특 탐색 (탐구 방향 탐색 전용) ─────────────────────────
+/* ── 탐구 소재 (탐구 방향 탐색 전용) ─────────────────────────
    법 경계: 생기부 내용을 기록·저장·분석하지 않는다. 세특 문구를 생성하지 않는다.
    저장되는 것은 학생이 스스로 적은 "탐구 방향(다음 행동)" 한 줄뿐이다. */
 const EX_DATA={
