@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>대치써밋 학생 학습 화면</title>
+<title>써밋대치IDA 학생 학습 화면</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
@@ -110,10 +110,35 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
 .gate h2{margin:0 0 3px;font-size:21px;color:var(--ink)}
 .gate p{margin:0 0 18px;font-size:12.5px;color:var(--muted)}
 .gate .err{color:var(--alert);font-size:12.5px;margin-top:9px;display:none}
+.gbtn{width:100%;display:flex;align-items:center;justify-content:center;gap:9px;background:#fff;border:1px solid #dadce0;border-radius:9px;padding:11px;font-size:14px;font-weight:700;color:#3c4043}
+.gbtn:hover{background:#f8f9fa;box-shadow:0 1px 3px rgba(60,64,67,.15)}
+.gor{display:flex;align-items:center;gap:10px;margin:16px 0 12px;color:var(--muted);font-size:11.5px}
+.gor::before,.gor::after{content:"";flex:1;height:1px;background:var(--line)}
+.lk-who{background:#f6f5f1;border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-size:12.5px;color:var(--ink-2);margin-bottom:14px;word-break:break-all}
+.lk-dot{width:34px;height:34px;margin:0 auto;border:3px solid var(--gold-soft);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:9px;font-size:13.5px;font-weight:600;opacity:0;transition:.25s;z-index:60}
 .toast.on{transform:translateX(-50%) translateY(0);opacity:1}
 .empty{font-size:13px;color:var(--muted);padding:14px 0}
+.vc-head{font-family:"Nanum Myeongjo",serif;font-size:16px;font-weight:800;color:var(--ink);margin:6px 0 14px}
+.vc-sub2{display:block;font-family:Pretendard,sans-serif;font-size:12px;font-weight:600;color:var(--muted);margin-top:3px}
+.vc-two{display:flex;gap:16px;flex-wrap:wrap;margin-top:16px}
+.vc-two>div{flex:1;min-width:150px}
+.vc-k{font-size:12px;font-weight:800;color:var(--ink-2);margin-bottom:8px}
+.vc-bars{display:flex;flex-direction:column;gap:8px}
+.vc-bt{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:2px}
+.vc-bg{height:8px;background:#eee;border-radius:5px;overflow:hidden}
+.vc-bg i{display:block;height:100%;border-radius:5px}
+.vc-bg .ok{background:linear-gradient(90deg,#4a9d78,#2f7d5b)}
+.vc-bg .no{background:linear-gradient(90deg,#d9a06a,#b0703a)}
+.up{color:#2f7d5b;font-weight:800}.dn{color:var(--alert);font-weight:800}
+.vc-ach{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.vc-ach .chip{background:var(--gold-soft);color:#7a5f20;border-radius:99px;padding:4px 11px;font-size:11.5px;font-weight:700}
+.vc-rv{font-size:11.5px;color:var(--muted);margin-top:8px;font-weight:600}
+.vc-note{margin-top:14px;background:#faf9f6;border:1px solid var(--line);border-radius:8px;padding:11px 13px;font-size:13px;line-height:1.7}
+.vc-goal{margin-top:8px;border-left:3px solid var(--gold);background:#fcf9f2;border-radius:0 8px 8px 0;padding:9px 12px;font-size:13px}
+.vc-html{border:1px solid var(--line);border-radius:9px;padding:10px;overflow-x:auto}
 .lawbox{font-size:11.5px;color:#96661a;background:#fdf6e9;border:1px solid #ecdcbb;border-radius:8px;padding:9px 12px;line-height:1.6}
 .ex-t{border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin-bottom:10px;background:#fff}
 .ex-t .th{font-weight:800;color:var(--ink);font-size:14px;margin-bottom:5px}
@@ -165,14 +190,36 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
 <body>
 
 <div class="gate" id="gate">
-  <div class="box">
+  <div class="box" id="gBox">
     <div class="sym">S</div>
     <h2>학생 로그인</h2>
-    <p>대치써밋 학습관 · 개인 학습 화면</p>
+    <p>써밋대치IDA 학습관 · 개인 학습 화면</p>
+    <button class="gbtn" id="gGoogle" type="button">
+      <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h11.8c-.5 2.7-2 5-4.4 6.6v5.5h7.1c4.1-3.8 6.6-9.4 6.6-16.1z"/><path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.4l-7.1-5.5c-2 1.3-4.5 2.1-7.4 2.1-5.7 0-10.5-3.8-12.2-9H4.5v5.7C8.1 41.1 15.5 46 24 46z"/><path fill="#FBBC05" d="M11.8 28.2c-.4-1.3-.7-2.7-.7-4.2s.3-2.9.7-4.2v-5.7H4.5C3 17.1 2.1 20.4 2.1 24s.9 6.9 2.4 9.9l7.3-5.7z"/><path fill="#EA4335" d="M24 10.8c3.2 0 6.1 1.1 8.4 3.3l6.3-6.3C34.9 4.3 29.9 2 24 2 15.5 2 8.1 6.9 4.5 14.1l7.3 5.7c1.7-5.2 6.5-9 12.2-9z"/></svg>
+      <span>Google 계정으로 로그인</span>
+    </button>
+    <div class="gor"><span>또는</span></div>
     <div class="field"><label>아이디(이메일)</label><input type="email" id="gEmail" autocomplete="username"></div>
     <div class="field"><label>비밀번호</label><input type="password" id="gPw" autocomplete="current-password"></div>
-    <button class="btn" id="gBtn" style="width:100%">로그인</button>
+    <button class="btn ghost" id="gBtn" style="width:100%">아이디로 로그인</button>
     <div class="err" id="gErr"></div>
+  </div>
+
+  <div class="box" id="linkBox" style="display:none">
+    <div class="sym">S</div>
+    <h2>본인 확인</h2>
+    <p>선생님이 확인 후 연결해 드립니다.</p>
+    <div id="linkWho" class="lk-who"></div>
+    <div class="field"><label>이름 (학원 등록된 이름 그대로)</label><input type="text" id="lkName" placeholder="예) 복범수"></div>
+    <div class="field"><label>학년</label><select id="lkGrade"><option>고1</option><option>고2</option><option>고3</option><option>N수</option></select></div>
+    <button class="btn" id="lkSend" style="width:100%">연결 요청 보내기</button>
+    <div id="lkWait" style="display:none;text-align:center;padding:10px 0">
+      <div class="lk-dot"></div>
+      <div style="font-size:13.5px;font-weight:700;color:var(--ink);margin-top:10px">선생님 승인을 기다리는 중입니다</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">승인되면 이 화면이 자동으로 넘어갑니다.<br>이 창을 닫아도 됩니다.</div>
+    </div>
+    <button class="btn ghost sm" id="lkOut" style="width:100%;margin-top:12px">다른 계정으로 로그인</button>
+    <div class="err" id="lkErr"></div>
   </div>
 </div>
 
@@ -180,7 +227,7 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
   <div class="mastin">
     <div class="brand">
       <div class="sym">S</div>
-      <div><h1>대치써밋</h1><div class="sub">학생 학습 화면</div></div>
+      <div><h1>써밋대치IDA</h1><div class="sub">학생 학습 화면</div></div>
     </div>
     <div class="ctx">
       <span class="who" id="who">—</span>
@@ -193,10 +240,11 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
   <nav class="tabs">
     <button data-tab="today" class="active">오늘</button>
     <button data-tab="cond">지휘대</button>
-    <button data-tab="explore">탐구 소재</button>
+    <button data-tab="explore">세특 탐색</button>
     <button data-tab="record">내 기록</button>
     <button data-tab="sched">스케줄</button>
     <button data-tab="mock">성적</button>
+    <button data-tab="voca">단어</button>
     <button data-tab="plan">학습계획서</button>
     <button data-tab="notice">공지</button>
   </nav>
@@ -232,11 +280,11 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
     </div>
   </section>
 
-  <!-- 탐구 소재 -->
+  <!-- 세특 탐색 -->
   <section id="tab-explore" hidden>
     <div class="card">
       <div class="eyebrow">SUBJECT INQUIRY</div>
-      <h2>탐구 소재 — 과목별 탐구 방향</h2>
+      <h2>세특 탐색 — 과목별 탐구 방향</h2>
       <div class="hint">과목 수업에서 <b>어떤 탐구로 뻗어갈 수 있는지</b> 방향을 찾는 도구입니다. 정한 방향은 지휘대 <b>실행 설계</b>로 이어집니다.</div>
       <div class="lawbox">
         ⚖️ <b>이 도구가 하지 않는 것</b> — 생기부 내용을 <b>기록·저장·분석하지 않습니다.</b> 세특 문구를 대신 써주지도 않습니다.
@@ -315,6 +363,19 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
     </div>
   </section>
 
+  <!-- 단어 -->
+  <section id="tab-voca" hidden>
+    <div class="card">
+      <div class="eyebrow">VOCABULARY</div>
+      <h2>영어 어휘 학습</h2>
+      <div class="hint">써밋 보카에서 공부한 결과입니다. 월별로 확인할 수 있어요.</div>
+      <div class="field" style="margin-top:12px"><label>기준 월</label><select id="vcMonth"></select></div>
+      <div id="vcBody"></div>
+      <a id="vcGo" href="#" target="_blank" rel="noopener" class="btn" style="display:none;width:100%;margin-top:14px;text-align:center;text-decoration:none">단어 공부하러 가기 →</a>
+      <div id="vcGoHint" class="hint" style="display:none;text-align:center;margin-top:8px">써밋 보카가 새 창에서 열립니다 · 접속코드와 PIN으로 로그인하세요</div>
+    </div>
+  </section>
+
   <!-- 학습계획서 -->
   <section id="tab-plan" hidden>
     <div class="card">
@@ -350,7 +411,7 @@ const $=(id)=>document.getElementById(id);
 const DOW=["일","월","화","수","목","금","토"];
 const DL=["월","화","수","목","금","토","일"];
 let db=null,auth=null,SID=null,ME=null;
-let S={logs:{},schedules:{},roadmap:[],mocks:[],progress:{},plans:[],conductor:{stages:{},explore:[]},academy:{notices:[],exams:[]}};
+let S={logs:{},schedules:{},roadmap:[],mocks:[],progress:{},plans:[],conductor:{stages:{},explore:[]},voca:{},academy:{notices:[],exams:[]}};
 let curWeek=null,curMonth=null;
 
 function toast(m){ const t=$("toast"); t.textContent=m; t.classList.add("on"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("on"),2200); }
@@ -373,8 +434,22 @@ function fbErr(e){
 
 /* ── 로그인 ── */
 firebase.initializeApp(CFG); auth=firebase.auth(); db=firebase.firestore();
-/* ── SSO 브리지: B2C 앱에서 ?token= 으로 자동 로그인 (1회 소진 후 URL 정리) ── */
-(function(){ const tok=new URLSearchParams(location.search).get("token"); if(tok){ history.replaceState(null,"",location.pathname); auth.signInWithCustomToken(tok).catch(e=>{ $("gErr").textContent="자동 로그인 실패: "+e.message; $("gErr").style.display="block"; }); } })();
+let _linkUnsub=null;
+
+$("gGoogle").onclick=async()=>{
+  $("gErr").style.display="none";
+  const p=new firebase.auth.GoogleAuthProvider();
+  p.setCustomParameters({prompt:"select_account"});
+  try{ await auth.signInWithPopup(p); }
+  catch(e){
+    console.error(e);
+    let msg="구글 로그인에 실패했습니다.";
+    if(e.code==="auth/popup-blocked")msg="팝업이 차단됐습니다. 주소창의 팝업 차단을 해제하세요.";
+    else if(e.code==="auth/popup-closed-by-user")msg="로그인 창이 닫혔습니다. 다시 시도하세요.";
+    else if(e.code==="auth/unauthorized-domain")msg="이 주소가 Firebase에 등록되지 않았습니다. 선생님께 문의하세요.";
+    $("gErr").textContent=msg; $("gErr").style.display="block";
+  }
+};
 $("gBtn").onclick=async()=>{
   const em=$("gEmail").value.trim(), pw=$("gPw").value;
   if(!em||!pw){ $("gErr").textContent="아이디와 비밀번호를 입력하세요."; $("gErr").style.display="block"; return; }
@@ -384,26 +459,67 @@ $("gBtn").onclick=async()=>{
 };
 $("gPw").addEventListener("keydown",e=>{ if(e.key==="Enter")$("gBtn").onclick(); });
 $("logout").onclick=()=>auth.signOut();
+$("lkOut").onclick=()=>auth.signOut();
+
+/* 연결 요청 (학생이 본인 이름을 알려주면 선생님이 승인) */
+$("lkSend").onclick=async()=>{
+  const u=auth.currentUser; if(!u)return;
+  const nm=$("lkName").value.trim();
+  if(!nm){ $("lkErr").textContent="이름을 입력하세요."; $("lkErr").style.display="block"; return; }
+  $("lkSend").disabled=true; $("lkErr").style.display="none";
+  try{
+    await db.collection("linkRequests").doc(u.uid).set({
+      uid:u.uid, email:u.email||"", displayName:u.displayName||"",
+      name:nm, grade:$("lkGrade").value, ts:new Date().toISOString()
+    });
+    $("lkSend").style.display="none"; $("lkName").disabled=true; $("lkGrade").disabled=true;
+    $("lkWait").style.display="block";
+  }catch(e){
+    console.error(e);
+    $("lkErr").textContent="요청을 보내지 못했습니다. 잠시 후 다시 시도하세요.";
+    $("lkErr").style.display="block"; $("lkSend").disabled=false;
+  }
+};
+
+function showGate(which){
+  $("gate").style.display="flex";
+  $("gBox").style.display = which==="login"?"block":"none";
+  $("linkBox").style.display = which==="link"?"block":"none";
+}
 
 auth.onAuthStateChanged(async(user)=>{
-  if(!user){ $("gate").style.display="flex"; $("gBtn").disabled=false; SID=null; return; }
-  try{
-    const link=await db.collection("studentLinks").doc(user.uid).get();
-    if(!link.exists){
-      $("gErr").textContent="학생 계정으로 등록되지 않았습니다. 선생님께 문의하세요.";
-      $("gErr").style.display="block"; $("gBtn").disabled=false;
-      await auth.signOut(); return;
-    }
-    SID=link.data().sid;
-    const st=await db.collection("students").doc(SID).get();
-    ME=st.exists?st.data():{name:"학생"};
-    $("who").textContent=`${ME.name||"학생"} ${ME.grade?"· "+ME.grade:""}`;
-    $("gate").style.display="none";
-    subscribe();
-  }catch(e){ fbErr(e); $("gBtn").disabled=false; }
+  if(_linkUnsub){ _linkUnsub(); _linkUnsub=null; }
+  if(!user){ showGate("login"); $("gBtn").disabled=false; SID=null; return; }
+  // 승인 여부를 실시간 감시 — 선생님이 연결하면 즉시 입장
+  _linkUnsub=db.collection("studentLinks").doc(user.uid).onSnapshot(async(d)=>{
+    if(!d.exists){ await showLinkScreen(user); return; }
+    try{
+      SID=d.data().sid;
+      const st=await db.collection("students").doc(SID).get();
+      ME=st.exists?st.data():{name:"학생"};
+      $("who").textContent=`${ME.name||"학생"} ${ME.grade?"· "+ME.grade:""}`;
+      $("gate").style.display="none";
+      subscribe();
+    }catch(e){ fbErr(e); }
+  }, async(err)=>{ console.error(err); await showLinkScreen(user); });
 });
 
-/* ── 데이터 구독 (본인 것만) ── */
+async function showLinkScreen(user){
+  showGate("link");
+  $("linkWho").innerHTML=`<b>${esc(user.displayName||"구글 계정")}</b><br>${esc(user.email||"")}`;
+  if(!$("lkName").value && user.displayName) $("lkName").value=user.displayName;
+  // 이미 요청을 보냈는지 확인
+  try{
+    const r=await db.collection("linkRequests").doc(user.uid).get();
+    if(r.exists){
+      $("lkName").value=r.data().name||""; $("lkName").disabled=true;
+      $("lkGrade").value=r.data().grade||"고2"; $("lkGrade").disabled=true;
+      $("lkSend").style.display="none"; $("lkWait").style.display="block";
+    }
+  }catch(e){}
+}
+
+/* ── 데이터 구독 (본인 것만) ── *//* ── 데이터 구독 (본인 것만) ── */
 function subscribe(){
   curWeek=monday(todayISO()); curMonth=todayISO().slice(0,7);
   db.collection("logs").where("sid","==",SID).onSnapshot(sn=>{
@@ -422,13 +538,14 @@ function subscribe(){
   db.collection("plans").doc(SID).onSnapshot(d=>{ S.plans=d.exists?(d.data().items||[]):[]; renderPlan(); }, fbErr);
   db.collection("usage").doc(SID).get().then(d=>{ if(d.exists){ const x=d.data(); _use={tabs:x.tabs||{},days:x.days||[],lastSeen:x.lastSeen}; } }).catch(()=>{});
   db.collection("conductor").doc(SID).onSnapshot(d=>{ const x=d.exists?d.data():{}; S.conductor={stages:x.stages||{},explore:x.explore||[]}; renderCond(); renderExplore(); }, fbErr);
+  db.collection("vocasummary").where("sid","==",SID).onSnapshot(sn=>{ const m={}; sn.forEach(d=>{ const x=d.data(); if(x.period)m[x.period]=x; }); S.voca=m; renderVoca(); }, fbErr);
   db.collection("settings").doc("academy").onSnapshot(d=>{
     const x=d.exists?d.data():{}; S.academy={notices:x.notices||[],exams:x.exams||[]}; renderNotice();
   }, fbErr);
 }
 
 /* ── 탭 ── */
-const TABS=["today","cond","explore","record","sched","mock","plan","notice"];
+const TABS=["today","cond","explore","record","sched","mock","voca","plan","notice"];
 function switchTab(n){
   TABS.forEach(t=>{ const el=$("tab-"+t); if(el)el.hidden=(t!==n); });
   document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===n));
@@ -757,7 +874,7 @@ function cdSave(id,note,status){
   renderCond();
 }
 
-/* ── 탐구 소재 (탐구 방향 탐색 전용) ─────────────────────────
+/* ── 세특 탐색 (탐구 방향 탐색 전용) ─────────────────────────
    법 경계: 생기부 내용을 기록·저장·분석하지 않는다. 세특 문구를 생성하지 않는다.
    저장되는 것은 학생이 스스로 적은 "탐구 방향(다음 행동)" 한 줄뿐이다. */
 const EX_DATA={
@@ -898,7 +1015,55 @@ function renderNotice(){
   $("ntNotices").innerHTML=nts.length?nts.map(n=>`<div class="notice"><div class="nd">${n.date?n.date.slice(5).replace("-","/"):"·"}</div><div style="flex:1;font-size:13px">${esc(n.text).replace(/\n/g,"<br>")}</div></div>`).join(""):`<div class="empty">등록된 알림이 없습니다.</div>`;
 }
 
-function renderAll(){ renderToday(); renderRecord(); renderSched(); renderMock(); renderCond(); renderExplore(); }
+function renderVoca(){
+  const sel=$("vcMonth"); if(!sel)return;
+  const keys=Object.keys(S.voca||{}).sort().reverse();
+  const VOCA_URL="https://summit-wordtest.web.app/app";   // 써밋 보카 학생 접속
+  if(!keys.length){
+    sel.innerHTML=""; sel.style.display="none";
+    $("vcBody").innerHTML=`<div class="empty">아직 등록된 단어 학습 결과가 없습니다.<br>선생님이 보카 결과를 등록하면 여기에 표시됩니다.</div>`;
+    setVocaGo(VOCA_URL); return;
+  }
+  sel.style.display="";
+  if(!sel.dataset.init || !keys.includes(sel.value)){
+    sel.innerHTML=keys.map(k=>`<option value="${k}">${k}</option>`).join("");
+    sel.dataset.init="1";
+    sel.onchange=renderVoca;
+  }
+  const v=S.voca[sel.value]||S.voca[keys[0]];
+  const box=$("vcBody");
+  if(v.html){ box.innerHTML=`<div class="vc-html">${v.html}</div>`; setVocaGo(VOCA_URL); return; }
+  const m=v.metrics||{};
+  const dl=m.accuracyDeltaPct;
+  const arrow=(dl==null||dl==="")?"":(Number(dl)>=0?`<span class="up">▲ ${Math.abs(Number(dl))}%p</span>`:`<span class="dn">▼ ${Math.abs(Number(dl))}%p</span>`);
+  const bar=(list,cls)=>(list||[]).length? `<div class="vc-bars">`+list.map(x=>{const r=Number(x.rate)||0;
+      return `<div class="vc-b"><div class="vc-bt"><span>${esc(x.type||"")}</span><b>${r}%</b></div><div class="vc-bg"><i class="${cls}" style="width:${Math.max(2,Math.min(100,r))}%"></i></div></div>`;}).join("")+`</div>`
+    :`<div class="empty" style="padding:6px 0">해당 없음</div>`;
+  box.innerHTML=`
+    <div class="vc-head">${esc(v.student||ME.name||"")} · ${esc(v.period||"")}${(v.klass||v.teacher)?`<span class="vc-sub2">${esc(v.klass||"")}${v.klass&&v.teacher?" · ":""}${esc(v.teacher||"")}</span>`:""}</div>
+    <div class="stats">
+      <div class="stat"><div class="k">학습일</div><div class="v">${m.studyDays??"–"}<small>${m.monthDays!=null?" / "+m.monthDays:""}</small></div></div>
+      <div class="stat"><div class="k">진도</div><div class="v">${m.progressPct??"–"}<small>%</small></div><div class="d">${(m.wordsStudied!=null&&m.curriculumTotal!=null)?`${m.wordsStudied}/${m.curriculumTotal}`:""}</div></div>
+      <div class="stat"><div class="k">정답률</div><div class="v">${m.accuracyPct??"–"}<small>%</small></div><div class="d">${arrow}</div></div>
+      <div class="stat"><div class="k">최고 연속</div><div class="v">${m.bestStreakDays??"–"}<small>일</small></div></div>
+    </div>
+    <div class="vc-two">
+      <div><div class="vc-k">강점</div>${bar(v.strengths,"ok")}</div>
+      <div><div class="vc-k">보완</div>${bar(v.weaknesses,"no")}</div>
+    </div>
+    ${(v.achievements&&v.achievements.length)?`<div class="vc-ach">${v.achievements.map(a=>`<span class="chip">★ ${esc(a)}</span>`).join("")}</div>`:""}
+    ${m.totalReviews!=null?`<div class="vc-rv">누적 복습 ${Number(m.totalReviews).toLocaleString()}회</div>`:""}
+    ${v.teacherComment?`<div class="vc-note"><b>선생님 코멘트</b><br>${esc(v.teacherComment).replace(/\n/g,"<br>")}</div>`:""}
+    ${v.nextGoal?`<div class="vc-goal"><b>다음 목표</b> · ${esc(v.nextGoal).replace(/\n/g,"<br>")}</div>`:""}`;
+  setVocaGo(VOCA_URL);
+}
+function setVocaGo(url){
+  const a=$("vcGo"); if(!a)return;
+  const hint=$("vcGoHint");
+  if(url){ a.href=url; a.style.display="block"; if(hint)hint.style.display="block"; }
+  else { a.style.display="none"; if(hint)hint.style.display="none"; }
+}
+function renderAll(){ renderToday(); renderRecord(); renderSched(); renderMock(); renderCond(); renderExplore(); renderVoca(); }
 </script>
 </body>
 </html>
