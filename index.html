@@ -282,6 +282,13 @@
   .ci-tin:hover{background:#fff;border-radius:4px}
   .ci-sm{font-size:11px;font-weight:800;color:var(--ok);background:var(--ok-bg);border-radius:9px;padding:3px 8px;align-self:center}
   .ci-clr{background:#fff;border:1px solid #e3c4bd;color:var(--alert);border-radius:7px;padding:5px 9px;font-size:11.5px;font-weight:700;align-self:center}
+  .ci-gowrap{display:inline-flex;gap:3px;align-items:center}
+  .ci-gocat{padding:5px 6px;border:1px solid var(--line);border-radius:6px;font-family:inherit;font-size:11.5px;background:#fff}
+  .ci-outs{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;padding-top:7px;border-top:1px dashed var(--line)}
+  .ci-outchip{display:inline-flex;align-items:center;gap:3px;background:#faf6ee;border:1px solid var(--gold-soft);border-radius:7px;padding:3px 6px;font-size:11.5px}
+  .ci-outchip select{border:none;background:transparent;font-family:inherit;font-size:11.5px;font-weight:700;color:var(--ink)}
+  .ci-omin{width:44px;border:1px solid var(--line);border-radius:5px;padding:2px 4px;font-family:inherit;font-size:11.5px;text-align:right}
+  .ci-oxdel{background:none;border:none;color:var(--alert);font-weight:800;cursor:pointer;font-size:12px;padding:0 2px}
   .ci-clr:hover{background:var(--alert-bg)}
   .ci-bulk{background:#faf9f6;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:14px}
   .ci-bk{font-size:12px;font-weight:800;color:var(--ink);margin-bottom:8px}
@@ -485,11 +492,9 @@
       <div class="livebox" id="silLive"></div>
       <div class="note">센터 체류 = (하원−등원)−외출(시계 기준). <b>센터 순공</b>을 체류보다 낮게 직접 입력하면 그 차이가 집중하지 못한 시간으로 잡혀 <b>순공률</b>에 반영됩니다. 보정 안 하면 순공률은 100%입니다.</div>
 
-      <div class="grp" style="margin:18px 0 8px;font-size:12px;font-weight:700;color:var(--gold);letter-spacing:.04em">일일 단어 테스트</div>
-      <div class="grid" style="grid-template-columns:1.8fr .9fr .9fr">
-        <div class="field"><label class="f">시험 범위</label><input type="text" id="vocRange" placeholder="예) 워드마스터 Day12 (1~50)"></div>
-        <div class="field"><label class="f">맞은 개수</label><input type="number" id="vocCorrect" min="0"></div>
-        <div class="field"><label class="f">총 문항</label><input type="number" id="vocTotal" min="0" placeholder="예) 50"></div>
+      <!-- 단어 테스트 입력 제거 (단어앱 붙여넣기로 대체) — 요소는 숨김 유지(기존 로직 호환) -->
+      <div hidden>
+        <input type="text" id="vocRange"><input type="number" id="vocCorrect"><input type="number" id="vocTotal">
       </div>
       <div class="note">정답률 = 맞은 개수 ÷ 총 문항. 범위만 적고 점수를 비워둬도 누적 범위로 기록됩니다.</div>
 
@@ -1133,7 +1138,7 @@ function renderStudents(){
   const t=$("studentTable"); const cnt=$("stCount"); if(cnt)cnt.textContent=`총 ${S.students.length}명`;
   if(!S.students.length){ t.innerHTML=`<div class="empty"><div class="ic">＋</div>등록된 학생이 없습니다. 위에서 추가하세요.</div>`; return; }
   const q=(($("stSearch")&&$("stSearch").value)||"").trim();
-  let list=S.students.slice(); if(q)list=list.filter(s=>(s.name+(s.school||"")).includes(q));
+  let list=S.students.slice().sort((a,b)=>(a.name||"").localeCompare(b.name||"","ko")); if(q)list=list.filter(s=>(s.name+(s.school||"")).includes(q));
   if(!list.length){ t.innerHTML=`<div class="empty">검색 결과가 없습니다.</div>`; return; }
   t.innerHTML=`<table><thead><tr><th>이름</th><th>학교</th><th>학년</th><th class="num">목표 학업/일</th><th>목표 대학</th><th>학부모 연락처</th><th>학생 계정</th><th>관리</th></tr></thead><tbody>`+
    list.map(s=>`<tr><td><b>${s.name}</b></td><td>${s.school||"–"}</td><td>${s.grade}</td><td class="num">${s.goalDailyMin?fmtMinShort(s.goalDailyMin):"–"}</td><td>${s.target||"–"}</td><td>${s.phone||"–"}</td>
@@ -1869,6 +1874,8 @@ function imRender(){
     <div class="im-row"><span class="im-tag">학생</span><span><b class="im-ok">${matched.length}명 매칭</b>${missing.length?` · <b class="im-no">${missing.length}명 미등록</b>`:""}</span></div>
     ${missing.length?`<div class="im-row" style="align-items:flex-start"><span class="im-tag">미등록</span><span style="color:var(--alert);font-size:12px">${missing.map(ntEsc).join(" · ")}<br><span style="color:var(--muted)">→ 학생관리에서 먼저 등록하면 함께 가져옵니다. (지금은 건너뜁니다)</span></span></div>`:""}
     <div class="im-row"><span class="im-tag">기록</span><span><b>${useRecs.length}건</b> (매칭 학생 기준) · 미등록 학생 ${recs.length-useRecs.length}건 제외</span></div>
+    ${(()=>{ const acadStu=[...new Set(useRecs.filter(r=>(r.outings||[]).some(o=>o.cat==="학원수업")).map(r=>r.name))];
+      return acadStu.length?`<div class="im-row" style="align-items:flex-start"><span class="im-tag" style="background:#faf0d8;color:#9a6a16">학원외출</span><span style="font-size:12px;color:#9a6a16"><b>학원외출 시간이 입력된 학생 ${acadStu.length}명</b> — 이 학생들은 외부학업(금색)으로 표시됩니다.<br><span style="color:var(--muted)">${acadStu.map(ntEsc).join(" · ")}<br>학원 안 다니는 학생이 있으면, 엑셀에서 그 시간을 <b>‘기타외출시간’</b> 칸으로 옮긴 뒤 다시 올리세요.</span></span></div>`:""; })()}
     ${(_imParsed.dupNames&&_imParsed.dupNames.length)?`<div class="im-row" style="align-items:flex-start"><span class="im-tag" style="background:#f7efdc;color:#9a6a16">중복</span><span style="font-size:12px;color:#9a6a16"><b>동명이인 열이 있습니다: ${_imParsed.dupNames.map(ntEsc).join(" · ")}</b><br><span style="color:var(--muted)">엑셀에서 이름을 다르게(예: 이준희A / 이준희B) 구분한 뒤 다시 올리세요. 지금 진행하면 뒤 열이 앞 열을 덮어씁니다.</span></span></div>`:""}
   </div>`;
   $("imRun").disabled=!useRecs.length;
@@ -2104,24 +2111,51 @@ function renderCheckin(){
     const outBtn = l.outTime
       ? `<span class="ci-tedit"><em>하원</em><input type="time" class="ci-tin" data-t="out" data-sid="${s.id}" value="${l.outTime}"></span>`
       : `<button class="ci-mini ghost" data-act="out" data-sid="${s.id}">하원 찍기</button>`;
-    const goBtn = isOut? `<button class="ci-mini warn" data-act="back" data-sid="${s.id}">복귀 (외출 ${l.outStart}~)</button>` : `<button class="ci-mini ghost" data-act="go" data-sid="${s.id}">외출</button>`;
+    const OUT_CATS=["중식","석식","학원수업","보강","개인사유","기타"];
+    const goBtn = isOut
+      ? `<button class="ci-mini warn" data-act="back" data-sid="${s.id}">복귀 (외출 ${l.outStart}~)</button>`
+      : `<span class="ci-gowrap"><select class="ci-gocat" data-gocat="${s.id}">${OUT_CATS.map(c=>`<option>${c}</option>`).join("")}</select><button class="ci-mini ghost" data-act="go" data-sid="${s.id}">외출</button></span>`;
+    // 기록된 외출 목록 (종류·분 수정 가능)
+    const outList=(l.outings||[]).map((o,i)=>`<span class="ci-outchip"><select data-oc="${s.id}:${i}">${OUT_CATS.map(c=>`<option ${((o.cat||o.purpose)===c)?"selected":""}>${c}</option>`).join("")}</select><input type="number" data-om="${s.id}:${i}" value="${o.min||0}" min="0" class="ci-omin">분<button class="ci-oxdel" data-oxdel="${s.id}:${i}" title="삭제">✕</button></span>`).join("");
     return `<div class="ci-row ${st==="결석"?"absent":""}">
       <div class="ci-name" data-act="detail" data-sid="${s.id}"><b>${ciEsc(s.name)}</b><span class="tag">${ciEsc(s.grade)}</span>${isOut?'<span class="ci-badge">외출중</span>':''}</div>
       <div class="ci-stwrap">${chip("정상","출석")}${chip("지각","지각")}${chip("조퇴","조퇴")}${chip("결석","결석")}</div>
       <div class="ci-times">${inBtn}${outBtn}${goBtn}${l.studyMin?`<span class="ci-sm">순공 ${fmtMinShort(l.studyMin)}</span>`:""}${(st||l.inTime||l.outTime)?`<button class="ci-clr" data-act="clear" data-sid="${s.id}" title="이 날 기록 전체 삭제">지우기</button>`:""}</div>
+      ${outList?`<div class="ci-outs">${outList}</div>`:""}
     </div>`;
   }).join("");
   if($("ciSummary"))$("ciSummary").innerHTML=`<span class="ci-sum s-normal">출석 ${cN}</span><span class="ci-sum s-late">지각 ${cL}</span><span class="ci-sum s-early">조퇴 ${cE}</span><span class="ci-sum s-absent">결석 ${cA}</span><span class="ci-sum">미체크 ${cNone}</span>${cOut?`<span class="ci-sum s-out">외출중 ${cOut}</span>`:""}`;
   box.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>ciAct(b.dataset.act,b.dataset.sid,b.dataset.v));
   box.querySelectorAll("[data-t]").forEach(inp=>inp.onchange=()=>ciSetTime(inp.dataset.sid,inp.dataset.t,inp.value));
+  // 외출 종류 선택 → go 버튼에 전달
+  box.querySelectorAll("[data-oc]").forEach(sel=>sel.onchange=()=>{ const [sid,i]=sel.dataset.oc.split(":"); ciOutEdit(sid,+i,"cat",sel.value); });
+  box.querySelectorAll("[data-om]").forEach(inp=>inp.onchange=()=>{ const [sid,i]=inp.dataset.om.split(":"); ciOutEdit(sid,+i,"min",inp.value); });
+  box.querySelectorAll("[data-oxdel]").forEach(b=>b.onclick=()=>{ const [sid,i]=b.dataset.oxdel.split(":"); ciOutDel(sid,+i); });
   ciBulkTag();
+}
+/* 외출 종류·시간 수정 */
+function ciOutEdit(sid,idx,field,val){
+  if(!isMgr())return alert("원장·실장만 수정할 수 있습니다.");
+  const date=$("ciDate").value||ciTodayISO();
+  const l=S.logs[sid]&&S.logs[sid][date]; if(!l||!l.outings||!l.outings[idx])return;
+  if(field==="cat"){ l.outings[idx].cat=val; l.outings[idx].purpose=val; }
+  else if(field==="min"){ l.outings[idx].min=Math.max(0,Number(val)||0); }
+  S.logs[sid][date]=ciRecalc(l); save(); renderCheckin();
+}
+function ciOutDel(sid,idx){
+  if(!isMgr())return alert("원장·실장만 삭제할 수 있습니다.");
+  const date=$("ciDate").value||ciTodayISO();
+  const l=S.logs[sid]&&S.logs[sid][date]; if(!l||!l.outings)return;
+  l.outings.splice(idx,1);
+  S.logs[sid][date]=ciRecalc(l); save(); renderCheckin();
+  toast("외출 기록 삭제 — 순공시간 재계산");
 }
 /* 등원·하원 시각 직접 수정 → 순공 자동 재계산 */
 function ciSetTime(sid,kind,val){
   if(!isMgr())return alert("원장·실장만 수정할 수 있습니다.");
   const date=$("ciDate").value||ciTodayISO();
   S.logs[sid]=S.logs[sid]||{};
-  const base={status:"",inTime:"",outTime:"",reason:"",outings:[],studyMin:0,vocab:null,tests:[],comments:[],outStart:""};
+  const base={status:"",inTime:"",outTime:"",reason:"",outings:[],studyMin:0,vocab:null,tests:[],comments:[],outStart:"",outCat:""};
   const l=Object.assign({},base,S.logs[sid][date]||{});
   if(kind==="in")l.inTime=val; else l.outTime=val;
   if(!l.status)l.status="정상";
@@ -2134,7 +2168,7 @@ function ciSetTime(sid,kind,val){
 function ciAct(act,sid,v){
   const date=$("ciDate").value||ciTodayISO();
   S.logs[sid]=S.logs[sid]||{};
-  const base={status:"",inTime:"",outTime:"",reason:"",outings:[],studyMin:0,vocab:null,tests:[],comments:[],outStart:""};
+  const base={status:"",inTime:"",outTime:"",reason:"",outings:[],studyMin:0,vocab:null,tests:[],comments:[],outStart:"",outCat:""};
   const l=Object.assign({},base,S.logs[sid][date]||{});
   const t=ciNow();
   if(act==="detail"){ switchTab("siljang"); $("silStudent").value=sid; $("silDate").value=date; try{loadSil(sid,date);}catch(e){} return; }
@@ -2151,8 +2185,9 @@ function ciAct(act,sid,v){
     return;
   } else if(act==="in"){ l.inTime=t; if(!l.status)l.status="정상"; }
   else if(act==="out"){ l.outTime=t; if(!l.status)l.status="정상"; }
-  else if(act==="go"){ l.outStart=t; if(!l.status)l.status="정상"; if(!l.inTime)l.inTime=t; }
-  else if(act==="back"){ if(l.outStart){ const mins=Math.max(0,(toMin(t)||0)-(toMin(l.outStart)||0)); l.outings=(l.outings||[]).concat([{cat:"외출",purpose:"",min:mins}]); l.outStart=""; } }
+  else if(act==="go"){ l.outStart=t; if(!l.status)l.status="정상"; if(!l.inTime)l.inTime=t;
+    const sel=document.querySelector(`[data-gocat="${sid}"]`); l.outCat=(sel&&sel.value)||"기타"; }
+  else if(act==="back"){ if(l.outStart){ const mins=Math.max(0,(toMin(t)||0)-(toMin(l.outStart)||0)); const cat=l.outCat||"기타"; l.outings=(l.outings||[]).concat([{cat,purpose:cat,min:mins}]); l.outStart=""; l.outCat=""; } }
   if(l.status!=="결석"){ const im=toMin(l.inTime),om=toMin(l.outTime); const outMin=(l.outings||[]).reduce((a,o)=>a+(Number(o.min)||0),0); if(im!=null&&om!=null&&om>im)l.studyMin=Math.max(0,om-im-outMin); }
   S.logs[sid][date]=l;
   save();
@@ -2175,7 +2210,7 @@ function ciRecalc(l){
 }
 function ciPending(){
   const date=$("ciDate").value||todayISO();
-  const base={status:"",inTime:"",outTime:"",reason:"",outings:[],studyMin:0,vocab:null,tests:[],comments:[],outStart:""};
+  const base={status:"",inTime:"",outTime:"",reason:"",outings:[],studyMin:0,vocab:null,tests:[],comments:[],outStart:"",outCat:""};
   const noIn=[],noOut=[];
   S.students.forEach(s=>{
     const l=Object.assign({},base,(S.logs[s.id]||{})[date]||{});
@@ -2200,7 +2235,7 @@ function ciBulk(kind){
   if(!list.length)return alert(kind==="in"?"등원 처리할 학생이 없습니다.":"하원 처리할 학생이 없습니다.");
   const names=list.map(id=>(S.students.find(s=>s.id===id)||{}).name).filter(Boolean);
   if(!confirm(`${names.length}명을 ${t}에 ${kind==="in"?"등원":"하원"} 처리합니다.\n\n${names.slice(0,10).join(", ")}${names.length>10?` 외 ${names.length-10}명`:""}\n\n진행할까요?`))return;
-  const base={status:"",inTime:"",outTime:"",reason:"",outings:[],studyMin:0,vocab:null,tests:[],comments:[],outStart:""};
+  const base={status:"",inTime:"",outTime:"",reason:"",outings:[],studyMin:0,vocab:null,tests:[],comments:[],outStart:"",outCat:""};
   list.forEach(sid=>{
     S.logs[sid]=S.logs[sid]||{};
     const l=Object.assign({},base,S.logs[sid][date]||{});
@@ -2517,7 +2552,10 @@ $("genReport").onclick=()=>{
   let mentorBlock="";
   if(mtW.length){ mentorBlock=repSec("멘토링 일지","멘토 기록")+mtW.map(w=>{ const d=S.mentorlogs[sid][w]; const subs=(d.subjects||[]).filter(s=>s.subj||s.content||s.comment); const srw=subs.map(s=>`<tr><td class="s">${ntEsc(s.subj)}</td><td>${ntEsc(s.content)||"–"}</td><td>${s.level||"–"}</td><td>${ntEsc(s.comment)||"–"}</td></tr>`).join(""); const ex=[]; if(d.mockFb)ex.push(`<b>모의 피드백</b> ${ntEsc(d.mockFb)}`); if(d.nextTask)ex.push(`<b>다음주 과제</b> ${ntEsc(d.nextTask)}`); if(d.wake||d.bed)ex.push(`<b>기상/취침</b> ${d.wake||"–"}시 / ${d.bed||"–"}시${d.sleepPractice?" ("+d.sleepPractice+")":""}`); return `<div class="rep-wk">${weekLabelOf(w)}</div>`+(srw?`<table class="rep-mini wide"><thead><tr><th>과목</th><th>학습 내용</th><th>이해</th><th>코멘트</th></tr></thead><tbody>${srw}</tbody></table>`:"")+(ex.length?`<div class="rep-extra">${ex.join("<br>")}</div>`:""); }).join(""); }
   // 입시 상담 (원장, 해당 월까지 최근)
-  const consAll=(S.consults[sid]||[]).filter(c=>c.date<=`${month}-31`);
+  // 원장 상담: 기준월 이전 상담 우선, 없으면 가장 최근 상담이라도 표시 (미래 예약 상담 제외)
+  const _consArr=(S.consults[sid]||[]);
+  let consAll=_consArr.filter(c=>c.date && c.date<=`${month}-31`);
+  if(!consAll.length && _consArr.length){ consAll=_consArr.slice(); }  // 기준월 이후뿐이면 최근 것이라도
   let consultBlock="";
   if(consAll.length){ consultBlock=repSec("입시 상담","원장 상담 기록")+consAll.slice(0,2).map(c=>`<div class="rep-consult"><div class="cc-h">${c.date}${c.next?` · 다음 상담 ${c.next}`:""}</div>${c.reach&&c.reach.length?`<div class="cc-l"><span class="tier r">상향</span> ${c.reach.join(" · ")}</div>`:""}${c.fit&&c.fit.length?`<div class="cc-l"><span class="tier f">적정</span> ${c.fit.join(" · ")}</div>`:""}${c.safe&&c.safe.length?`<div class="cc-l"><span class="tier s">안정</span> ${c.safe.join(" · ")}</div>`:""}${c.note?`<div class="cc-note">${ntEsc(c.note).replace(/\n/g,"<br>")}</div>`:""}${c.extNote?`<div class="cc-l" style="margin-top:6px"><span class="tier ext">외부 참고</span> ${c.extSrc?ntEsc(c.extSrc)+" — ":""}${ntEsc(c.extNote).replace(/\n/g,"<br>")}</div>`:""}</div>`).join(""); }
   const rmArr=((S.roadmaps||{})[sid]||[]).slice().sort((a,b)=>(a.month||"")<(b.month||"")?-1:1);
@@ -2591,7 +2629,6 @@ $("genReport").onclick=()=>{
     ${vocaBlock}
     ${mockBlock}
     ${lifeBlock}
-    ${mentorBlock}
 
     ${roadmapBlock}
     ${schedBlock}
