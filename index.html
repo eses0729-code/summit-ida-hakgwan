@@ -282,6 +282,13 @@
   .ci-tin:hover{background:#fff;border-radius:4px}
   .ci-sm{font-size:11px;font-weight:800;color:var(--ok);background:var(--ok-bg);border-radius:9px;padding:3px 8px;align-self:center}
   .ci-clr{background:#fff;border:1px solid #e3c4bd;color:var(--alert);border-radius:7px;padding:5px 9px;font-size:11.5px;font-weight:700;align-self:center}
+  .sc-item{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;background:#faf9f6;border:1px solid var(--line);border-radius:8px;padding:8px 11px;margin-bottom:6px}
+  .sc-body{flex:1;font-size:13px;line-height:1.6}
+  .sc-role{display:inline-block;font-size:10.5px;font-weight:800;color:var(--gold);background:var(--gold-soft);border-radius:5px;padding:1px 6px;margin-right:6px}
+  .sc-txt{color:var(--ink2)}
+  .sc-act{display:flex;gap:4px;flex-shrink:0}
+  .sc-ed{background:#fff;border:1px solid var(--line);color:var(--ink2);border-radius:6px;padding:3px 9px;font-size:11.5px;font-weight:700}
+  .sc-dl{background:#fff;border:1px solid #e3c4bd;color:var(--alert);border-radius:6px;padding:3px 9px;font-size:11.5px;font-weight:700}
   .ci-gowrap{display:inline-flex;gap:3px;align-items:center}
   .ci-gocat{padding:5px 6px;border:1px solid var(--line);border-radius:6px;font-family:inherit;font-size:11.5px;background:#fff}
   .ci-outs{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;padding-top:7px;border-top:1px dashed var(--line)}
@@ -498,7 +505,10 @@
       </div>
       <div class="note">정답률 = 맞은 개수 ÷ 총 문항. 범위만 적고 점수를 비워둬도 누적 범위로 기록됩니다.</div>
 
-      <div class="field" style="margin-top:14px"><label class="f">실장 코멘트 (생활관리)</label><textarea id="silComment" rows="2" placeholder="생활 태도 · 플래너 점검 · 특이사항"></textarea></div>
+      <div class="field" style="margin-top:14px"><label class="f">실장 코멘트 (생활관리)</label>
+        <div id="silCommentList"></div>
+        <textarea id="silComment" rows="2" placeholder="생활 태도 · 플래너 점검 · 특이사항 — 새 코멘트를 적고 저장하면 아래 목록에 추가됩니다"></textarea>
+      </div>
       <div style="margin-top:16px;display:flex;gap:9px"><button class="btn" id="saveSil">기록 저장</button><button class="btn ghost" id="loadSil">불러오기</button><span id="silMeta" style="align-self:center;font-size:12px;color:var(--muted)"></span></div>
     </div>
     <div class="card">
@@ -835,6 +845,18 @@
 
   <!-- ============ 데이터 ============ -->
   <section id="tab-data" hidden>
+    <div class="card">
+      <div class="sec-eyebrow">CLEANUP</div>
+      <h2>기존 단어테스트 기록 정리 <span class="tag">단어앱 붙여넣기로 대체됨</span></h2>
+      <div class="hint">일일기록에 예전에 입력됐던 <b>단어테스트(범위·점수)</b>를 삭제합니다. 리포트의 ‘일일 단어 테스트 누적’ 섹션이 사라집니다. 출결·순공·코멘트는 그대로 유지됩니다.</div>
+      <div id="vclrPreview" style="margin-top:10px"></div>
+      <div style="margin-top:12px;display:flex;gap:9px;align-items:center;flex-wrap:wrap">
+        <button class="btn ghost" id="vclrScan" type="button">단어 기록 찾기</button>
+        <button class="btn danger" id="vclrRun" type="button" disabled>전체 삭제</button>
+        <span id="vclrMeta" style="font-size:12px;color:var(--muted)"></span>
+      </div>
+    </div>
+
     <div class="card">
       <div class="sec-eyebrow">AUTO IMPORT</div>
       <h2>순공시간 엑셀 자동 등록 <span class="tag">일일 입력 불필요</span></h2>
@@ -1209,6 +1231,49 @@ function approveLink(uid,sid){
 
 /* ===================================================== 퇴원 처리 — 완전 삭제
    학생 1명의 모든 개인정보를 전 컬렉션에서 제거한다. (개인정보 잔존 방지) */
+let _vclr=null;
+function vclrScan(){
+  const found=[];
+  for(const sid in S.logs){
+    let n=0;
+    for(const d in S.logs[sid]){
+      const l=S.logs[sid][d];
+      if(l && l.vocab && (l.vocab.range || l.vocab.correct!=null)) n++;
+    }
+    if(n){ const s=S.students.find(x=>x.id===sid); found.push({sid,name:s?s.name:sid,n}); }
+  }
+  found.sort((a,b)=>b.n-a.n);
+  _vclr=found;
+  const box=$("vclrPreview");
+  if(!found.length){ box.innerHTML=`<div class="im-box"><div class="im-row"><span class="im-tag">결과</span><span>삭제할 단어테스트 기록이 없습니다.</span></div></div>`; $("vclrRun").disabled=true; $("vclrMeta").textContent=""; return; }
+  const total=found.reduce((a,x)=>a+x.n,0);
+  box.innerHTML=`<div class="im-box">
+    <div class="im-row"><span class="im-tag">대상</span><span><b class="im-no">${found.length}명 · 총 ${total}건</b>의 단어테스트 기록</span></div>
+    <div class="im-row" style="align-items:flex-start"><span class="im-tag">명단</span><span style="font-size:12px;color:var(--muted)">${found.map(x=>esc(x.name)+" ("+x.n+")").join(" · ")}</span></div>
+  </div>`;
+  $("vclrRun").disabled=false;
+  $("vclrMeta").textContent=`${total}건 삭제 준비됨`;
+}
+function vclrRun(){
+  if(!isMgr())return alert("원장·실장만 삭제할 수 있습니다.");
+  if(!_vclr||!_vclr.length)return;
+  const total=_vclr.reduce((a,x)=>a+x.n,0);
+  if(!confirm(`단어테스트 기록 ${total}건을 삭제합니다.\n(${_vclr.length}명 · 출결·순공·코멘트는 유지)\n\n되돌릴 수 없습니다. 진행할까요?`))return;
+  let done=0;
+  _vclr.forEach(({sid})=>{
+    for(const d in S.logs[sid]){
+      const l=S.logs[sid][d];
+      if(l && l.vocab && (l.vocab.range || l.vocab.correct!=null)){ l.vocab=null; done++; }
+    }
+  });
+  save(); refresh();
+  toast(`단어테스트 기록 ${done}건 삭제 완료`);
+  $("vclrMeta").textContent=`✓ ${done}건 삭제됨`;
+  _vclr=null; $("vclrPreview").innerHTML=""; $("vclrRun").disabled=true;
+}
+$("vclrScan").onclick=vclrScan;
+$("vclrRun").onclick=vclrRun;
+
 function purgeStudent(id){
   if(!isMgr())return alert("원장·실장만 삭제할 수 있습니다.");
   const s=S.students.find(x=>x.id===id); if(!s)return;
@@ -1289,7 +1354,7 @@ $("saveSil").onclick=()=>{
   S.logs[sid][date]={ status, inTime:$("silIn").value, outTime:$("silOut").value, reason:$("silReason").value.trim(),
     outings: status==="결석"?[]:pendingOutings.slice(), studyMin:cstudy, vocab,
     tests: ex.tests||[], comments };
-  pendingOutings=[]; renderOutings(); $("silComment").value=""; $("silStudy").dataset.manual=""; silLive();
+  pendingOutings=[]; renderOutings(); $("silComment").value=""; $("silStudy").dataset.manual=""; silLive(); renderSilComments(sid,date,comments);
   ["vocRange","vocCorrect","vocTotal","silReason"].forEach(i=>$(i).value="");
   save(); renderSilRecent(); initMonths(); $("monthSel").value=ym(date); $("silMeta").textContent="✓ 저장됨 — "+new Date().toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"}); toast("출결 기록 저장됨");
 };
@@ -1297,11 +1362,41 @@ $("loadSil").onclick=()=>loadSil($("silStudent").value,$("silDate").value);
 function loadSil(sid,date){
   if(!sid||!date)return; $("silStudent").value=sid;$("silDate").value=date;
   const l=(S.logs[sid]||{})[date];
-  if(!l){ $("silStatus").value="정상";["silIn","silOut","silStudy","vocRange","vocCorrect","vocTotal","silReason"].forEach(i=>$(i).value=""); pendingOutings=[];renderOutings();$("silStudy").dataset.manual="";silLive();$("silMeta").textContent="해당 날짜 출결 기록 없음 — 신규 입력";return; }
+  if(!l){ $("silStatus").value="정상";["silIn","silOut","silStudy","vocRange","vocCorrect","vocTotal","silReason"].forEach(i=>$(i).value=""); pendingOutings=[];renderOutings();$("silStudy").dataset.manual="";silLive();renderSilComments(sid,date,[]);$("silMeta").textContent="해당 날짜 출결 기록 없음 — 신규 입력";return; }
   $("silStatus").value=l.status;$("silIn").value=l.inTime||"";$("silOut").value=l.outTime||"";$("silStudy").value=l.studyMin??"";$("silStudy").dataset.manual="1";$("silReason").value=l.reason||"";
   $("vocRange").value=(l.vocab&&l.vocab.range)||"";$("vocCorrect").value=(l.vocab&&l.vocab.correct!=null)?l.vocab.correct:"";$("vocTotal").value=(l.vocab&&l.vocab.total!=null)?l.vocab.total:"";
   pendingOutings=(l.outings||[]).slice(); renderOutings(); silLive();
+  renderSilComments(sid,date,l.comments||[]);
   $("silMeta").textContent="기존 출결 불러옴 — 저장 시 출결 영역만 갱신(학습 점검 보존)";
+}
+function renderSilComments(sid,date,comments){
+  const box=$("silCommentList"); if(!box)return;
+  if(!comments||!comments.length){ box.innerHTML=""; return; }
+  box.innerHTML=comments.map((c,i)=>`<div class="sc-item">
+    <div class="sc-body"><span class="sc-role">${esc(c.role||"실장")}</span><span class="sc-txt" data-sctext="${i}">${esc(c.text||"")}</span></div>
+    <div class="sc-act"><button class="sc-ed" data-scedit="${i}" type="button">수정</button><button class="sc-dl" data-scdel="${i}" type="button">삭제</button></div>
+  </div>`).join("");
+  box.querySelectorAll("[data-scdel]").forEach(b=>b.onclick=()=>silCommentDel(sid,date,+b.dataset.scdel));
+  box.querySelectorAll("[data-scedit]").forEach(b=>b.onclick=()=>silCommentEdit(sid,date,+b.dataset.scedit));
+}
+function silCommentDel(sid,date,idx){
+  if(!isMgr())return alert("원장·실장만 삭제할 수 있습니다.");
+  const l=S.logs[sid]&&S.logs[sid][date]; if(!l||!l.comments)return;
+  if(!confirm("이 코멘트를 삭제할까요?"))return;
+  l.comments.splice(idx,1);
+  S.logs[sid][date]=l; save(); renderSilComments(sid,date,l.comments); renderSilRecent();
+  toast("코멘트 삭제됨");
+}
+function silCommentEdit(sid,date,idx){
+  if(!isMgr())return alert("원장·실장만 수정할 수 있습니다.");
+  const l=S.logs[sid]&&S.logs[sid][date]; if(!l||!l.comments||!l.comments[idx])return;
+  const cur=l.comments[idx].text||"";
+  const nv=prompt("코멘트 수정:",cur);
+  if(nv===null)return;
+  const t=nv.trim(); if(!t)return alert("내용이 비어 있습니다. 삭제하려면 삭제 버튼을 쓰세요.");
+  l.comments[idx].text=t; l.comments[idx].ts=Date.now();
+  S.logs[sid][date]=l; save(); renderSilComments(sid,date,l.comments);
+  toast("코멘트 수정됨");
 }
 function silPick(){ const sid=$("silStudent").value,date=$("silDate").value; if(sid&&date)loadSil(sid,date); renderSilRecent(); }
 $("silStudent").onchange=silPick;
