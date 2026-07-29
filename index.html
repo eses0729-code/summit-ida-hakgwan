@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -191,6 +191,10 @@
   .rp-diag li{font-size:13px;line-height:1.75;color:var(--text)}
   .rp-diag li b{color:var(--ink);font-weight:800}
   .rp-diag .dg-f{font-size:10.5px;color:var(--muted);margin-top:7px;padding-top:6px;border-top:1px dashed var(--gold-soft)}
+  .rp-overall{background:#f0f5fb;border:1px solid #bed0e8;border-left:4px solid #3d6b9e;border-radius:0 10px 10px 0;padding:14px 18px;margin:0 0 18px}
+  .rp-overall-label{font-family:"Nanum Myeongjo",serif;font-size:14px;font-weight:800;color:#22304f;margin-bottom:8px}
+  .rp-overall-body{font-size:13px;line-height:1.8;color:#2a3040;white-space:pre-wrap}
+  .rp-overall-by{font-size:10.5px;color:#7a8ba0;margin-top:7px;padding-top:6px;border-top:1px dashed #bed0e8}
   .rp-chart{margin-top:4px}
   .rp-cwrap{position:relative}
   .rp-goal,.rp-avg{position:absolute;left:0;right:0;height:0;border-top:2px dashed var(--gold);z-index:2;pointer-events:none}
@@ -465,6 +469,7 @@
     <button data-tab="report">학부모 리포트</button>
     <button data-tab="students">학생 관리</button>
     <button data-tab="data">데이터</button>
+    <button class="tab-btn" data-tab="strategy" data-mtag="원장">대입전략</button>
   </nav>
 
   <!-- ============ 실장 모듈: 일일 기록 ============ -->
@@ -803,6 +808,19 @@
       </div>
     </div>
     <div id="reportArea"></div>
+    <div id="overallCard" hidden style="margin-top:14px">
+      <div class="card">
+        <div class="sec-eyebrow">MENTOR COMMENT</div>
+        <h2>멘토 총평 <span id="overallCardMeta" style="font-size:13px;font-weight:500;color:var(--muted)"></span></h2>
+        <div class="hint">총평은 리포트 최상단에 표시됩니다. 초안 생성 후 멘토가 직접 편집·저장하세요.</div>
+        <textarea id="overallText" rows="7" style="width:100%;box-sizing:border-box;font-size:13.5px;line-height:1.75;padding:10px 13px;border:1px solid var(--line);border-radius:9px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
+        <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center">
+          <button class="btn" id="overallSave" type="button">저장</button>
+          <button class="btn ghost" id="overallDraft" type="button">초안 생성</button>
+          <span id="overallStatus" style="font-size:12px;color:var(--muted)"></span>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- ============ 학생 관리 ============ -->
@@ -843,6 +861,53 @@
     </div>
   </section>
 
+  <!-- ============ 대입전략 ============ -->
+  <section id="tab-strategy" hidden>
+    <div class="card">
+      <div class="sec-eyebrow">UNIVERSITY DB</div>
+      <h2>대학·전형·입결 관리</h2>
+      <div class="hint">어디가 화면을 보며 대학·전형·입결을 입력합니다. 한 번 입력하면 전 학생 리포트에서 재사용됩니다.</div>
+      <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px">
+        <select id="stratUnivSel" style="min-width:160px;padding:6px 10px;border:1px solid var(--line);border-radius:7px;font-size:13px"></select>
+        <button class="btn" id="stratLoadUniv" type="button">전형·입결 보기</button>
+        <button class="btn ghost" id="stratNewUniv" type="button">새 대학 추가</button>
+      </div>
+      <div id="stratUnivForm" hidden style="background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:14px;margin-bottom:14px">
+        <div class="grid g4" style="margin-bottom:8px">
+          <div class="field"><label class="f">대학명 <span class="req">*</span></label><input type="text" id="suf_name" placeholder="예: 연세대학교"></div>
+          <div class="field"><label class="f">라인</label><input type="text" id="suf_line" placeholder="서울/수도권/지방"></div>
+        </div>
+        <button class="btn sm" id="stratSaveUniv" type="button">대학 저장</button>
+        <span id="stratUnivMsg" style="font-size:12px;color:var(--muted);margin-left:9px"></span>
+      </div>
+      <div id="stratTrackArea"></div>
+    </div>
+    <div class="card" id="stratStudentCard">
+      <div class="sec-eyebrow">STUDENT STRATEGY</div>
+      <h2>학생 전략 입력 <span id="stratStName" style="font-size:13px;font-weight:500;color:var(--muted)"></span></h2>
+      <div class="hint">학생을 선택하고 판정·밸런스·목표라인·실질영향력을 입력합니다. 저장 시 리포트에 즉시 반영됩니다.</div>
+      <div style="display:flex;gap:9px;align-items:flex-end;margin-bottom:14px">
+        <div class="field" style="min-width:160px"><label class="f">학생</label><select id="stratStSel"></select></div>
+      </div>
+      <div id="stratStForm">
+        <div class="field" style="margin-bottom:10px"><label class="f">판정 문장</label><textarea id="ss_verdict" rows="2" style="width:100%;box-sizing:border-box;font-size:13px;padding:8px 11px;border:1px solid var(--line);border-radius:7px;font-family:inherit;resize:vertical"></textarea></div>
+        <div class="grid g4" style="margin-bottom:10px">
+          <div class="field"><label class="f">수시 비중 (%)</label><input type="number" id="ss_suji" min="0" max="100" value="70"></div>
+          <div class="field"><label class="f">정시 비중 (%)</label><input type="number" id="ss_jeongsi" min="0" max="100" value="30"></div>
+        </div>
+        <div class="field" style="margin-bottom:10px">
+          <label class="f">근거 키워드 (쉼표 구분)</label>
+          <input type="text" id="ss_basis" placeholder="예: 내신, 최저">
+        </div>
+        <div class="field" style="margin-bottom:10px">
+          <label class="f">이번 달 할 일 (줄바꿈으로 구분, 최대 3개)</label>
+          <textarea id="ss_tasks" rows="3" style="width:100%;box-sizing:border-box;font-size:13px;padding:8px 11px;border:1px solid var(--line);border-radius:7px;font-family:inherit;resize:vertical" placeholder="1줄 = 1개 할 일"></textarea>
+        </div>
+        <button class="btn" id="stratSaveStudent" type="button">전략 저장</button>
+        <span id="stratStMsg" style="font-size:12px;color:var(--muted);margin-left:9px"></span>
+      </div>
+    </div>
+  </section>
   <!-- ============ 데이터 ============ -->
   <section id="tab-data" hidden>
     <div class="card">
@@ -997,11 +1062,11 @@ function refresh(){
   },140);
 }
 function subscribeAll(){
-  teardownSubs(); S={students:[],logs:{},mocks:{},consults:{},mentorlogs:{},monthlyevals:{},schedules:{},roadmaps:{},conductor:{},vocasum:{},usage:{},academy:{notices:[],exams:[],admInfo:[]}};
+  teardownSubs(); S={students:[],logs:{},mocks:{},consults:{},mentorlogs:{},monthlyevals:{},monthlyoverall:{},schedules:{},roadmaps:{},conductor:{},vocasum:{},usage:{},academy:{notices:[],exams:[],admInfo:[]}};
   _unsub.push(db.collection("students").onSnapshot(snap=>{ S.students=snap.docs.map(d=>({id:d.id,...d.data()})); _hashFrom("students"); refresh(); }, fbErr));
   _unsub.push(db.collection("logs").onSnapshot(snap=>{ const logs={}; snap.forEach(d=>{ const x=d.data(); if(!x.sid||!x.date)return; (logs[x.sid]=logs[x.sid]||{})[x.date]={status:x.status,inTime:x.inTime||"",outTime:x.outTime||"",reason:x.reason||"",outings:x.outings||[],studyMin:x.studyMin||0,vocab:x.vocab||null,tests:x.tests||[],comments:x.comments||[],outStart:x.outStart||""}; }); S.logs=logs; _hashFrom("logs"); refresh(); }, fbErr));
   _unsub.push(db.collection("mentorlogs").onSnapshot(snap=>{ const m={}; snap.forEach(dd=>{ const x=dd.data(); if(!x.sid||!x.week)return; (m[x.sid]=m[x.sid]||{})[x.week]={subjects:x.subjects||[],nextTask:x.nextTask||"",wake:x.wake||"",bed:x.bed||"",sleepPractice:x.sleepPractice||"",sleepComment:x.sleepComment||"",mockFb:x.mockFb||""}; }); S.mentorlogs=m; refresh(); }, fbErr));
-  _unsub.push(db.collection("monthlyevals").onSnapshot(snap=>{ const m={}; snap.forEach(dd=>{ const x=dd.data(); if(!x.sid||!x.ym)return; (m[x.sid]=m[x.sid]||{})[x.ym]=x.text||""; }); S.monthlyevals=m; refresh(); }, fbErr));
+  _unsub.push(db.collection("monthlyevals").onSnapshot(snap=>{ const m={},mo={}; snap.forEach(dd=>{ const x=dd.data(); if(!x.sid||!x.ym)return; (m[x.sid]=m[x.sid]||{})[x.ym]=x.text||""; if(x.overall!=null||(x.overallAt!=null)){(mo[x.sid]=mo[x.sid]||{})[x.ym]={text:x.overall||"",at:x.overallAt||null,by:x.overallBy||""};} }); S.monthlyevals=m; S.monthlyoverall=mo; refresh(); }, fbErr));
   _unsub.push(db.collection("schedules").onSnapshot(snap=>{ const m={}; snap.forEach(dd=>{ const x=dd.data(); if(!x.sid||!x.week)return; (m[x.sid]=m[x.sid]||{})[x.week]={rows:x.rows||[],keyPoints:x.keyPoints||"",mentorComment:x.mentorComment||""}; }); S.schedules=m; refresh(); }, fbErr));
   _unsub.push(db.collection("vocasummary").onSnapshot(snap=>{ const m={}; snap.forEach(d=>{ const x=d.data(); if(!x.sid||!x.period)return; (m[x.sid]=m[x.sid]||{})[x.period]=x; }); S.vocasum=m; refresh(); }, fbErr));
   _unsub.push(db.collection("linkRequests").onSnapshot(snap=>{ const m={}; snap.forEach(d=>{ m[d.id]=d.data(); }); _lreq=m; try{ renderLinkReqs(); }catch(e){} }, fbErr));
@@ -1284,7 +1349,7 @@ function purgeStudent(id){
 
   // 메모리에서 제거
   S.students=S.students.filter(x=>x.id!==id);
-  ["logs","mocks","consults","mentorlogs","monthlyevals","schedules","roadmaps","conductor","vocasum"].forEach(k=>{ if(S[k])delete S[k][id]; });
+  ["logs","mocks","consults","mentorlogs","monthlyevals","monthlyoverall","schedules","roadmaps","conductor","vocasum"].forEach(k=>{ if(S[k])delete S[k][id]; });
 
   if(db){
     // 문서ID = 학생ID 인 컬렉션
@@ -2664,6 +2729,8 @@ $("genReport").onclick=()=>{
   let noticeBlock="";
   if(nts.length){ noticeBlock=repSec("학원 알림")+`<div class="rep-notices">`+nts.map(n=>`<div class="rep-notice"><div class="nd">${n.date?n.date.slice(5).replace("-","/"):"·"}</div><div class="nb">${ntEsc(n.text).replace(/\n/g,"<br>")}</div></div>`).join("")+`</div>`; }
 
+  const _overallObj=((S.monthlyoverall||{})[sid]||{})[month]||null;
+  const overallBlock=(_overallObj&&_overallObj.text)?`<div class="rp-overall"><div class="rp-overall-label">멘토 총평</div><div class="rp-overall-body">${ntEsc(_overallObj.text)}</div>${(_overallObj.by||_overallObj.at)?`<div class="rp-overall-by">${_overallObj.by?ntEsc(_overallObj.by)+' 작성':""}${_overallObj.at?' · '+_overallObj.at.slice(0,16).replace('T',' '):""}</div>`:""}</div>`:"";
   area.innerHTML=`<div class="report" id="rpPrint">
     <div class="rep-cover">
       <img src="${_wlogo}" class="rc-logo" alt="써밋대치IDA">
@@ -2673,6 +2740,7 @@ $("genReport").onclick=()=>{
       <div class="rc-student"><div class="rc-name">${st.name}<small>${st.school||""} ${st.grade}${st.target?" · 목표 "+st.target:""}</small></div><div class="rc-period">${month.replace("-","년 ")}월</div></div>
     </div>
     <div class="rep-body">
+    ${overallBlock}
     ${diagBlock}
     ${repSec("핵심 지표","이번 달 학습 요약")}
 
@@ -2730,8 +2798,116 @@ $("genReport").onclick=()=>{
      <button class="btn" onclick="window.print()">인쇄 / PDF 저장</button>
      <button class="btn ghost" id="copyReport" type="button">텍스트 복사</button></div>`;
   $("copyReport").onclick=()=>{ navigator.clipboard.writeText($("rpPrint").innerText).then(()=>toast("복사되었습니다")); };
+  // 총평 편집 카드 표시
+  const _oc=$("overallCard"); _oc.hidden=false;
+  $("overallCardMeta").textContent=`${month.replace("-","년 ")}월 · ${st.name}`;
+  const _ota=$("overallText");
+  _ota.value=_overallObj?_overallObj.text:"";
+  const _os=$("overallStatus");
+  if(_overallObj&&_overallObj.at)_os.textContent=`마지막 저장: ${_overallObj.at.slice(0,16).replace("T"," ")}${_overallObj.by?" · "+_overallObj.by:""}`;
+  else _os.textContent="";
+  $("overallSave").onclick=()=>saveOverall(sid,month);
+  $("overallDraft").onclick=()=>{ _ota.value=draftOverall(sid,month,sm,trend,lowDay,lowVal,ms,mockLine); _os.textContent="초안 생성됨 — 편집 후 저장하세요."; };
 };
 
+/* ===================================================== 멘토 총평 */
+function saveOverall(sid, month){
+  const text=$("overallText").value.trim();
+  const os=$("overallStatus");
+  const by=currentUser?(currentUser.displayName||currentUser.email||""):"";
+  const at=new Date().toISOString();
+  S.monthlyoverall=S.monthlyoverall||{}; (S.monthlyoverall[sid]=S.monthlyoverall[sid]||{})[month]={text,at,by};
+  if(db){ db.collection("monthlyevals").doc(sid+"__"+month).set({sid,ym:month,overall:text,overallAt:at,overallBy:by},{merge:true})
+    .then(()=>{ os.textContent=`저장됨 (${at.slice(0,16).replace("T"," ")})`; toast("총평 저장됨"); })
+    .catch(e=>{ os.textContent=`저장 실패: ${e.message}`; }); }
+  else { os.textContent="DB 연결 없음 — 저장되지 않았습니다."; }
+}
+function draftOverall(sid, month, sm, trend, lowDay, lowVal, ms, mockLine){
+  const st=S.students.find(s=>s.id===sid)||{};
+  const parts=[];
+  parts.push(`${st.name||""} 학생의 ${month.replace("-","년 ")}월 학습을 총평합니다.`);
+  const att=`출석률 ${sm.attRate}%(등원 ${sm.presentCount}일)`;
+  const study=`총 순공 ${fmtMinShort(sm.total)}, 일평균 ${fmtMinShort(sm.dayAvg)}${sm.focusRate!=null?" (순공률 "+sm.focusRate+"%)":""}`;
+  parts.push(`${att}, ${study}입니다. 학습 추세는 '${trend}'였습니다.`);
+  if(lowDay!=null&&[1,2,3,4,5].includes(lowDay))parts.push(`요일별로는 ${DOW[lowDay]}요일(${fmtMinShort(lowVal)})이 상대적으로 취약했습니다.`);
+  if(mockLine)parts.push(`모의고사: ${mockLine}.`);
+  const mlW=Object.keys(((S.mentorlogs||{})[sid])||{}).filter(w=>w.slice(0,7)===month).sort();
+  const mlSubComments=[];
+  mlW.forEach(w=>{ const d=S.mentorlogs[sid][w]; (d.subjects||[]).forEach(s=>{ if(s.subj&&s.comment)mlSubComments.push(`${s.subj}: ${s.comment}`); }); });
+  if(mlSubComments.length)parts.push(`과목별 코멘트 — ${mlSubComments.slice(0,4).join(" / ")}.`);
+  const evalText=(((S.monthlyevals||{})[sid])||{})[month]||"";
+  if(evalText)parts.push(`월말 평가: ${evalText}`);
+  return parts.join("\n\n");
+}
+
+/* ===================================================== 대입전략 관리 */
+function stratFillUnivSel(){
+  if(!db)return;
+  db.collection("universities").get().then(snap=>{
+    const sel=$("stratUnivSel"); sel.innerHTML='<option value="">대학 선택…</option>';
+    snap.forEach(d=>{ const o=document.createElement("option"); o.value=d.id; o.textContent=d.data().name||d.id; sel.appendChild(o); });
+  }).catch(()=>{});
+}
+function stratFillStSel(){
+  const sel=$("stratStSel"); if(!sel)return;
+  sel.innerHTML='<option value="">학생 선택…</option>';
+  S.students.forEach(s=>{ const o=document.createElement("option"); o.value=s.id; o.textContent=s.name; sel.appendChild(o); });
+}
+function renderStratTab(){
+  if(!$("tab-strategy")||$("tab-strategy").hidden)return;
+  stratFillUnivSel(); stratFillStSel();
+}
+$("stratNewUniv").onclick=()=>{ $("stratUnivForm").hidden=!$("stratUnivForm").hidden; };
+$("stratSaveUniv").onclick=()=>{
+  if(!db)return;
+  const name=$("suf_name").value.trim(), line=$("suf_line").value.trim();
+  if(!name)return alert("대학명을 입력하세요.");
+  const id=name.replace(/[^가-힣a-zA-Z0-9]/g,"_").toLowerCase();
+  db.collection("universities").doc(id).set({name,line,updatedAt:new Date().toISOString()},{merge:true})
+    .then(()=>{ $("stratUnivMsg").textContent="저장됨"; stratFillUnivSel(); })
+    .catch(e=>{ $("stratUnivMsg").textContent="저장 실패: "+e.message; });
+};
+$("stratLoadUniv").onclick=()=>{
+  const uid=$("stratUnivSel").value; if(!uid)return alert("대학을 선택하세요.");
+  const area=$("stratTrackArea"); area.innerHTML="<div class='hint'>전형·입결 불러오는 중…</div>";
+  db.collection("universities").doc(uid).collection("tracks").get().then(snap=>{
+    if(snap.empty){area.innerHTML="<div class='hint'>등록된 전형 없음</div>";return;}
+    area.innerHTML="";
+    snap.forEach(t=>{
+      const d=t.data(); const tDiv=document.createElement("div"); tDiv.className="card"; tDiv.style.marginBottom="10px";
+      tDiv.innerHTML=`<b>${d.name||t.id}</b> <span class='tag'>${d.type||""}</span><br><span style="font-size:11px;color:var(--muted)">${d.methodText||""}</span>`;
+      area.appendChild(tDiv);
+    });
+  }).catch(()=>{ area.innerHTML="<div class='hint' style='color:var(--alert)'>불러오기 실패</div>"; });
+};
+$("stratStSel").onchange=()=>{
+  const sid=$("stratStSel").value; if(!sid)return;
+  const st=S.students.find(s=>s.id===sid); if(!st)return;
+  $("stratStName").textContent=st.name;
+  const strat=st.strategy||{};
+  $("ss_verdict").value=strat.verdict||"";
+  $("ss_suji").value=(strat.balance||{}).suji||70;
+  $("ss_jeongsi").value=(strat.balance||{}).jeongsi||30;
+  $("ss_basis").value=(strat.verdictBasis||[]).join(", ");
+  $("ss_tasks").value=(strat.tasks||[]).join("\n");
+};
+$("stratSaveStudent").onclick=()=>{
+  const sid=$("stratStSel").value; if(!sid)return alert("학생을 선택하세요.");
+  const strategy={
+    verdict:$("ss_verdict").value.trim(),
+    verdictBasis:$("ss_basis").value.split(",").map(s=>s.trim()).filter(Boolean),
+    balance:{suji:+$("ss_suji").value||70,jeongsi:+$("ss_jeongsi").value||30},
+    tasks:$("ss_tasks").value.split("\n").map(s=>s.trim()).filter(Boolean).slice(0,3),
+  };
+  const st=S.students.find(s=>s.id===sid)||{}; st.strategy=strategy;
+  if(db) db.collection("students").doc(sid).set({strategy},{merge:true})
+    .then(()=>{ $("stratStMsg").textContent="전략 저장됨"; toast("전략 저장됨"); })
+    .catch(e=>{ $("stratStMsg").textContent="저장 실패: "+e.message; });
+};
+// strategy 탭 활성화 시 렌더
+document.querySelectorAll("nav.tabs button[data-tab='strategy']").forEach(b=>{
+  b.addEventListener("click",()=>setTimeout(renderStratTab,50));
+});
 /* ===================================================== CSV / BACKUP */
 $("csvSample").onclick=()=>{ $("csvResult").innerHTML=`<div class="note"><b>샘플 CSV</b><br><code>이름,날짜,등원,하원,상태<br>김OO,2026-06-02,08:40,22:10,정상</code></div>`; };
 $("csvFile").onchange=e=>{ const f=e.target.files[0]; if(!f)return; const r=new FileReader();

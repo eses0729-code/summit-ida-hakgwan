@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -251,6 +251,7 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
 
   <!-- 오늘 -->
   <section id="tab-today">
+    <div id="tdOverall" hidden></div>
     <div class="card">
       <div class="eyebrow">TODAY</div>
       <h2 id="tdTitle">오늘</h2>
@@ -411,7 +412,7 @@ const $=(id)=>document.getElementById(id);
 const DOW=["일","월","화","수","목","금","토"];
 const DL=["월","화","수","목","금","토","일"];
 let db=null,auth=null,SID=null,ME=null;
-let S={logs:{},schedules:{},roadmap:[],mocks:[],progress:{},plans:[],conductor:{stages:{},explore:[]},voca:{},academy:{notices:[],exams:[]}};
+let S={logs:{},schedules:{},roadmap:[],mocks:[],progress:{},plans:[],conductor:{stages:{},explore:[]},voca:{},monthlyoverall:{},academy:{notices:[],exams:[]}};
 let curWeek=null,curMonth=null;
 
 function toast(m){ const t=$("toast"); t.textContent=m; t.classList.add("on"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("on"),2200); }
@@ -542,6 +543,9 @@ function subscribe(){
   db.collection("settings").doc("academy").onSnapshot(d=>{
     const x=d.exists?d.data():{}; S.academy={notices:x.notices||[],exams:x.exams||[]}; renderNotice();
   }, fbErr);
+  db.collection("monthlyevals").where("sid","==",SID).onSnapshot(sn=>{
+    const mo={}; sn.forEach(d=>{ const x=d.data(); if(!x.ym)return; if(x.overall!=null||(x.overallAt!=null)){mo[x.ym]={text:x.overall||"",at:x.overallAt||null,by:x.overallBy||""};} }); S.monthlyoverall=mo; renderToday();
+  }, fbErr);
 }
 
 /* ── 탭 ── */
@@ -579,6 +583,18 @@ function totalMin(l){ return (Number(l.studyMin)||0)+extMin(l); }
 
 /* ── 오늘 ── */
 function renderToday(){
+  const _cm=curMonth||todayISO().slice(0,7);
+  const _ov=(S.monthlyoverall||{})[_cm]||null;
+  const _ovEl=$("tdOverall");
+  if(_ov&&_ov.text){
+    _ovEl.hidden=false;
+    let _oh='<div class="card" style="border-left:4px solid #3d6b9e;background:#f0f5fb">';
+    _oh+='<div class="eyebrow" style="color:#3d6b9e">MENTOR COMMENT</div>';
+    _oh+='<div style="font-size:14px;font-weight:800;color:#22304f;margin-bottom:7px">멘토 총평</div>';
+    _oh+='<div style="font-size:13px;line-height:1.8;color:#2a3040;white-space:pre-wrap">'+esc(_ov.text)+'</div>';
+    if(_ov.by||_ov.at){_oh+='<div style="font-size:10.5px;color:#7a8ba0;margin-top:8px;padding-top:6px;border-top:1px dashed #bed0e8">'+ (_ov.by?esc(_ov.by)+' 멘토 작성':'')+(_ov.at?' · '+_ov.at.slice(0,7).replace('-','년 ')+'월':'')+'</div>';}
+    _oh+='</div>'; _ovEl.innerHTML=_oh;
+  } else { _ovEl.hidden=true; _ovEl.innerHTML=""; }
   const t=todayISO(), l=S.logs[t];
   const d=new Date(t+"T00:00");
   $("tdDate").textContent=`${d.getMonth()+1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`;
