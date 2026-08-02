@@ -812,7 +812,7 @@
       <div class="card">
         <div class="sec-eyebrow">MONTHLY COMMENT</div>
         <h2>총평 <span id="overallCardMeta" style="font-size:13px;font-weight:500;color:var(--muted)"></span></h2>
-        <div class="hint">총평은 리포트 최상단에 표시됩니다. 멘토·실장이 각각 작성·저장합니다. 초안은 멘토 칸에만 생성됩니다.</div>
+        <div class="hint">총평은 리포트 최상단에 표시됩니다. 멘토·실장·원장이 각각 작성·저장합니다. 초안은 멘토 칸에만 생성됩니다.</div>
         <div style="border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:16px">
           <div class="sec-eyebrow" style="margin-bottom:6px">멘토 총평</div>
           <textarea id="mentorOverallText" rows="5" style="width:100%;box-sizing:border-box;font-size:13.5px;line-height:1.75;padding:10px 13px;border:1px solid var(--line);border-radius:9px;font-family:inherit;resize:vertical;margin-bottom:8px"></textarea>
@@ -822,12 +822,20 @@
             <span id="mentorOverallStatus" style="font-size:12px;color:var(--muted)"></span>
           </div>
         </div>
-        <div>
+        <div style="border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:16px">
           <div class="sec-eyebrow" style="margin-bottom:6px">실장 총평</div>
           <textarea id="siljangOverallText" rows="5" style="width:100%;box-sizing:border-box;font-size:13.5px;line-height:1.75;padding:10px 13px;border:1px solid var(--line);border-radius:9px;font-family:inherit;resize:vertical;margin-bottom:8px"></textarea>
           <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center">
             <button class="btn" id="btnSiljangSave" type="button">저장 (실장)</button>
             <span id="siljangOverallStatus" style="font-size:12px;color:var(--muted)"></span>
+          </div>
+        </div>
+        <div>
+          <div class="sec-eyebrow" style="margin-bottom:6px">원장 상담</div>
+          <textarea id="wonjangOverallText" rows="5" style="width:100%;box-sizing:border-box;font-size:13.5px;line-height:1.75;padding:10px 13px;border:1px solid var(--line);border-radius:9px;font-family:inherit;resize:vertical;margin-bottom:8px"></textarea>
+          <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center">
+            <button class="btn" id="btnWonjangSave" type="button">저장 (원장)</button>
+            <span id="wonjangOverallStatus" style="font-size:12px;color:var(--muted)"></span>
           </div>
         </div>
       </div>
@@ -1077,7 +1085,7 @@ function subscribeAll(){
   _unsub.push(db.collection("students").onSnapshot(snap=>{ S.students=snap.docs.map(d=>({id:d.id,...d.data()})); _hashFrom("students"); refresh(); }, fbErr));
   _unsub.push(db.collection("logs").onSnapshot(snap=>{ const logs={}; snap.forEach(d=>{ const x=d.data(); if(!x.sid||!x.date)return; (logs[x.sid]=logs[x.sid]||{})[x.date]={status:x.status,inTime:x.inTime||"",outTime:x.outTime||"",reason:x.reason||"",outings:x.outings||[],studyMin:x.studyMin||0,vocab:x.vocab||null,tests:x.tests||[],comments:x.comments||[],outStart:x.outStart||""}; }); S.logs=logs; _hashFrom("logs"); refresh(); }, fbErr));
   _unsub.push(db.collection("mentorlogs").onSnapshot(snap=>{ const m={}; snap.forEach(dd=>{ const x=dd.data(); if(!x.sid||!x.week)return; (m[x.sid]=m[x.sid]||{})[x.week]={subjects:x.subjects||[],nextTask:x.nextTask||"",wake:x.wake||"",bed:x.bed||"",sleepPractice:x.sleepPractice||"",sleepComment:x.sleepComment||"",mockFb:x.mockFb||""}; }); S.mentorlogs=m; refresh(); }, fbErr));
-  _unsub.push(db.collection("monthlyevals").onSnapshot(snap=>{ const m={},mo={}; snap.forEach(dd=>{ const x=dd.data(); if(!x.sid||!x.ym)return; (m[x.sid]=m[x.sid]||{})[x.ym]=x.text||""; const mt=x.mentorOverall||x.overall||"",mat=x.mentorOverallAt||x.overallAt||null,mby=x.mentorOverallBy||x.overallBy||"",st=x.siljangOverall||"",sat=x.siljangOverallAt||null,sby=x.siljangOverallBy||""; if(mt||st){(mo[x.sid]=mo[x.sid]||{})[x.ym]={mentor:{text:mt,at:mat,by:mby},siljang:{text:st,at:sat,by:sby}};} }); S.monthlyevals=m; S.monthlyoverall=mo; refresh(); }, fbErr));
+  _unsub.push(db.collection("monthlyevals").onSnapshot(snap=>{ const m={},mo={}; snap.forEach(dd=>{ const x=dd.data(); if(!x.sid||!x.ym)return; (m[x.sid]=m[x.sid]||{})[x.ym]=x.text||""; const mt=x.mentorOverall||x.overall||"",mat=x.mentorOverallAt||x.overallAt||null,mby=x.mentorOverallBy||x.overallBy||"",st=x.siljangOverall||"",sat=x.siljangOverallAt||null,sby=x.siljangOverallBy||"",wt=x.wonjangOverall||"",wat=x.wonjangOverallAt||null,wby=x.wonjangOverallBy||""; if(mt||st||wt){(mo[x.sid]=mo[x.sid]||{})[x.ym]={mentor:{text:mt,at:mat,by:mby},siljang:{text:st,at:sat,by:sby},wonjang:{text:wt,at:wat,by:wby}};} }); S.monthlyevals=m; S.monthlyoverall=mo; refresh(); }, fbErr));
   _unsub.push(db.collection("schedules").onSnapshot(snap=>{ const m={}; snap.forEach(dd=>{ const x=dd.data(); if(!x.sid||!x.week)return; (m[x.sid]=m[x.sid]||{})[x.week]={rows:x.rows||[],keyPoints:x.keyPoints||"",mentorComment:x.mentorComment||""}; }); S.schedules=m; refresh(); }, fbErr));
   _unsub.push(db.collection("vocasummary").onSnapshot(snap=>{ const m={}; snap.forEach(d=>{ const x=d.data(); if(!x.sid||!x.period)return; (m[x.sid]=m[x.sid]||{})[x.period]=x; }); S.vocasum=m; refresh(); }, fbErr));
   _unsub.push(db.collection("linkRequests").onSnapshot(snap=>{ const m={}; snap.forEach(d=>{ m[d.id]=d.data(); }); _lreq=m; try{ renderLinkReqs(); }catch(e){} }, fbErr));
@@ -2741,12 +2749,13 @@ $("genReport").onclick=()=>{
   if(nts.length){ noticeBlock=repSec("학원 알림")+`<div class="rep-notices">`+nts.map(n=>`<div class="rep-notice"><div class="nd">${n.date?n.date.slice(5).replace("-","/"):"·"}</div><div class="nb">${ntEsc(n.text).replace(/\n/g,"<br>")}</div></div>`).join("")+`</div>`; }
 
   const _overallObj=((S.monthlyoverall||{})[sid]||{})[month]||null;
-  const _mentor=_overallObj?.mentor||null, _siljang=_overallObj?.siljang||null;
+  const _mentor=_overallObj?.mentor||null, _siljang=_overallObj?.siljang||null, _wonjang=_overallObj?.wonjang||null;
   let overallBlock="";
-  if(_mentor?.text||_siljang?.text){
+  if(_mentor?.text||_siljang?.text||_wonjang?.text){
     overallBlock='<div class="rp-overall">';
     if(_mentor?.text){ overallBlock+=`<div class="rp-overall-label">멘토 총평</div><div class="rp-overall-body">${ntEsc(_mentor.text)}</div>`; if(_mentor.by||_mentor.at)overallBlock+=`<div class="rp-overall-by">${_mentor.by?ntEsc(_mentor.by)+' 멘토 작성':""}${_mentor.at?' · '+_mentor.at.slice(0,16).replace('T',' '):""}</div>`; }
     if(_siljang?.text){ if(_mentor?.text)overallBlock+='<div style="margin:12px 0;border-top:1px dashed #bed0e8"></div>'; overallBlock+=`<div class="rp-overall-label">실장 총평</div><div class="rp-overall-body">${ntEsc(_siljang.text)}</div>`; if(_siljang.by||_siljang.at)overallBlock+=`<div class="rp-overall-by">${_siljang.by?ntEsc(_siljang.by)+' 실장 작성':""}${_siljang.at?' · '+_siljang.at.slice(0,16).replace('T',' '):""}</div>`; }
+    if(_wonjang?.text){ if(_mentor?.text||_siljang?.text)overallBlock+='<div style="margin:12px 0;border-top:1px dashed #bed0e8"></div>'; overallBlock+=`<div class="rp-overall-label">원장 상담</div><div class="rp-overall-body">${ntEsc(_wonjang.text)}</div>`; if(_wonjang.by||_wonjang.at)overallBlock+=`<div class="rp-overall-by">${_wonjang.by?ntEsc(_wonjang.by)+' 원장 작성':""}${_wonjang.at?' · '+_wonjang.at.slice(0,16).replace('T',' '):""}</div>`; }
     overallBlock+='</div>';
   }
   area.innerHTML=`<div class="report" id="rpPrint">
@@ -2818,17 +2827,21 @@ $("genReport").onclick=()=>{
   // 총평 편집 카드 표시
   const _oc=$("overallCard"); _oc.hidden=false;
   $("overallCardMeta").textContent=`${month.replace("-","년 ")}월 · ${st.name}`;
-  const _mta=$("mentorOverallText"), _sta=$("siljangOverallText");
-  const _mos=$("mentorOverallStatus"), _sos=$("siljangOverallStatus");
+  const _mta=$("mentorOverallText"), _sta=$("siljangOverallText"), _wta=$("wonjangOverallText");
+  const _mos=$("mentorOverallStatus"), _sos=$("siljangOverallStatus"), _wos=$("wonjangOverallStatus");
   _mta.value=_mentor?_mentor.text:"";
   _sta.value=_siljang?_siljang.text:"";
+  _wta.value=_wonjang?_wonjang.text:"";
   if(_mentor?.at)_mos.textContent=`저장됨 (${_mentor.at.slice(0,16).replace("T"," ")}${_mentor.by?" · "+_mentor.by:""})`;
   else _mos.textContent="";
   if(_siljang?.at)_sos.textContent=`저장됨 (${_siljang.at.slice(0,16).replace("T"," ")}${_siljang.by?" · "+_siljang.by:""})`;
   else _sos.textContent="";
+  if(_wonjang?.at)_wos.textContent=`저장됨 (${_wonjang.at.slice(0,16).replace("T"," ")}${_wonjang.by?" · "+_wonjang.by:""})`;
+  else _wos.textContent="";
   $("btnMentorSave").onclick=(e)=>{ e.preventDefault(); e.stopPropagation(); saveMentorOverall(sid,month); };
   $("btnMentorDraft").onclick=(e)=>{ e.preventDefault(); e.stopPropagation(); _mta.value=draftOverall(sid,month,sm,trend,lowDay,lowVal,ms,mockLine); _mos.textContent="초안 생성됨 — 편집 후 저장하세요."; };
   $("btnSiljangSave").onclick=(e)=>{ e.preventDefault(); e.stopPropagation(); saveSiljangOverall(sid,month); };
+  $("btnWonjangSave").onclick=(e)=>{ e.preventDefault(); e.stopPropagation(); saveWonjangOverall(sid,month); };
 };
 
 /* ===================================================== 총평 저장 */
@@ -2857,6 +2870,20 @@ function saveSiljangOverall(sid, month){
   cur[month].siljang={text,at,by};
   if(db){ db.collection("monthlyevals").doc(sid+"__"+month).set({sid,ym:month,siljangOverall:text,siljangOverallAt:at,siljangOverallBy:by},{merge:true})
     .then(()=>{ os.textContent=`저장됨 (${at.slice(0,16).replace("T"," ")})`; toast("실장 총평 저장됨"); })
+    .catch(e=>{ os.textContent=`저장 실패: ${e.message}`; }); }
+  else { os.textContent="DB 연결 없음 — 저장되지 않았습니다."; }
+}
+function saveWonjangOverall(sid, month){
+  const text=$("wonjangOverallText").value.trim();
+  const os=$("wonjangOverallStatus");
+  const by=currentUser?(currentUser.displayName||currentUser.email||""):"";
+  const at=new Date().toISOString();
+  S.monthlyoverall=S.monthlyoverall||{};
+  const cur=(S.monthlyoverall[sid]=S.monthlyoverall[sid]||{});
+  cur[month]=cur[month]||{mentor:{text:"",at:null,by:""},siljang:{text:"",at:null,by:""},wonjang:{text:"",at:null,by:""}};
+  cur[month].wonjang={text,at,by};
+  if(db){ db.collection("monthlyevals").doc(sid+"__"+month).set({sid,ym:month,wonjangOverall:text,wonjangOverallAt:at,wonjangOverallBy:by},{merge:true})
+    .then(()=>{ os.textContent=`저장됨 (${at.slice(0,16).replace("T"," ")})`; toast("원장 상담 저장됨"); })
     .catch(e=>{ os.textContent=`저장 실패: ${e.message}`; }); }
   else { os.textContent="DB 연결 없음 — 저장되지 않았습니다."; }
 }

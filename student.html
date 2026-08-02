@@ -544,7 +544,7 @@ function subscribe(){
     const x=d.exists?d.data():{}; S.academy={notices:x.notices||[],exams:x.exams||[]}; renderNotice();
   }, fbErr);
   db.collection("monthlyevals").where("sid","==",SID).onSnapshot(sn=>{
-    const mo={}; sn.forEach(d=>{ const x=d.data(); if(!x.ym)return; const mt=x.mentorOverall||x.overall||"",mat=x.mentorOverallAt||x.overallAt||null,mby=x.mentorOverallBy||x.overallBy||"",st=x.siljangOverall||"",sat=x.siljangOverallAt||null,sby=x.siljangOverallBy||""; if(mt||st){mo[x.ym]={mentor:{text:mt,at:mat,by:mby},siljang:{text:st,at:sat,by:sby}};} }); S.monthlyoverall=mo; renderToday();
+    const mo={}; sn.forEach(d=>{ const x=d.data(); if(!x.ym)return; const mt=x.mentorOverall||x.overall||"",mat=x.mentorOverallAt||x.overallAt||null,mby=x.mentorOverallBy||x.overallBy||"",st=x.siljangOverall||"",sat=x.siljangOverallAt||null,sby=x.siljangOverallBy||"",wt=x.wonjangOverall||"",wat=x.wonjangOverallAt||null,wby=x.wonjangOverallBy||""; if(mt||st||wt){mo[x.ym]={mentor:{text:mt,at:mat,by:mby},siljang:{text:st,at:sat,by:sby},wonjang:{text:wt,at:wat,by:wby}};} }); S.monthlyoverall=mo; renderToday();
   }, fbErr);
 }
 
@@ -586,8 +586,8 @@ function renderToday(){
   const _cm=curMonth||todayISO().slice(0,7);
   const _ov=(S.monthlyoverall||{})[_cm]||null;
   const _ovEl=$("tdOverall");
-  const _ovm=_ov?.mentor||null, _ovs=_ov?.siljang||null;
-  if(_ovm?.text||_ovs?.text){
+  const _ovm=_ov?.mentor||null, _ovs=_ov?.siljang||null, _ovw=_ov?.wonjang||null;
+  if(_ovm?.text||_ovs?.text||_ovw?.text){
     _ovEl.hidden=false;
     let _oh='<div class="card" style="border-left:4px solid #3d6b9e;background:#f0f5fb">';
     _oh+='<div class="eyebrow" style="color:#3d6b9e">MONTHLY COMMENT</div>';
@@ -601,6 +601,12 @@ function renderToday(){
       _oh+='<div style="font-size:14px;font-weight:800;color:#22304f;margin-bottom:5px">실장 총평</div>';
       _oh+='<div style="font-size:13px;line-height:1.8;color:#2a3040;white-space:pre-wrap">'+esc(_ovs.text)+'</div>';
       if(_ovs.by||_ovs.at){_oh+='<div style="font-size:10.5px;color:#7a8ba0;margin-top:6px">'+(_ovs.by?esc(_ovs.by)+' 실장 작성':'')+(_ovs.at?' · '+_ovs.at.slice(0,7).replace('-','년 ')+'월':'')+'</div>';}
+    }
+    if(_ovw?.text){
+      if(_ovm?.text||_ovs?.text)_oh+='<div style="margin:12px 0;border-top:1px dashed #bed0e8"></div>';
+      _oh+='<div style="font-size:14px;font-weight:800;color:#22304f;margin-bottom:5px">원장 상담</div>';
+      _oh+='<div style="font-size:13px;line-height:1.8;color:#2a3040;white-space:pre-wrap">'+esc(_ovw.text)+'</div>';
+      if(_ovw.by||_ovw.at){_oh+='<div style="font-size:10.5px;color:#7a8ba0;margin-top:6px">'+(_ovw.by?esc(_ovw.by)+' 원장 작성':'')+(_ovw.at?' · '+_ovw.at.slice(0,7).replace('-','년 ')+'월':'')+'</div>';}
     }
     _oh+='</div>'; _ovEl.innerHTML=_oh;
   } else { _ovEl.hidden=true; _ovEl.innerHTML=""; }
