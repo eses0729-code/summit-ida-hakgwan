@@ -2795,8 +2795,7 @@ $("genReport").onclick=()=>{
       <div class="stat"><div class="k">센터 체류 · 순공률</div><div class="v" style="font-size:16px">${fmtMinShort(sm.totalStay)} <small>· ${sm.focusRate!=null?sm.focusRate+"%":"–"}</small></div><div class="d flat">실집중 비율</div></div>
       <div class="stat"><div class="k">전월 대비 총학업</div><div class="v ${totDiff>0?"up":totDiff<0?"down":"flat"}" style="font-size:18px">${pmS.total?(totDiff>=0?"▲ +":"▼ ")+fmtMinShort(Math.abs(totDiff)):"–"}</div><div class="d flat">${pmS.total&&pctDiff!=null?(totDiff>=0?"+":"−")+Math.abs(pctDiff)+"%":"전월 기록 없음"}</div></div>
     </div>
-    ${sm.attNotes.length?`<div class="rline" style="margin-top:10px"><div class="rk">출결 사유</div><div class="rv">${sm.attNotes.map(a=>`${a.date.slice(5)} ${a.status}${a.reason?"("+a.reason+")":""}`).join(" · ")}</div></div>`:""}
-    <div class="rline"><div class="rk">학업 추세</div><div class="rv">${trend}${wkVals.length>=3?` (${wkVals.map(v=>fmtMinShort(v)).join(" → ")})`:""}${lowDay&&lowVal<Infinity?` · 주중 최저 ${DOW[lowDay]}요일 ${fmtMinShort(lowVal)}`:""}</div></div>
+    <div class="rline" style="margin-top:10px"><div class="rk">학업 추세</div><div class="rv">${trend}${wkVals.length>=3?` (${wkVals.map(v=>fmtMinShort(v)).join(" → ")})`:""}${lowDay&&lowVal<Infinity?` · 주중 최저 ${DOW[lowDay]}요일 ${fmtMinShort(lowVal)}`:""}</div></div>
 
     ${SHOW_WORD_TEST&&sm.vCount?`<div class="grp">단어 테스트</div><div class="rline"><div class="rk">누적</div><div class="rv">총 ${sm.vCount}회${sm.vPct!=null?` · 평균 정답률 ${sm.vPct}%`:""}${sm.vList.length&&sm.vList[sm.vList.length-1].range?` · 최근 ${sm.vList[sm.vList.length-1].range}`:""}</div></div>`:""}
     ${(sm.tPass+sm.tRetry)>0?`<div class="grp">학습 점검</div><div class="rline"><div class="rk">실시</div><div class="rv">총 ${sm.tPass+sm.tRetry}회 — 통과 ${sm.tPass} / 재점검 ${sm.tRetry}${Object.keys(sm.tSub).length?" · "+Object.entries(sm.tSub).map(([k,v])=>k+" "+v).join(", "):""}</div></div>`:""}
