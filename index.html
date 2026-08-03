@@ -416,7 +416,7 @@
   .sms-text{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:8px;background:#fbfaf7;font-family:inherit;font-size:13px;line-height:1.6;color:var(--text);resize:vertical}
   .g-st,.g-in,.g-out,.g-reason{padding:5px 7px;border:1px solid var(--line);border-radius:5px;width:100%;font-size:12.5px;background:#fdfdfc;font-family:inherit}
   .g-st:focus,.g-in:focus,.g-out:focus,.g-reason:focus{outline:none;border-color:var(--ink-2)}
-  @media print{ header.mast,nav.tabs,.no-print{display:none!important} body{background:#fff} .report{border:none;padding:0} #rpPrint *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important} .rep-cover{border-radius:0} @page{margin:11mm} }
+  @media print{ header.mast,nav.tabs,.no-print,#overallCard{display:none!important} body{background:#fff} .report{border:none;padding:0} #rpPrint *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important} .rep-cover{border-radius:0} @page{margin:11mm} }
   @media(max-width:720px){ .g2,.g3,.g4{grid-template-columns:1fr} .brand h1{font-size:17px} }
 </style>
 </head>
@@ -808,11 +808,11 @@
       </div>
     </div>
     <div id="reportArea"></div>
-    <div id="overallCard" hidden style="margin-top:14px">
+    <div id="overallCard" hidden class="no-print" style="margin-top:14px">
       <div class="card">
-        <div class="sec-eyebrow">MONTHLY COMMENT</div>
-        <h2>총평 <span id="overallCardMeta" style="font-size:13px;font-weight:500;color:var(--muted)"></span></h2>
-        <div class="hint">총평은 리포트 최상단에 표시됩니다. 멘토·실장·원장이 각각 작성·저장합니다. 초안은 멘토 칸에만 생성됩니다.</div>
+        <div class="sec-eyebrow">MONTHLY COMMENT · 관리자 전용</div>
+        <h2>총평 입력 <span id="overallCardMeta" style="font-size:13px;font-weight:500;color:var(--muted)"></span></h2>
+        <div class="hint">이 입력 카드는 <b>관리자 화면에만</b> 표시되며 학부모 발송본·인쇄·PDF·student.html에는 절대 포함되지 않습니다. 리포트 최상단에는 저장된 내용이 읽기 전용으로만 표시됩니다. 멘토·실장·원장이 각각 작성·저장합니다. 초안은 멘토 칸에만 생성됩니다.</div>
         <div style="border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:16px">
           <div class="sec-eyebrow" style="margin-bottom:6px">멘토 총평</div>
           <textarea id="mentorOverallText" rows="5" style="width:100%;box-sizing:border-box;font-size:13.5px;line-height:1.75;padding:10px 13px;border:1px solid var(--line);border-radius:9px;font-family:inherit;resize:vertical;margin-bottom:8px"></textarea>
@@ -2822,10 +2822,12 @@ $("genReport").onclick=()=>{
    </div></div>
    <div class="no-print" style="margin-top:14px;display:flex;gap:9px">
      <button class="btn" onclick="window.print()">인쇄 / PDF 저장</button>
-     <button class="btn ghost" id="copyReport" type="button">텍스트 복사</button></div>`;
+     <button class="btn ghost" id="copyReport" type="button">텍스트 복사</button>
+     <button class="btn ghost" id="toggleOverallCard" type="button">총평 입력 (관리자)</button></div>`;
   $("copyReport").onclick=()=>{ navigator.clipboard.writeText($("rpPrint").innerText).then(()=>toast("복사되었습니다")); };
-  // 총평 편집 카드 표시
-  const _oc=$("overallCard"); _oc.hidden=false;
+  // 총평 편집 카드: 학부모 발송본과 분리된 관리자 전용 패널. 기본은 닫힘 — 리포트를 새로 생성해도 자동으로 열리지 않는다.
+  const _oc=$("overallCard"); _oc.hidden=true;
+  $("toggleOverallCard").onclick=(e)=>{ e.preventDefault(); e.stopPropagation(); _oc.hidden=!_oc.hidden; $("toggleOverallCard").textContent=_oc.hidden?"총평 입력 (관리자)":"총평 입력 닫기"; if(!_oc.hidden)_oc.scrollIntoView({behavior:"smooth",block:"start"}); };
   $("overallCardMeta").textContent=`${month.replace("-","년 ")}월 · ${st.name}`;
   const _mta=$("mentorOverallText"), _sta=$("siljangOverallText"), _wta=$("wonjangOverallText");
   const _mos=$("mentorOverallStatus"), _sos=$("siljangOverallStatus"), _wos=$("wonjangOverallStatus");
