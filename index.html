@@ -416,7 +416,7 @@
   .sms-text{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:8px;background:#fbfaf7;font-family:inherit;font-size:13px;line-height:1.6;color:var(--text);resize:vertical}
   .g-st,.g-in,.g-out,.g-reason{padding:5px 7px;border:1px solid var(--line);border-radius:5px;width:100%;font-size:12.5px;background:#fdfdfc;font-family:inherit}
   .g-st:focus,.g-in:focus,.g-out:focus,.g-reason:focus{outline:none;border-color:var(--ink-2)}
-  @media print{ header.mast,nav.tabs,.no-print,#overallCard{display:none!important} body{background:#fff} .report{border:none;padding:0} #rpPrint *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important} .rep-cover{border-radius:0} @page{margin:11mm} }
+  @media print{ header.mast,nav.tabs,.no-print,#overallCard,#annualEditCard{display:none!important} body{background:#fff} .report{border:none;padding:0} #rpPrint *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important} .rep-cover{border-radius:0} @page{margin:11mm} }
   @media(max-width:720px){ .g2,.g3,.g4{grid-template-columns:1fr} .brand h1{font-size:17px} }
 </style>
 </head>
@@ -694,13 +694,16 @@
         </div>
       </div>
     </div>
-    <div class="card">
-      <div class="sec-eyebrow">ROADMAP</div>
-      <h2>연 / 월 개인 로드맵</h2>
-      <div class="hint">위에서 선택한 학생의 <b>월별 학습 중점·목표</b>입니다. 학부모 월간 리포트에 타임라인으로 자동 포함됩니다. (작성: 멘토)</div>
+    <div class="card no-print" id="annualEditCard">
+      <div class="sec-eyebrow">ANNUAL SCHEDULE · 관리자 전용</div>
+      <h2>연간 스케줄 (관리자)</h2>
+      <div class="hint">위에서 선택한 학생의 <b>시기별 학습 계획</b>입니다(신입생 멘토링 시 작성). 학부모 월간 리포트·student.html에 표로 자동 포함됩니다. 이 편집 화면 자체는 인쇄·발송본에는 나오지 않습니다.</div>
       <div id="rmList"></div>
-      <button class="btn ghost sm" id="rmAdd" type="button" style="margin-top:8px">+ 월 추가</button>
-      <div style="margin-top:14px"><button class="btn" id="rmSave">로드맵 저장</button></div>
+      <button class="btn ghost sm" id="rmAdd" type="button" style="margin-top:8px">+ 시기 추가</button>
+      <div style="margin-top:14px;display:flex;gap:9px;flex-wrap:wrap">
+        <button class="btn" id="rmSave" type="button">연간 스케줄 저장</button>
+        <button class="btn ghost" id="rmPrint" type="button">🖨 연간 스케줄만 출력</button>
+      </div>
     </div>
   </section>
 
@@ -1363,7 +1366,7 @@ function purgeStudent(id){
   if(!isMgr())return alert("원장·실장만 삭제할 수 있습니다.");
   const s=S.students.find(x=>x.id===id); if(!s)return;
   const n=s.name;
-  if(!confirm(`[퇴원 처리] ${n} 학생의 모든 기록을 완전히 삭제합니다.\n\n· 출결·순공시간 전체\n· 모의고사 성적\n· 입시 상담 기록\n· 멘토링 일지\n· 주간 스케줄 · 연간 로드맵\n· 지휘대(진로 궤) · 세특 탐색\n· 학습계획서 · 이행 체크\n· 단어 학습 요약\n· 학생 로그인 연결\n\n되돌릴 수 없습니다. 진행할까요?`))return;
+  if(!confirm(`[퇴원 처리] ${n} 학생의 모든 기록을 완전히 삭제합니다.\n\n· 출결·순공시간 전체\n· 모의고사 성적\n· 입시 상담 기록\n· 멘토링 일지\n· 주간 스케줄 · 연간 스케줄\n· 지휘대(진로 궤) · 세특 탐색\n· 학습계획서 · 이행 체크\n· 단어 학습 요약\n· 학생 로그인 연결\n\n되돌릴 수 없습니다. 진행할까요?`))return;
   if(!confirm(`정말 삭제합니다. 한 번 더 확인해주세요.\n\n삭제 대상: ${n}`))return;
 
   // 메모리에서 제거
@@ -1761,9 +1764,9 @@ $("scNext").onclick=()=>{ const d=new Date(mlMonday($("scDate").value)+"T00:00")
 let rmItems=[];
 function rmDraw(ro){
   const box=$("rmList"); if(!box)return;
-  box.innerHTML=rmItems.length?rmItems.map((e,i)=>`<div class="nt-row"><input type="month" class="nt-f nt-date" data-k="month" data-i="${i}" value="${e.month||""}"><textarea class="nt-f" data-k="focus" data-i="${i}" placeholder="이 달의 학습 중점·목표 (예: 6평 대비 약점 보완 · 수1 마무리)">${ntEsc(e.focus)}</textarea>${ro?"":`<button class="ml-del" data-del="${i}" type="button">✕</button>`}</div>`).join(""):`<div class="hint">등록된 로드맵이 없습니다. ‘+ 월 추가’로 작성하세요.</div>`;
+  box.innerHTML=rmItems.length?rmItems.map((e,i)=>`<div class="nt-row"><input type="text" class="nt-f nt-date" data-k="month" data-i="${i}" value="${ntEsc(e.month)}" placeholder="시기 (예: 3월, 여름방학, 2학기)"><textarea class="nt-f" data-k="focus" data-i="${i}" placeholder="이 시기의 학습 계획 (예: 6평 대비 약점 보완 · 수1 마무리)">${ntEsc(e.focus)}</textarea>${ro?"":`<button class="ml-del" data-del="${i}" type="button">✕</button>`}</div>`).join(""):`<div class="hint">등록된 연간 스케줄이 없습니다. ‘+ 시기 추가’로 작성하세요.</div>`;
   box.querySelectorAll(".nt-f").forEach(el=>{ el.oninput=()=>{ rmItems[+el.dataset.i][el.dataset.k]=el.value; }; if(ro)el.disabled=true; });
-  if(!ro) box.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{ rmItems.splice(+b.dataset.del,1); rmDraw(false); });
+  if(!ro) box.querySelectorAll("[data-del]").forEach(b=>b.onclick=(e)=>{ e.preventDefault(); e.stopPropagation(); rmItems.splice(+b.dataset.del,1); rmDraw(false); });
 }
 function renderRoadmap(){
   if(!$("rmList"))return;
@@ -1773,13 +1776,14 @@ function renderRoadmap(){
   if($("rmSave"))$("rmSave").style.display=ro?"none":"";
   if($("rmAdd"))$("rmAdd").style.display=ro?"none":"";
 }
-$("rmAdd").onclick=()=>{ if(scReadOnly())return; rmItems.push({month:"",focus:""}); rmDraw(false); };
-$("rmSave").onclick=()=>{
+$("rmAdd").onclick=(e)=>{ e.preventDefault(); e.stopPropagation(); if(scReadOnly())return; rmItems.push({month:"",focus:""}); rmDraw(false); };
+$("rmSave").onclick=(e)=>{
+  e.preventDefault(); e.stopPropagation();
   if(scReadOnly())return;
   const sid=$("scStudent").value; if(!sid)return alert("학생을 선택하세요.");
-  const items=rmItems.filter(e=>e.month||e.focus).sort((a,b)=>(a.month||"")<(b.month||"")?-1:1);
+  const items=rmItems.filter(e=>e.month||e.focus); // 입력한 순서를 그대로 유지(자유 시기 표현이라 알파벳/날짜 정렬 안 함)
   S.roadmaps=S.roadmaps||{}; S.roadmaps[sid]=items;
-  if(db) db.collection("roadmaps").doc(sid).set({sid,items}).then(()=>toast("로드맵 저장됨 — 리포트에 자동 반영")).catch(fbErr);
+  if(db) db.collection("roadmaps").doc(sid).set({sid,items},{merge:true}).then(()=>toast("연간 스케줄 저장됨 — 리포트에 자동 반영")).catch(fbErr);
   else toast("저장됨");
 };
 function scRenderAll(){ renderSchedule(); renderRoadmap(); }
@@ -2456,6 +2460,27 @@ function scPrint(){
 }
 $("scPrint").onclick=scPrint;
 
+/* ===================================================== 연간 스케줄 단독 인쇄 / PDF */
+function rmPrint(){
+  const sid=$("scStudent").value; if(!sid)return alert("학생을 선택하세요.");
+  const items=rmItems.filter(e=>e.month||e.focus);
+  if(!items.length)return alert("등록된 연간 스케줄이 없습니다.");
+  const rows=items.map(r=>`<tr><td class="pcol-subj">${scEsc(r.month)||"&nbsp;"}</td><td>${scEsc(r.focus).replace(/\n/g,"<br>")||"&nbsp;"}</td></tr>`).join("");
+  $("scPrintArea").innerHTML=`
+    <div class="pr-band">
+      <img src="${(document.querySelector(".brand img")||{}).src||LOGO_NAVY}" class="pr-logo" alt="써밋대치IDA">
+      <div class="pr-brandtext"><div class="pr-wordmark">써밋대치IDA</div><div class="pr-tag">관리형 독학재수센터</div></div>
+      <div class="pr-rtype">연간 학습 스케줄</div>
+    </div>
+    <div class="pr-meta">학생 <b>${ciEsc(studentName(sid))}</b></div>
+    <table class="pr-table"><thead><tr><th class="pcol-subj">시기</th><th>학습 계획</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="pr-foot">써밋대치IDA 관리형 독학재수센터</div>`;
+  document.body.classList.add("printing-sched");
+  window.print();
+  setTimeout(()=>document.body.classList.remove("printing-sched"),400);
+}
+$("rmPrint").onclick=(e)=>{ e.preventDefault(); e.stopPropagation(); rmPrint(); };
+
 /* ===================================================== 원장 모듈 (입시상담) */
 $("wjStudent").onchange=()=>{ renderConsults(); showWjRef(); };
 function showWjRef(){
@@ -2731,9 +2756,9 @@ $("genReport").onclick=()=>{
   if(!consAll.length && _consArr.length){ consAll=_consArr.slice(); }  // 기준월 이후뿐이면 최근 것이라도
   let consultBlock="";
   if(consAll.length){ consultBlock=repSec("입시 상담","원장 상담 기록")+consAll.slice(0,2).map(c=>`<div class="rep-consult"><div class="cc-h">${c.date}${c.next?` · 다음 상담 ${c.next}`:""}</div>${c.reach&&c.reach.length?`<div class="cc-l"><span class="tier r">상향</span> ${c.reach.join(" · ")}</div>`:""}${c.fit&&c.fit.length?`<div class="cc-l"><span class="tier f">적정</span> ${c.fit.join(" · ")}</div>`:""}${c.safe&&c.safe.length?`<div class="cc-l"><span class="tier s">안정</span> ${c.safe.join(" · ")}</div>`:""}${c.note?`<div class="cc-note">${ntEsc(c.note).replace(/\n/g,"<br>")}</div>`:""}${c.extNote?`<div class="cc-l" style="margin-top:6px"><span class="tier ext">외부 참고</span> ${c.extSrc?ntEsc(c.extSrc)+" — ":""}${ntEsc(c.extNote).replace(/\n/g,"<br>")}</div>`:""}</div>`).join(""); }
-  const rmArr=((S.roadmaps||{})[sid]||[]).slice().sort((a,b)=>(a.month||"")<(b.month||"")?-1:1);
+  const rmArr=((S.roadmaps||{})[sid]||[]); // 저장 순서 그대로(자유 시기 표현 — 정렬하지 않음)
   let roadmapBlock="";
-  if(rmArr.length){ roadmapBlock=repSec("연간 학습 로드맵","월별 학습 중점")+`<div class="rep-road">`+rmArr.map(r=>{ const cur=r.month===month; const ml=r.month?r.month.replace("-","년 ")+"월":"·"; return `<div class="rep-road-item${cur?" cur":""}"><div class="rm-m">${ml}${cur?' <span class="rm-now">이번 달</span>':''}</div>${r.focus?`<div class="rm-f">${ntEsc(r.focus).replace(/\n/g,"<br>")}</div>`:""}</div>`; }).join("")+`</div>`; }
+  if(rmArr.length){ roadmapBlock=repSec("연간 스케줄","시기별 학습 계획")+`<div class="rep-road">`+rmArr.map(r=>{ const cur=r.month===month; const ml=/^\d{4}-\d{2}$/.test(r.month||"")?r.month.replace("-","년 ")+"월":(r.month||"·"); return `<div class="rep-road-item${cur?" cur":""}"><div class="rm-m">${ntEsc(ml)}${cur?' <span class="rm-now">이번 달</span>':''}</div>${r.focus?`<div class="rm-f">${ntEsc(r.focus).replace(/\n/g,"<br>")}</div>`:""}</div>`; }).join("")+`</div>`; }
   const schW=Object.keys((S.schedules||{})[sid]||{}).filter(w=>w.slice(0,7)===month).sort();
   let schedBlock="";
   if(schW.length){ schedBlock=repSec("주간 학습 스케줄","과목별 주간 계획")+schW.map(w=>{ const dd=S.schedules[sid][w]; const rows=(dd.rows||[]).filter(r=>r.subject||((r.days||[]).some(x=>x))); if(!rows.length)return ""; const head=`<tr><th>과목</th>${DL_.map(x=>`<th>${x}</th>`).join("")}</tr>`; const body=rows.map(r=>`<tr><td class="s">${ntEsc(r.subject)||"&nbsp;"}</td>${(r.days||[]).map(v=>`<td>${ntEsc(v).replace(/\n/g,"<br>")||""}</td>`).join("")}</tr>`).join(""); return `<div class="rep-wk">${weekLabelOf(w)}</div><div class="rep-sched-wrap"><table class="rep-sched"><thead>${head}</thead><tbody>${body}</tbody></table></div>`; }).join(""); }

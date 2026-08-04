@@ -342,9 +342,9 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
       <div id="scNote" style="margin-top:12px"></div>
     </div>
     <div class="card">
-      <div class="eyebrow">ROADMAP</div>
-      <h2>연 / 월 로드맵</h2>
-      <div class="hint">월별 학습 중점입니다.</div>
+      <div class="eyebrow">ANNUAL SCHEDULE</div>
+      <h2>연간 스케줄</h2>
+      <div class="hint">시기별 학습 계획입니다.</div>
       <div id="rmBody"></div>
     </div>
   </section>
@@ -724,12 +724,13 @@ function renderSched(){
     if(sc.mentorComment)nt.push(`<div style="font-size:12.5px"><b>선생님 코멘트</b> · ${esc(sc.mentorComment)}</div>`);
     $("scNote").innerHTML=nt.length?`<div style="background:#faf9f6;border:1px solid var(--line);border-radius:8px;padding:10px 12px">${nt.join("")}</div>`:"";
   }
-  // 로드맵
+  // 연간 스케줄
   const cm=todayISO().slice(0,7);
-  $("rmBody").innerHTML=S.roadmap.length?`<div class="rd">`+S.roadmap.slice().sort((a,b)=>(a.month||"")<(b.month||"")?-1:1).map(r=>{
+  $("rmBody").innerHTML=S.roadmap.length?`<div class="rd">`+S.roadmap.map(r=>{
     const cur=r.month===cm;
-    return `<div class="rd-i${cur?" cur":""}"><div class="rd-m">${r.month?r.month.replace("-","년 ")+"월":"·"}${cur?' <span class="tag" style="background:var(--gold);color:#fff">이번 달</span>':''}</div>${r.focus?`<div class="rd-f">${esc(r.focus).replace(/\n/g,"<br>")}</div>`:""}</div>`;
-  }).join("")+`</div>`:`<div class="empty">등록된 로드맵이 없습니다.</div>`;
+    const ml=/^\d{4}-\d{2}$/.test(r.month||"")?r.month.replace("-","년 ")+"월":(r.month||"·");
+    return `<div class="rd-i${cur?" cur":""}"><div class="rd-m">${esc(ml)}${cur?' <span class="tag" style="background:var(--gold);color:#fff">이번 달</span>':''}</div>${r.focus?`<div class="rd-f">${esc(r.focus).replace(/\n/g,"<br>")}</div>`:""}</div>`;
+  }).join("")+`</div>`:`<div class="empty">등록된 연간 스케줄이 없습니다.</div>`;
 }
 $("scPrev").onclick=()=>{ const d=new Date(curWeek+"T00:00"); d.setDate(d.getDate()-7); curWeek=ymd(d); renderSched(); };
 $("scNext").onclick=()=>{ const d=new Date(curWeek+"T00:00"); d.setDate(d.getDate()+7); curWeek=ymd(d); renderSched(); };
