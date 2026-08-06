@@ -221,6 +221,13 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
     <button class="btn ghost sm" id="lkOut" style="width:100%;margin-top:12px">다른 계정으로 로그인</button>
     <div class="err" id="lkErr"></div>
   </div>
+
+  <div class="box" id="wdBox" style="display:none;text-align:center">
+    <div class="sym" style="background:linear-gradient(135deg,#a83722,#7a2716);margin:0 auto 14px">!</div>
+    <h2>퇴원 처리된 계정입니다</h2>
+    <p>자세한 사항은 학원으로 문의해 주세요.</p>
+    <button class="btn ghost" id="wdLogout" style="width:100%">로그아웃</button>
+  </div>
 </div>
 
 <header class="mast">
@@ -461,6 +468,7 @@ $("gBtn").onclick=async()=>{
 $("gPw").addEventListener("keydown",e=>{ if(e.key==="Enter")$("gBtn").onclick(); });
 $("logout").onclick=()=>auth.signOut();
 $("lkOut").onclick=()=>auth.signOut();
+$("wdLogout").onclick=()=>auth.signOut();
 
 /* 연결 요청 (학생이 본인 이름을 알려주면 선생님이 승인) */
 $("lkSend").onclick=async()=>{
@@ -486,22 +494,28 @@ function showGate(which){
   $("gate").style.display="flex";
   $("gBox").style.display = which==="login"?"block":"none";
   $("linkBox").style.display = which==="link"?"block":"none";
+  $("wdBox").style.display = which==="withdrawn"?"block":"none";
 }
 
+let _studentUnsub=null, _subscribed=false;
 auth.onAuthStateChanged(async(user)=>{
   if(_linkUnsub){ _linkUnsub(); _linkUnsub=null; }
+  if(_studentUnsub){ _studentUnsub(); _studentUnsub=null; }
+  _subscribed=false;
   if(!user){ showGate("login"); $("gBtn").disabled=false; SID=null; return; }
   // 승인 여부를 실시간 감시 — 선생님이 연결하면 즉시 입장
   _linkUnsub=db.collection("studentLinks").doc(user.uid).onSnapshot(async(d)=>{
     if(!d.exists){ await showLinkScreen(user); return; }
-    try{
-      SID=d.data().sid;
-      const st=await db.collection("students").doc(SID).get();
+    SID=d.data().sid;
+    if(_studentUnsub){ _studentUnsub(); _studentUnsub=null; }
+    // 학생 문서를 실시간 감시 — 퇴원 처리/재원 복원 상태를 즉시 반영
+    _studentUnsub=db.collection("students").doc(SID).onSnapshot(st=>{
       ME=st.exists?st.data():{name:"학생"};
+      if(ME.status==="퇴원"){ showGate("withdrawn"); return; }
       $("who").textContent=`${ME.name||"학생"} ${ME.grade?"· "+ME.grade:""}`;
       $("gate").style.display="none";
-      subscribe();
-    }catch(e){ fbErr(e); }
+      if(!_subscribed){ _subscribed=true; subscribe(); }
+    }, fbErr);
   }, async(err)=>{ console.error(err); await showLinkScreen(user); });
 });
 
