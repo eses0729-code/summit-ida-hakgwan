@@ -66,6 +66,8 @@
   .btn.sm{padding:6px 12px;font-size:12.5px}
   .btn.danger{background:none;border:1px solid var(--alert);color:var(--alert)}
   .btn.danger:hover{background:var(--alert-bg)}
+  .btn.warn{background:none;border:1px solid #9a6a16;color:#9a6a16}
+  .btn.warn:hover{background:#f7efdc}
 
   table{width:100%;border-collapse:collapse;font-size:13px}
   th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line-2)}
@@ -468,6 +470,7 @@
     <button data-tab="mock">모의고사</button>
     <button data-tab="report">학부모 리포트</button>
     <button data-tab="students">학생 관리</button>
+    <button data-tab="archive">퇴원생 보관</button>
     <button data-tab="data">데이터</button>
     <button class="tab-btn" data-tab="strategy" data-mtag="원장">대입전략</button>
   </nav>
@@ -883,6 +886,15 @@
     </div>
   </section>
 
+  <!-- ============ 퇴원생 보관 ============ -->
+  <section id="tab-archive" hidden>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><div class="sec-eyebrow">ARCHIVE</div><h2 style="margin:0">퇴원생 보관 <span id="archCount" class="tag"></span></h2></div></div>
+      <div class="hint">퇴원 처리된 학생은 활성 로스터·재원 수에서 제외됩니다. 출결·순공·모의고사·상담 등 모든 기록은 삭제되지 않고 그대로 보관되며, 여기서 <b>재원 복원</b> 또는 <b>완전 삭제</b>를 할 수 있습니다.</div>
+      <div id="archiveTable" style="margin-top:14px"></div>
+    </div>
+  </section>
+
   <!-- ============ 대입전략 ============ -->
   <section id="tab-strategy" hidden>
     <div class="card">
@@ -1071,6 +1083,7 @@ function refresh(){
     if(!currentRole)return;
     initMonths(); fillStudentSelects();
     try{ renderSilRecent(); }catch(e){} try{ renderStudents(); }catch(e){}
+    if($("tab-archive")&&!$("tab-archive").hidden){try{renderArchive();}catch(e){}}
     try{ if($("tab-mentor")&&!$("tab-mentor").hidden){ let ed=false; try{ ed=document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#tab-mentor"); }catch(_){} if(!ed) renderMentorLog(); } }catch(e){}
     try{ if($("tab-sched")&&!$("tab-sched").hidden){ let ed=false; try{ ed=document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#tab-sched"); }catch(_){} if(!ed){ renderSchedule(); renderRoadmap(); } } }catch(e){}
     try{ if($("tab-checkin")&&!$("tab-checkin").hidden) renderCheckin(); }catch(e){}
@@ -1137,6 +1150,8 @@ function toMin(t){ if(!t)return null; const[a,b]=t.split(":").map(Number); retur
 function ym(d){ return d.slice(0,7); }
 function curMonth(){ return $("monthSel").value; }
 function studentName(sid){ const s=S.students.find(x=>x.id===sid); return s?s.name:"–"; }
+function activeStudents(){ return S.students.filter(s=>s.status!=="퇴원"); }
+function archivedStudents(){ return S.students.filter(s=>s.status==="퇴원"); }
 function logsOf(sid,month){ const all=S.logs[sid]||{}; const out=[]; for(const d in all)if(ym(d)===month)out.push({date:d,...all[d]}); return out.sort((a,b)=>a.date<b.date?-1:1); }
 function prevMonth(month){ const[y,m]=month.split("-").map(Number); const dt=new Date(y,m-2,1); return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}`; }
 const isAcad=c=>c==="학원수업"||c==="보강";
@@ -1189,7 +1204,7 @@ function initMonths(){
   sel.value=prev&&arr.includes(prev)?prev:`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
 }
 function fillStudentSelects(){
-  const opts=S.students.map(s=>`<option value="${s.id}">${s.name} (${s.grade})</option>`).join("");
+  const opts=activeStudents().map(s=>`<option value="${s.id}">${s.name} (${s.grade})</option>`).join("");
   ["silStudent","mtStudent","wjStudent","anStudent","mkStudent","rpStudent","smsMonStudent","scStudent"].forEach(id=>{
     const el=$(id); if(!el)return; const prev=el.value; el.innerHTML=opts||`<option value="">학생 없음</option>`;
     if(prev&&S.students.some(s=>s.id===prev))el.value=prev;
@@ -1198,7 +1213,7 @@ function fillStudentSelects(){
 }
 
 /* ---------- tabs / role ---------- */
-const TABS=["siljang","checkin","grid","sms","notice","mentor","sched","tower","wonjang","analysis","mock","report","students","data"];
+const TABS=["siljang","checkin","grid","sms","notice","mentor","sched","tower","wonjang","analysis","mock","report","students","archive","data"];
 function switchTab(name){
   document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===name));
   TABS.forEach(t=>$("tab-"+t).hidden=(t!==name));
@@ -1213,6 +1228,7 @@ function switchTab(name){
   if(name==="tower"){renderTower(); try{renderUsage();}catch(e){}}
   if(name==="checkin")try{ciBulkTag();}catch(e){}
   if(name==="students")try{renderLinkReqs();}catch(e){}
+  if(name==="archive")renderArchive();
 }
 document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
 $("roleSel").onchange=()=>{ const map={실장:"siljang",멘토:"mentor",원장:"wonjang"}; switchTab(map[$("roleSel").value]); };
@@ -1245,17 +1261,17 @@ function loadStudentForm(id){ const s=S.students.find(x=>x.id===id); if(!s)retur
   window.scrollTo({top:0,behavior:"smooth"});
 }
 function renderStudents(){
-  const t=$("studentTable"); const cnt=$("stCount"); if(cnt)cnt.textContent=`총 ${S.students.length}명`;
-  if(!S.students.length){ t.innerHTML=`<div class="empty"><div class="ic">＋</div>등록된 학생이 없습니다. 위에서 추가하세요.</div>`; return; }
+  const t=$("studentTable"); const active=activeStudents(); const cnt=$("stCount"); if(cnt)cnt.textContent=`재원 ${active.length}명`;
+  if(!active.length){ t.innerHTML=`<div class="empty"><div class="ic">＋</div>등록된 재원생이 없습니다. 위에서 추가하세요.</div>`; return; }
   const q=(($("stSearch")&&$("stSearch").value)||"").trim();
-  let list=S.students.slice().sort((a,b)=>(a.name||"").localeCompare(b.name||"","ko")); if(q)list=list.filter(s=>(s.name+(s.school||"")).includes(q));
+  let list=active.slice().sort((a,b)=>(a.name||"").localeCompare(b.name||"","ko")); if(q)list=list.filter(s=>(s.name+(s.school||"")).includes(q));
   if(!list.length){ t.innerHTML=`<div class="empty">검색 결과가 없습니다.</div>`; return; }
   t.innerHTML=`<table><thead><tr><th>이름</th><th>학교</th><th>학년</th><th class="num">목표 학업/일</th><th>목표 대학</th><th>학부모 연락처</th><th>학생 계정</th><th>관리</th></tr></thead><tbody>`+
    list.map(s=>`<tr><td><b>${s.name}</b></td><td>${s.school||"–"}</td><td>${s.grade}</td><td class="num">${s.goalDailyMin?fmtMinShort(s.goalDailyMin):"–"}</td><td>${s.target||"–"}</td><td>${s.phone||"–"}</td>
      <td>${s.uid?'<span class="tag" style="background:#e7f3ec;color:#2f7d5b">계정 연결</span>':'<span class="tag" style="background:#f3f1ec;color:#7c7a72">미연결</span>'}</td>
-     <td style="white-space:nowrap"><button class="btn ghost sm" data-edit="${s.id}">수정</button> <button class="btn danger sm" data-del="${s.id}">삭제</button></td></tr>`).join("")+`</tbody></table>`;
+     <td style="white-space:nowrap"><button class="btn ghost sm" data-edit="${s.id}">수정</button> <button class="btn warn sm" data-withdraw="${s.id}">퇴원 처리</button></td></tr>`).join("")+`</tbody></table>`;
   t.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>loadStudentForm(b.dataset.edit));
-  t.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>purgeStudent(b.dataset.del));
+  t.querySelectorAll("[data-withdraw]").forEach(b=>b.onclick=()=>withdrawStudent(b.dataset.withdraw));
 }
 
 /* ===================================================== 학생 로그인 승인 (구글 로그인 연결) */
@@ -1271,7 +1287,7 @@ function renderLinkReqs(){
     const r=_lreq[uid];
     const nm=(r.name||"").trim();
     // 이름이 같고 아직 계정이 없는 학생을 자동 후보로
-    const cand=S.students.filter(s=>!s.uid);
+    const cand=activeStudents().filter(s=>!s.uid);
     const auto=cand.find(s=>s.name.trim()===nm);
     const opts=cand.map(s=>`<option value="${s.id}" ${auto&&auto.id===s.id?"selected":""}>${esc(s.name)} (${esc(s.grade)})</option>`).join("");
     return `<div class="lr-row">
@@ -1362,11 +1378,43 @@ function vclrRun(){
 $("vclrScan").onclick=vclrScan;
 $("vclrRun").onclick=vclrRun;
 
+function withdrawStudent(id){
+  if(!isMgr())return alert("원장·실장만 처리할 수 있습니다.");
+  const s=S.students.find(x=>x.id===id); if(!s)return;
+  if(!confirm(`[퇴원 처리] ${s.name} 학생을 '퇴원생 보관'으로 이동합니다.\n\n· 출결·순공·모의고사·상담 등 모든 기록은 삭제되지 않고 그대로 보관됩니다.\n· 활성 로스터·재원 수에서 제외됩니다.\n· 보관함에서 언제든 재원 복원하거나 완전 삭제할 수 있습니다.\n\n진행할까요?`))return;
+  s.status="퇴원"; s.withdrawnAt=ciTodayISO();
+  if(editingStudent===id)resetStudentForm();
+  save(); fillStudentSelects(); renderStudents(); renderArchive(); renderSilRecent(); renderMtRecent();
+  try{ renderTower(); }catch(e){}
+  toast(`${s.name} 학생을 퇴원 처리했습니다 — 보관함으로 이동`);
+}
+function restoreStudent(id){
+  if(!isMgr())return alert("원장·실장만 처리할 수 있습니다.");
+  const s=S.students.find(x=>x.id===id); if(!s)return;
+  if(!confirm(`${s.name} 학생을 재원 상태로 복원합니다.\n활성 로스터·재원 수에 다시 포함됩니다. 진행할까요?`))return;
+  delete s.status; delete s.withdrawnAt;
+  save(); fillStudentSelects(); renderStudents(); renderArchive(); renderSilRecent(); renderMtRecent();
+  try{ renderTower(); }catch(e){}
+  toast(`${s.name} 학생을 재원 복원했습니다`);
+}
+function renderArchive(){
+  const box=$("archiveTable"); if(!box)return;
+  const list=archivedStudents().slice().sort((a,b)=>(b.withdrawnAt||"").localeCompare(a.withdrawnAt||""));
+  const cnt=$("archCount"); if(cnt)cnt.textContent=`${list.length}명`;
+  if(!list.length){ box.innerHTML=`<div class="empty"><div class="ic">▤</div>보관된 퇴원생이 없습니다.</div>`; return; }
+  box.innerHTML=`<table><thead><tr><th>이름</th><th>학교</th><th>학년</th><th>퇴원일</th><th>관리</th></tr></thead><tbody>`+
+   list.map(s=>`<tr><td><b>${esc(s.name)}</b></td><td>${esc(s.school||"–")}</td><td>${esc(s.grade||"–")}</td><td>${esc(s.withdrawnAt||"–")}</td>
+     <td style="white-space:nowrap"><button class="btn ghost sm" data-restore="${s.id}">재원 복원</button> <button class="btn danger sm" data-purge="${s.id}">완전 삭제</button></td></tr>`).join("")+`</tbody></table>`;
+  box.querySelectorAll("[data-restore]").forEach(b=>b.onclick=()=>restoreStudent(b.dataset.restore));
+  box.querySelectorAll("[data-purge]").forEach(b=>b.onclick=()=>purgeStudent(b.dataset.purge));
+}
+
 function purgeStudent(id){
   if(!isMgr())return alert("원장·실장만 삭제할 수 있습니다.");
   const s=S.students.find(x=>x.id===id); if(!s)return;
+  if(s.status!=="퇴원")return alert("먼저 '퇴원 처리'로 보관함에 옮긴 뒤 완전 삭제할 수 있습니다.");
   const n=s.name;
-  if(!confirm(`[퇴원 처리] ${n} 학생의 모든 기록을 완전히 삭제합니다.\n\n· 출결·순공시간 전체\n· 모의고사 성적\n· 입시 상담 기록\n· 멘토링 일지\n· 주간 스케줄 · 연간 스케줄\n· 지휘대(진로 궤) · 세특 탐색\n· 학습계획서 · 이행 체크\n· 단어 학습 요약\n· 학생 로그인 연결\n\n되돌릴 수 없습니다. 진행할까요?`))return;
+  if(!confirm(`[완전 삭제] ${n} 학생의 모든 기록을 영구히 삭제합니다.\n\n· 출결·순공시간 전체\n· 모의고사 성적\n· 입시 상담 기록\n· 멘토링 일지\n· 주간 스케줄 · 연간 스케줄\n· 지휘대(진로 궤) · 세특 탐색\n· 학습계획서 · 이행 체크\n· 단어 학습 요약\n· 학생 로그인 연결\n\n되돌릴 수 없습니다. 진행할까요?`))return;
   if(!confirm(`정말 삭제합니다. 한 번 더 확인해주세요.\n\n삭제 대상: ${n}`))return;
 
   // 메모리에서 제거
@@ -1388,9 +1436,9 @@ function purgeStudent(id){
     if(s.uid) db.collection("studentLinks").doc(s.uid).delete().catch(()=>{});
   }
   if(editingStudent===id)resetStudentForm();
-  save(); fillStudentSelects(); renderStudents(); renderSilRecent(); renderMtRecent();
+  save(); fillStudentSelects(); renderStudents(); renderArchive(); renderSilRecent(); renderMtRecent();
   try{ renderTower(); }catch(e){}
-  toast(`${n} 학생의 모든 기록이 삭제되었습니다`);
+  toast(`${n} 학생의 모든 기록이 완전히 삭제되었습니다`);
   if(s.uid) setTimeout(()=>alert(`${n} 학생의 데이터는 모두 삭제되었습니다.\n\n로그인 계정까지 없애려면 Firebase 콘솔 → Authentication → Users 에서 아래 계정을 삭제하세요:\n\nUID: ${s.uid}`),300);
 }
 
@@ -1508,10 +1556,10 @@ function renderSilRecent(){
 $("gridDate").onchange=renderGrid;
 $("gridFillNormal").onclick=()=>{ $("gridTable").querySelectorAll(".g-st").forEach(s=>{ if(s.value==="—")s.value="정상"; }); };
 function renderGrid(){
-  const date=$("gridDate").value, box=$("gridTable");
-  if(!S.students.length){ box.innerHTML=`<div class="empty">학생을 먼저 등록하세요.</div>`; return; }
+  const date=$("gridDate").value, box=$("gridTable"); const roster=activeStudents();
+  if(!roster.length){ box.innerHTML=`<div class="empty">학생을 먼저 등록하세요.</div>`; return; }
   if(!date){ box.innerHTML=`<div class="empty">날짜를 선택하세요.</div>`; return; }
-  const rows=S.students.map(s=>{ const l=(S.logs[s.id]||{})[date]||{}; const st=l.status||"—";
+  const rows=roster.map(s=>{ const l=(S.logs[s.id]||{})[date]||{}; const st=l.status||"—";
     const opts=["—","정상","지각","조퇴","결석"].map(o=>`<option ${o===st?"selected":""}>${o}</option>`).join("");
     return `<tr data-sid="${s.id}"><td><b>${s.name}</b> <span class="tag">${s.grade}</span></td>
       <td><select class="g-st">${opts}</select></td>
@@ -1595,7 +1643,7 @@ $("smsMode").querySelectorAll("button").forEach(b=>b.onclick=()=>{
 $("smsGen").onclick=()=>{
   const date=$("smsDate").value; if(!date)return alert("날짜를 선택하세요.");
   const tgt=$("smsTarget").value; let items=[];
-  if(tgt==="__all__"){ S.students.forEach(s=>{ const t=smsDaily(s.id,date); if(t)items.push({name:s.name,text:t,sid:s.id}); }); }
+  if(tgt==="__all__"){ activeStudents().forEach(s=>{ const t=smsDaily(s.id,date); if(t)items.push({name:s.name,text:t,sid:s.id}); }); }
   else { const t=smsDaily(tgt,date); if(t)items.push({name:studentName(tgt),text:t,sid:tgt}); }
   smsRenderList(items);
 };
@@ -2110,7 +2158,7 @@ $("imRun").onclick=()=>{
 const US_LABEL={today:"오늘",cond:"지휘대",explore:"세특탐색",record:"내 기록",sched:"스케줄",mock:"성적",plan:"학습계획서",notice:"공지"};
 function renderUsage(){
   if(!$("usTable"))return;
-  const rows=S.students.map(s=>({s,u:(S.usage||{})[s.id]})).filter(x=>x.u);
+  const rows=activeStudents().map(s=>({s,u:(S.usage||{})[s.id]})).filter(x=>x.u);
   if(!rows.length){
     $("usSummary").innerHTML=`<div class="hint">아직 학생 앱 접속 기록이 없습니다. 학생 계정을 연결하고 주소를 안내하세요.</div>`;
     $("usTable").innerHTML=""; return;
@@ -2173,7 +2221,7 @@ function twCell(sid,key,gnum){
 let twStuckOnly=false, twOpen=null;
 function twRows(){
   const g=$("twGrade")?$("twGrade").value:"";
-  return S.students.filter(s=>!g||s.grade===g);
+  return activeStudents().filter(s=>!g||s.grade===g);
 }
 function renderTower(){
   if(!$("twMx"))return;
@@ -2281,10 +2329,10 @@ function ciEsc(s){ return (s==null?"":String(s)).replace(/&/g,"&amp;").replace(/
 function renderCheckin(){
   const box=$("ciBoard"); if(!box)return;
   if($("ciClock"))$("ciClock").textContent=nowHM();
-  const date=$("ciDate").value||ciTodayISO();
-  if(!S.students.length){ box.innerHTML=`<div class="empty">학생을 먼저 등록하세요.</div>`; if($("ciSummary"))$("ciSummary").innerHTML=""; return; }
+  const date=$("ciDate").value||ciTodayISO(); const roster=activeStudents();
+  if(!roster.length){ box.innerHTML=`<div class="empty">학생을 먼저 등록하세요.</div>`; if($("ciSummary"))$("ciSummary").innerHTML=""; return; }
   let cN=0,cL=0,cE=0,cA=0,cNone=0,cOut=0;
-  box.innerHTML=S.students.map(s=>{
+  box.innerHTML=roster.map(s=>{
     const l=(S.logs[s.id]||{})[date]||{}; const st=l.status||"";
     if(st==="정상")cN++; else if(st==="지각")cL++; else if(st==="조퇴")cE++; else if(st==="결석")cA++; else cNone++;
     const isOut=!!l.outStart; if(isOut)cOut++;
@@ -2393,10 +2441,10 @@ function ciRecalc(l){
   return l;
 }
 function ciPending(){
-  const date=$("ciDate").value||todayISO();
+  const date=$("ciDate").value||ciTodayISO();
   const base={status:"",inTime:"",outTime:"",reason:"",outings:[],studyMin:0,vocab:null,tests:[],comments:[],outStart:"",outCat:""};
   const noIn=[],noOut=[];
-  S.students.forEach(s=>{
+  activeStudents().forEach(s=>{
     const l=Object.assign({},base,(S.logs[s.id]||{})[date]||{});
     if(l.status==="결석")return;
     if(!l.inTime)noIn.push(s.id);
@@ -2943,7 +2991,7 @@ function stratFillUnivSel(){
 function stratFillStSel(){
   const sel=$("stratStSel"); if(!sel)return;
   sel.innerHTML='<option value="">학생 선택…</option>';
-  S.students.forEach(s=>{ const o=document.createElement("option"); o.value=s.id; o.textContent=s.name; sel.appendChild(o); });
+  activeStudents().forEach(s=>{ const o=document.createElement("option"); o.value=s.id; o.textContent=s.name; sel.appendChild(o); });
 }
 function renderStratTab(){
   if(!$("tab-strategy")||$("tab-strategy").hidden)return;
