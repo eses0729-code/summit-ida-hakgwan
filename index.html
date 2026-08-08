@@ -1152,6 +1152,15 @@ function curMonth(){ return $("monthSel").value; }
 function studentName(sid){ const s=S.students.find(x=>x.id===sid); return s?s.name:"–"; }
 function activeStudents(){ return S.students.filter(s=>s.status!=="퇴원"); }
 function archivedStudents(){ return S.students.filter(s=>s.status==="퇴원"); }
+/* 이름 가나다순 정렬(공용) — 단순 </> 비교 대신 localeCompare('ko')로 정확한 한글 순서를 쓴다.
+   동명이인은 학년·id로 보조 정렬해 순서가 매번 흔들리지 않게 한다. 원본 배열은 건드리지 않는다(.slice()). */
+function sortByNameKo(arr){
+  return arr.slice().sort((a,b) =>
+    (a.name||"").localeCompare(b.name||"", "ko")
+    || String(a.grade||"").localeCompare(String(b.grade||""), "ko")
+    || String(a.id||"").localeCompare(String(b.id||""))
+  );
+}
 function logsOf(sid,month){ const all=S.logs[sid]||{}; const out=[]; for(const d in all)if(ym(d)===month)out.push({date:d,...all[d]}); return out.sort((a,b)=>a.date<b.date?-1:1); }
 function prevMonth(month){ const[y,m]=month.split("-").map(Number); const dt=new Date(y,m-2,1); return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}`; }
 const isAcad=c=>c==="학원수업"||c==="보강";
@@ -1556,7 +1565,7 @@ function renderSilRecent(){
 $("gridDate").onchange=renderGrid;
 $("gridFillNormal").onclick=()=>{ $("gridTable").querySelectorAll(".g-st").forEach(s=>{ if(s.value==="—")s.value="정상"; }); };
 function renderGrid(){
-  const date=$("gridDate").value, box=$("gridTable"); const roster=activeStudents();
+  const date=$("gridDate").value, box=$("gridTable"); const roster=sortByNameKo(activeStudents());
   if(!roster.length){ box.innerHTML=`<div class="empty">학생을 먼저 등록하세요.</div>`; return; }
   if(!date){ box.innerHTML=`<div class="empty">날짜를 선택하세요.</div>`; return; }
   const rows=roster.map(s=>{ const l=(S.logs[s.id]||{})[date]||{}; const st=l.status||"—";
@@ -2329,7 +2338,7 @@ function ciEsc(s){ return (s==null?"":String(s)).replace(/&/g,"&amp;").replace(/
 function renderCheckin(){
   const box=$("ciBoard"); if(!box)return;
   if($("ciClock"))$("ciClock").textContent=nowHM();
-  const date=$("ciDate").value||ciTodayISO(); const roster=activeStudents();
+  const date=$("ciDate").value||ciTodayISO(); const roster=sortByNameKo(activeStudents());
   if(!roster.length){ box.innerHTML=`<div class="empty">학생을 먼저 등록하세요.</div>`; if($("ciSummary"))$("ciSummary").innerHTML=""; return; }
   let cN=0,cL=0,cE=0,cA=0,cNone=0,cOut=0;
   box.innerHTML=roster.map(s=>{
