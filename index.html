@@ -1213,7 +1213,7 @@ function initMonths(){
   sel.value=prev&&arr.includes(prev)?prev:`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
 }
 function fillStudentSelects(){
-  const opts=activeStudents().map(s=>`<option value="${s.id}">${s.name} (${s.grade})</option>`).join("");
+  const opts=sortByNameKo(activeStudents()).map(s=>`<option value="${s.id}">${s.name} (${s.grade})</option>`).join("");
   ["silStudent","mtStudent","wjStudent","anStudent","mkStudent","rpStudent","smsMonStudent","scStudent"].forEach(id=>{
     const el=$(id); if(!el)return; const prev=el.value; el.innerHTML=opts||`<option value="">학생 없음</option>`;
     if(prev&&S.students.some(s=>s.id===prev))el.value=prev;
@@ -1652,7 +1652,7 @@ $("smsMode").querySelectorAll("button").forEach(b=>b.onclick=()=>{
 $("smsGen").onclick=()=>{
   const date=$("smsDate").value; if(!date)return alert("날짜를 선택하세요.");
   const tgt=$("smsTarget").value; let items=[];
-  if(tgt==="__all__"){ activeStudents().forEach(s=>{ const t=smsDaily(s.id,date); if(t)items.push({name:s.name,text:t,sid:s.id}); }); }
+  if(tgt==="__all__"){ sortByNameKo(activeStudents()).forEach(s=>{ const t=smsDaily(s.id,date); if(t)items.push({name:s.name,text:t,sid:s.id}); }); }
   else { const t=smsDaily(tgt,date); if(t)items.push({name:studentName(tgt),text:t,sid:tgt}); }
   smsRenderList(items);
 };
@@ -2167,7 +2167,7 @@ $("imRun").onclick=()=>{
 const US_LABEL={today:"오늘",cond:"지휘대",explore:"세특탐색",record:"내 기록",sched:"스케줄",mock:"성적",plan:"학습계획서",notice:"공지"};
 function renderUsage(){
   if(!$("usTable"))return;
-  const rows=activeStudents().map(s=>({s,u:(S.usage||{})[s.id]})).filter(x=>x.u);
+  const rows=sortByNameKo(activeStudents()).map(s=>({s,u:(S.usage||{})[s.id]})).filter(x=>x.u);
   if(!rows.length){
     $("usSummary").innerHTML=`<div class="hint">아직 학생 앱 접속 기록이 없습니다. 학생 계정을 연결하고 주소를 안내하세요.</div>`;
     $("usTable").innerHTML=""; return;
@@ -2230,7 +2230,7 @@ function twCell(sid,key,gnum){
 let twStuckOnly=false, twOpen=null;
 function twRows(){
   const g=$("twGrade")?$("twGrade").value:"";
-  return activeStudents().filter(s=>!g||s.grade===g);
+  return sortByNameKo(activeStudents()).filter(s=>!g||s.grade===g);
 }
 function renderTower(){
   if(!$("twMx"))return;
@@ -3000,7 +3000,7 @@ function stratFillUnivSel(){
 function stratFillStSel(){
   const sel=$("stratStSel"); if(!sel)return;
   sel.innerHTML='<option value="">학생 선택…</option>';
-  activeStudents().forEach(s=>{ const o=document.createElement("option"); o.value=s.id; o.textContent=s.name; sel.appendChild(o); });
+  sortByNameKo(activeStudents()).forEach(s=>{ const o=document.createElement("option"); o.value=s.id; o.textContent=s.name; sel.appendChild(o); });
 }
 function renderStratTab(){
   if(!$("tab-strategy")||$("tab-strategy").hidden)return;
