@@ -418,7 +418,7 @@
   .sms-text{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:8px;background:#fbfaf7;font-family:inherit;font-size:13px;line-height:1.6;color:var(--text);resize:vertical}
   .g-st,.g-in,.g-out,.g-reason{padding:5px 7px;border:1px solid var(--line);border-radius:5px;width:100%;font-size:12.5px;background:#fdfdfc;font-family:inherit}
   .g-st:focus,.g-in:focus,.g-out:focus,.g-reason:focus{outline:none;border-color:var(--ink-2)}
-  @media print{ header.mast,nav.tabs,.no-print,#overallCard,#annualEditCard{display:none!important} body{background:#fff} .report{border:none;padding:0} #rpPrint *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important} .rep-cover{border-radius:0} @page{margin:11mm} }
+  @media print{ header.mast,nav.tabs,.no-print,#overallCard,#annualEditCard,#summerOverallCard{display:none!important} body{background:#fff} .report{border:none;padding:0} #rpPrint *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important} .rep-cover{border-radius:0} @page{margin:11mm} }
   @media(max-width:720px){ .g2,.g3,.g4{grid-template-columns:1fr} .brand h1{font-size:17px} }
 </style>
 </head>
@@ -468,6 +468,7 @@
     <span class="divider"></span>
     <button data-tab="analysis">분석</button>
     <button data-tab="mock">모의고사</button>
+    <button data-tab="summer">썸머클래스</button>
     <button data-tab="report">학부모 리포트</button>
     <button data-tab="students">학생 관리</button>
     <button data-tab="archive">퇴원생 보관</button>
@@ -802,15 +803,50 @@
     </div>
   </section>
 
+  <!-- ============ 썸머클래스(방학 기간 수강) ============ -->
+  <section id="tab-summer" hidden>
+    <div class="card no-print">
+      <div class="sec-eyebrow">SUMMER CLASS</div><h2>썸머클래스 — 학생별 수강 기간</h2>
+      <div class="hint">방학 특강은 학생마다 3~6주씩 개별 기간으로 수강합니다. 여기서 학생별 시작~종료일을 등록하면 "학부모 리포트" 탭에서 그 기간만 집계한 리포트를 생성할 수 있습니다.</div>
+      <div class="grid g3" style="margin:12px 0">
+        <div class="field"><label class="f">학생</label><select id="sumStudent"></select></div>
+        <div class="field"><label class="f">세션명</label><input type="text" id="sumName" placeholder="예: 2026 여름"></div>
+        <div class="field"><label class="f">시작일</label><input type="date" id="sumStart"></div>
+      </div>
+      <div class="grid g3" style="margin-bottom:6px">
+        <div class="field"><label class="f">종료일</label><input type="date" id="sumEnd"></div>
+        <div class="field row-end"><span id="sumWeeks" class="tag" style="align-self:center"></span></div>
+        <div class="field row-end" style="justify-content:flex-end;gap:8px">
+          <button class="btn ghost sm" id="sumCancel" type="button" style="display:none">취소</button>
+          <button class="btn sm" id="sumSave" type="button">세션 추가</button>
+        </div>
+      </div>
+      <div id="sumList" style="margin-top:14px"></div>
+    </div>
+  </section>
+
   <!-- ============ 리포트 ============ -->
   <section id="tab-report" hidden>
     <div class="card no-print">
       <div class="row-end" style="justify-content:space-between;flex-wrap:wrap;gap:12px">
-        <div><div class="sec-eyebrow">PARENT REPORT</div><h2 style="margin:0">학부모 월간 리포트</h2>
+        <div><div class="sec-eyebrow">PARENT REPORT</div><h2 style="margin:0">학부모 리포트</h2>
           <div class="hint" style="margin:6px 0 0">모든 문장은 입력 기록에서 산출된 수치와 고정 규칙으로만 생성됩니다 — 작문·추정 없음.</div></div>
-        <div style="display:flex;gap:9px;align-items:flex-end">
+        <div style="display:flex;gap:9px;align-items:flex-end;flex-wrap:wrap">
           <div class="field" style="min-width:170px"><label class="f">학생</label><select id="rpStudent"></select></div>
-          <button class="btn" id="genReport" type="button">리포트 생성</button></div>
+          <button class="btn" id="genReport" type="button">리포트 생성</button>
+          <button class="btn" id="genSummerReport" type="button" style="display:none">기간 리포트 생성</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">
+        <label style="display:flex;align-items:center;gap:5px;font-size:13px"><input type="radio" name="rpMode" value="month" checked>월간</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:13px"><input type="radio" name="rpMode" value="summer">썸머클래스(기간)</label>
+        <div id="rpSummerOpts" style="display:none;gap:9px;align-items:flex-end;flex-wrap:wrap">
+          <div class="field" style="min-width:170px"><label class="f">세션</label><select id="rpTermSel"></select></div>
+          <span id="rpManualDates" style="display:none;gap:9px">
+            <div class="field"><label class="f">시작일</label><input type="date" id="rpRangeStart"></div>
+            <div class="field"><label class="f">종료일</label><input type="date" id="rpRangeEnd"></div>
+          </span>
+        </div>
       </div>
     </div>
     <div id="reportArea"></div>
@@ -845,6 +881,37 @@
           </div>
         </div>
       </div>
+    </div>
+    <div id="summerOverallCard" hidden class="no-print" style="margin-top:14px">
+    <div class="card">
+      <div class="sec-eyebrow">SUMMER COMMENT · 관리자 전용</div>
+      <h2>기간 총평 입력 <span id="summerOverallCardMeta" style="font-size:13px;font-weight:500;color:var(--muted)"></span></h2>
+      <div class="hint">이 입력 카드는 <b>관리자 화면에만</b> 표시되며 학부모 발송본·인쇄·PDF에는 절대 포함되지 않습니다. 월간 총평과는 별개로 저장되며, 리포트 최상단에는 저장된 내용이 읽기 전용으로만 표시됩니다.</div>
+      <div style="border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:16px">
+        <div class="sec-eyebrow" style="margin-bottom:6px">멘토 총평</div>
+        <textarea id="summerMentorOverallText" rows="5" style="width:100%;box-sizing:border-box;font-size:13.5px;line-height:1.75;padding:10px 13px;border:1px solid var(--line);border-radius:9px;font-family:inherit;resize:vertical;margin-bottom:8px"></textarea>
+        <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center">
+          <button class="btn" id="btnSummerMentorSave" type="button">저장 (멘토)</button>
+          <span id="summerMentorOverallStatus" style="font-size:12px;color:var(--muted)"></span>
+        </div>
+      </div>
+      <div style="border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:16px">
+        <div class="sec-eyebrow" style="margin-bottom:6px">실장 총평</div>
+        <textarea id="summerSiljangOverallText" rows="5" style="width:100%;box-sizing:border-box;font-size:13.5px;line-height:1.75;padding:10px 13px;border:1px solid var(--line);border-radius:9px;font-family:inherit;resize:vertical;margin-bottom:8px"></textarea>
+        <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center">
+          <button class="btn" id="btnSummerSiljangSave" type="button">저장 (실장)</button>
+          <span id="summerSiljangOverallStatus" style="font-size:12px;color:var(--muted)"></span>
+        </div>
+      </div>
+      <div>
+        <div class="sec-eyebrow" style="margin-bottom:6px">원장 상담</div>
+        <textarea id="summerWonjangOverallText" rows="5" style="width:100%;box-sizing:border-box;font-size:13.5px;line-height:1.75;padding:10px 13px;border:1px solid var(--line);border-radius:9px;font-family:inherit;resize:vertical;margin-bottom:8px"></textarea>
+        <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center">
+          <button class="btn" id="btnSummerWonjangSave" type="button">저장 (원장)</button>
+          <span id="summerWonjangOverallStatus" style="font-size:12px;color:var(--muted)"></span>
+        </div>
+      </div>
+    </div>
     </div>
   </section>
 
@@ -1092,12 +1159,13 @@ function refresh(){
     if($("tab-analysis")&&!$("tab-analysis").hidden){try{renderAnalysis();}catch(e){}}
     if($("tab-wonjang")&&!$("tab-wonjang").hidden){try{renderConsults();}catch(e){}}
     if($("tab-mock")&&!$("tab-mock").hidden){try{renderMock();}catch(e){}}
+    if($("tab-summer")&&!$("tab-summer").hidden){ let edS=false; try{ edS=document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#tab-summer"); }catch(_){} if(!edS)try{renderSummerTab();}catch(e){} }
     let editingGrid=false; try{ editingGrid=document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#gridTable"); }catch(e){}
     if($("tab-grid")&&!$("tab-grid").hidden&&!editingGrid){try{renderGrid();}catch(e){}}
   },140);
 }
 function subscribeAll(){
-  teardownSubs(); S={students:[],logs:{},mocks:{},consults:{},mentorlogs:{},monthlyevals:{},monthlyoverall:{},schedules:{},roadmaps:{},conductor:{},vocasum:{},usage:{},academy:{notices:[],exams:[],admInfo:[]}};
+  teardownSubs(); S={students:[],logs:{},mocks:{},consults:{},mentorlogs:{},monthlyevals:{},monthlyoverall:{},schedules:{},roadmaps:{},conductor:{},vocasum:{},usage:{},summerTerms:{},summerevals:{},summeroverall:{},academy:{notices:[],exams:[],admInfo:[]}};
   _unsub.push(db.collection("students").onSnapshot(snap=>{ S.students=snap.docs.map(d=>({id:d.id,...d.data()})); _hashFrom("students"); refresh(); }, fbErr));
   _unsub.push(db.collection("logs").onSnapshot(snap=>{ const logs={}; snap.forEach(d=>{ const x=d.data(); if(!x.sid||!x.date)return; (logs[x.sid]=logs[x.sid]||{})[x.date]={status:x.status,inTime:x.inTime||"",outTime:x.outTime||"",reason:x.reason||"",outings:x.outings||[],studyMin:x.studyMin||0,vocab:x.vocab||null,tests:x.tests||[],comments:x.comments||[],outStart:x.outStart||""}; }); S.logs=logs; _hashFrom("logs"); refresh(); }, fbErr));
   _unsub.push(db.collection("mentorlogs").onSnapshot(snap=>{ const m={}; snap.forEach(dd=>{ const x=dd.data(); if(!x.sid||!x.week)return; (m[x.sid]=m[x.sid]||{})[x.week]={subjects:x.subjects||[],nextTask:x.nextTask||"",wake:x.wake||"",bed:x.bed||"",sleepPractice:x.sleepPractice||"",sleepComment:x.sleepComment||"",mockFb:x.mockFb||""}; }); S.mentorlogs=m; refresh(); }, fbErr));
@@ -1108,6 +1176,8 @@ function subscribeAll(){
   _unsub.push(db.collection("usage").onSnapshot(snap=>{ const m={}; snap.forEach(d=>{ const x=d.data(); if(x.sid)m[x.sid]=x; }); S.usage=m; try{ if($("tab-tower")&&!$("tab-tower").hidden)renderUsage(); }catch(e){} }, fbErr));
   _unsub.push(db.collection("conductor").onSnapshot(snap=>{ const m={}; snap.forEach(dd=>{ const x=dd.data(); if(x.sid)m[x.sid]=x.stages||{}; }); S.conductor=m; refresh(); }, fbErr));
   _unsub.push(db.collection("roadmaps").onSnapshot(snap=>{ const m={}; snap.forEach(dd=>{ const x=dd.data(); if(!x.sid)return; m[x.sid]=(x.items||[]).map(it=>({month:it.month||"",focus:it.focus||""})); }); S.roadmaps=m; refresh(); }, fbErr));
+  _unsub.push(db.collection("summerTerms").onSnapshot(snap=>{ const m={}; snap.forEach(dd=>{ const x=dd.data(); if(!x.sid)return; m[x.sid]=(x.terms||[]).map(t=>({id:t.id||uid(),name:t.name||"",start:t.start||"",end:t.end||""})); }); S.summerTerms=m; refresh(); }, fbErr));
+  _unsub.push(db.collection("summerevals").onSnapshot(snap=>{ const so={}; snap.forEach(dd=>{ const x=dd.data(); if(!x.sid||!x.termKey)return; const mt=x.mentorOverall||"",mat=x.mentorOverallAt||null,mby=x.mentorOverallBy||"",st=x.siljangOverall||"",sat=x.siljangOverallAt||null,sby=x.siljangOverallBy||"",wt=x.wonjangOverall||"",wat=x.wonjangOverallAt||null,wby=x.wonjangOverallBy||""; (so[x.sid]=so[x.sid]||{})[x.termKey]={mentor:{text:mt,at:mat,by:mby},siljang:{text:st,at:sat,by:sby},wonjang:{text:wt,at:wat,by:wby}}; }); S.summeroverall=so; refresh(); }, fbErr));
   _unsub.push(db.collection("settings").doc("academy").onSnapshot(d=>{ const x=d.exists?d.data():{}; S.academy={notices:x.notices||[],exams:x.exams||[],admInfo:x.admInfo||[]}; refresh(); }, fbErr));
   if(!isMgr()) return; // 멘토는 여기까지 구독 (모의/상담은 원장·실장 전용)
   _unsub.push(db.collection("mocks").onSnapshot(snap=>{ const m={}; snap.forEach(d=>{ const x=d.data(); (m[x.sid]=m[x.sid]||[]).push({id:d.id,date:x.date,source:x.source,grades:x.grades}); }); for(const k in m)m[k].sort((a,b)=>a.date<b.date?-1:1); S.mocks=m; _hashFrom("mocks"); refresh(); }, fbErr));
@@ -1203,6 +1273,44 @@ function summary(sid,month){
   return{ls,total,totalCenter,totalExt,presentCount,dayAvg,late,absent,early,acadOutCnt,loggedDays,attRate,weeks,dowAvg,studyDayCount:studyDays.length,tPass,tRetry,tSub,vCount,vPct,vList,attNotes,totalStay,stayDays,focusRate};
 }
 
+/* ---------- 기간(썸머클래스) 집계 — summary()/logsOf()는 무수정, 병렬 함수로 분리 ---------- */
+function daysBetween(a,b){ return Math.round((new Date(b+"T00:00")-new Date(a+"T00:00"))/86400000); }
+function weeksInRange(start,end){ return Math.max(1,Math.ceil((daysBetween(start,end)+1)/7)); }
+function logsOfRange(sid,start,end){ const all=S.logs[sid]||{}; const out=[]; for(const d in all)if(d>=start&&d<=end)out.push({date:d,...all[d]}); return out.sort((a,b)=>a.date<b.date?-1:1); }
+/* per-student range summary — summary()와 동일 로직, 주차 계산만 기간 시작일 기준으로 교체 */
+function summaryRange(sid,start,end){
+  const ls=logsOfRange(sid,start,end);
+  const present=ls.filter(l=>l.status!=="결석");
+  const studyDays=present.filter(l=>acadTotal(l)>0);
+  const total=studyDays.reduce((a,l)=>a+acadTotal(l),0);
+  const totalCenter=studyDays.reduce((a,l)=>a+center(l),0);
+  const totalExt=studyDays.reduce((a,l)=>a+extAcad(l),0);
+  const presentCount=present.length;
+  const dayAvg=presentCount?total/presentCount:0;
+  const late=ls.filter(l=>l.status==="지각").length;
+  const absent=ls.filter(l=>l.status==="결석").length;
+  const early=ls.filter(l=>l.status==="조퇴").length;
+  const loggedDays=ls.length;
+  const attRate=loggedDays?Math.round(presentCount/loggedDays*100):0;
+  const acadOutCnt=present.filter(l=>extAcad(l)>0).length;
+  const weeks={};
+  studyDays.forEach(l=>{ const w=Math.floor(daysBetween(start,l.date)/7)+1; weeks[w]=(weeks[w]||0)+acadTotal(l); });
+  const dowSum={},dowCnt={};
+  studyDays.forEach(l=>{ const w=new Date(l.date+"T00:00").getDay(); dowSum[w]=(dowSum[w]||0)+acadTotal(l); dowCnt[w]=(dowCnt[w]||0)+1; });
+  const dowAvg={}; for(let i=0;i<7;i++)dowAvg[i]=dowCnt[i]?dowSum[i]/dowCnt[i]:null;
+  let tPass=0,tRetry=0; const tSub={};
+  ls.forEach(l=>(l.tests||[]).forEach(t=>{ if(t.result==="통과")tPass++; else if(t.result==="재시")tRetry++; if(t.subject)tSub[t.subject]=(tSub[t.subject]||0)+1; }));
+  let vCount=0,vCorrect=0,vTotal=0; const vList=[];
+  ls.forEach(l=>{ if(l.vocab&&(l.vocab.range||l.vocab.correct!=null)){ vCount++; if(l.vocab.correct!=null&&l.vocab.total){vCorrect+=l.vocab.correct;vTotal+=l.vocab.total;} vList.push({date:l.date,...l.vocab}); } });
+  const vPct=vTotal>0?Math.round(vCorrect/vTotal*100):null;
+  const attNotes=ls.filter(l=>l.status&&l.status!=="정상").map(l=>({date:l.date,status:l.status,reason:l.reason||""}));
+  let totalStay=0,centerOnStay=0,stayDays=0;
+  present.forEach(l=>{ const s=stayMin(l); if(s>0){ totalStay+=s; centerOnStay+=center(l); stayDays++; } });
+  const focusRate = totalStay>0 ? Math.min(100,Math.round(centerOnStay/totalStay*100)) : null;
+  const weekCount=weeksInRange(start,end);
+  return{ls,total,totalCenter,totalExt,presentCount,dayAvg,late,absent,early,acadOutCnt,loggedDays,attRate,weeks,dowAvg,studyDayCount:studyDays.length,tPass,tRetry,tSub,vCount,vPct,vList,attNotes,totalStay,stayDays,focusRate,weekCount};
+}
+
 /* ---------- month + selects ---------- */
 function initMonths(){
   const sel=$("monthSel"); const now=new Date(); const months=new Set();
@@ -1214,7 +1322,7 @@ function initMonths(){
 }
 function fillStudentSelects(){
   const opts=sortByNameKo(activeStudents()).map(s=>`<option value="${s.id}">${s.name} (${s.grade})</option>`).join("");
-  ["silStudent","mtStudent","wjStudent","anStudent","mkStudent","rpStudent","smsMonStudent","scStudent"].forEach(id=>{
+  ["silStudent","mtStudent","wjStudent","anStudent","mkStudent","sumStudent","rpStudent","smsMonStudent","scStudent"].forEach(id=>{
     const el=$(id); if(!el)return; const prev=el.value; el.innerHTML=opts||`<option value="">학생 없음</option>`;
     if(prev&&S.students.some(s=>s.id===prev))el.value=prev;
   });
@@ -1222,13 +1330,14 @@ function fillStudentSelects(){
 }
 
 /* ---------- tabs / role ---------- */
-const TABS=["siljang","checkin","grid","sms","notice","mentor","sched","tower","wonjang","analysis","mock","report","students","archive","data"];
+const TABS=["siljang","checkin","grid","sms","notice","mentor","sched","tower","wonjang","analysis","mock","summer","report","students","archive","data"];
 function switchTab(name){
   document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===name));
   TABS.forEach(t=>$("tab-"+t).hidden=(t!==name));
   if(name==="grid")renderGrid();
   if(name==="analysis")renderAnalysis();
   if(name==="mock")renderMock();
+  if(name==="summer")renderSummerTab();
   if(name==="students")renderStudents();
   if(name==="wonjang")renderConsults();
   if(name==="sched")scRenderAll();
@@ -1428,15 +1537,15 @@ function purgeStudent(id){
 
   // 메모리에서 제거
   S.students=S.students.filter(x=>x.id!==id);
-  ["logs","mocks","consults","mentorlogs","monthlyevals","monthlyoverall","schedules","roadmaps","conductor","vocasum"].forEach(k=>{ if(S[k])delete S[k][id]; });
+  ["logs","mocks","consults","mentorlogs","monthlyevals","monthlyoverall","schedules","roadmaps","conductor","vocasum","summerTerms","summeroverall"].forEach(k=>{ if(S[k])delete S[k][id]; });
 
   if(db){
     // 문서ID = 학생ID 인 컬렉션
-    ["students","roadmaps","conductor","plans","usage"].forEach(c=>{
+    ["students","roadmaps","conductor","plans","usage","summerTerms"].forEach(c=>{
       db.collection(c).doc(id).delete().catch(()=>{});
     });
     // sid 필드로 찾아 지우는 컬렉션
-    ["logs","mocks","consults","mentorlogs","monthlyevals","schedules","progress","vocasummary"].forEach(c=>{
+    ["logs","mocks","consults","mentorlogs","monthlyevals","schedules","progress","vocasummary","summerevals"].forEach(c=>{
       db.collection(c).where("sid","==",id).get()
         .then(q=>q.forEach(d=>d.ref.delete().catch(()=>{})))
         .catch(()=>{});
@@ -2694,6 +2803,51 @@ function renderMock(){
 }
 $("mkStudent").onchange=renderMock;
 
+/* ===================================================== 썸머클래스(기간 수강) 세션 관리 */
+let editingSummerTerm=null;
+function sumTermsOf(sid){ return (S.summerTerms||{})[sid]||[]; }
+function resetSummerForm(){ editingSummerTerm=null; $("sumName").value=""; $("sumStart").value=""; $("sumEnd").value=""; $("sumWeeks").textContent=""; $("sumSave").textContent="세션 추가"; $("sumCancel").style.display="none"; }
+function updateSumWeeks(){ const s=$("sumStart").value,e=$("sumEnd").value; $("sumWeeks").textContent=(s&&e&&e>=s)?`${weeksInRange(s,e)}주`:""; }
+$("sumStart").onchange=updateSumWeeks; $("sumEnd").onchange=updateSumWeeks;
+function renderSummerTab(){
+  const sid=$("sumStudent").value;
+  const box=$("sumList"); if(!box)return;
+  if(!sid){ box.innerHTML=`<div class="empty">학생을 선택하세요.</div>`; return; }
+  const terms=sumTermsOf(sid).slice().sort((a,b)=>(a.start||"").localeCompare(b.start||""));
+  if(!terms.length){ box.innerHTML=`<div class="empty">등록된 세션이 없습니다. 위에서 추가하세요.</div>`; return; }
+  box.innerHTML=`<table><thead><tr><th>세션명</th><th>시작일</th><th>종료일</th><th class="num">주차</th><th>관리</th></tr></thead><tbody>`+
+   terms.map(t=>`<tr><td><b>${esc(t.name)||"–"}</b></td><td>${esc(t.start)}</td><td>${esc(t.end)}</td><td class="num">${weeksInRange(t.start,t.end)}주</td>
+     <td style="white-space:nowrap"><button class="btn ghost sm" data-edit="${t.id}">수정</button> <button class="btn danger sm" data-del="${t.id}">삭제</button></td></tr>`).join("")+`</tbody></table>`;
+  box.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>loadSummerForm(sid,b.dataset.edit));
+  box.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>deleteSummerTerm(sid,b.dataset.del));
+}
+function loadSummerForm(sid,id){ const t=sumTermsOf(sid).find(x=>x.id===id); if(!t)return; editingSummerTerm=id;
+  $("sumName").value=t.name||""; $("sumStart").value=t.start||""; $("sumEnd").value=t.end||""; updateSumWeeks();
+  $("sumSave").textContent="수정 저장"; $("sumCancel").style.display="inline-block";
+}
+$("sumCancel").onclick=resetSummerForm;
+$("sumStudent").onchange=()=>{ resetSummerForm(); renderSummerTab(); };
+$("sumSave").onclick=()=>{
+  const sid=$("sumStudent").value; if(!sid)return alert("학생을 선택하세요.");
+  const name=$("sumName").value.trim(), start=$("sumStart").value, end=$("sumEnd").value;
+  if(!start||!end)return alert("시작일과 종료일을 입력하세요.");
+  if(end<start)return alert("종료일이 시작일보다 빠릅니다.");
+  const terms=sumTermsOf(sid).slice();
+  if(editingSummerTerm){ const t=terms.find(x=>x.id===editingSummerTerm); if(t){ t.name=name; t.start=start; t.end=end; } }
+  else terms.push({id:uid(),name,start,end});
+  S.summerTerms=S.summerTerms||{}; S.summerTerms[sid]=terms;
+  if(db) db.collection("summerTerms").doc(sid).set({sid,terms},{merge:true}).then(()=>toast("썸머클래스 세션이 저장되었습니다")).catch(fbErr);
+  resetSummerForm(); renderSummerTab();
+};
+function deleteSummerTerm(sid,id){
+  if(!confirm("이 세션을 삭제할까요? 저장된 기간 총평은 남아있지만 리포트 탭에서 더 이상 선택할 수 없습니다."))return;
+  const terms=sumTermsOf(sid).filter(x=>x.id!==id);
+  S.summerTerms=S.summerTerms||{}; S.summerTerms[sid]=terms;
+  if(db) db.collection("summerTerms").doc(sid).set({sid,terms},{merge:true}).catch(fbErr);
+  if(editingSummerTerm===id)resetSummerForm();
+  renderSummerTab();
+}
+
 /* ===================================================== REPORT */
 $("genReport").onclick=()=>{
   const sid=$("rpStudent").value, month=curMonth(); if(!sid)return alert("학생을 선택하세요.");
@@ -2928,6 +3082,233 @@ $("genReport").onclick=()=>{
   $("btnWonjangSave").onclick=(e)=>{ e.preventDefault(); e.stopPropagation(); saveWonjangOverall(sid,month); };
 };
 
+/* ===================================================== 리포트 모드 토글 (월간 / 썸머클래스 기간) — genReport는 무수정 */
+function rpMode(){ const r=document.querySelector('input[name="rpMode"]:checked'); return r?r.value:"month"; }
+function fillTermSelect(){
+  const sid=$("rpStudent").value;
+  const terms=sumTermsOf(sid).slice().sort((a,b)=>(a.start||"").localeCompare(b.start||""));
+  const sel=$("rpTermSel");
+  sel.innerHTML=terms.map(t=>`<option value="${t.id}">${esc(t.name)||"(이름 없음)"} · ${t.start}~${t.end}</option>`).join("")+`<option value="__manual__">직접 입력…</option>`;
+  sel.value = terms.length ? terms[terms.length-1].id : "__manual__";
+  toggleManualDates();
+}
+function toggleManualDates(){ $("rpManualDates").style.display = $("rpTermSel").value==="__manual__" ? "flex" : "none"; }
+function applyRpMode(){
+  const m=rpMode();
+  $("genReport").style.display = m==="month" ? "" : "none";
+  $("genSummerReport").style.display = m==="summer" ? "" : "none";
+  $("rpSummerOpts").style.display = m==="summer" ? "flex" : "none";
+  if(m==="summer") fillTermSelect();
+}
+document.querySelectorAll('input[name="rpMode"]').forEach(r=>r.onchange=applyRpMode);
+$("rpStudent").addEventListener("change",()=>{ if(rpMode()==="summer")fillTermSelect(); });
+$("rpTermSel").onchange=toggleManualDates;
+function getSummerRange(){
+  const sid=$("rpStudent").value;
+  const termSel=$("rpTermSel").value;
+  if(termSel && termSel!=="__manual__"){
+    const t=sumTermsOf(sid).find(x=>x.id===termSel);
+    if(t) return {start:t.start,end:t.end,termKey:t.id,termName:t.name};
+  }
+  const start=$("rpRangeStart").value, end=$("rpRangeEnd").value;
+  return {start,end,termKey:(start&&end)?start+"_"+end:null,termName:null};
+}
+
+/* ===================================================== 썸머클래스 기간 리포트 (genReport 템플릿을 병렬로 복제 — 월간 리포트 무수정) */
+$("genSummerReport").onclick=()=>{
+  const sid=$("rpStudent").value; if(!sid)return alert("학생을 선택하세요.");
+  const {start,end,termKey,termName}=getSummerRange();
+  if(!start||!end)return alert("시작일과 종료일을 선택하세요.");
+  if(end<start)return alert("종료일이 시작일보다 빠릅니다.");
+  const sm=summaryRange(sid,start,end); const st=S.students.find(s=>s.id===sid);
+  const area=$("reportArea");
+  if(!sm.loggedDays){area.innerHTML=`<div class="card"><div class="empty">${start} ~ ${end} 기간에 기록이 없어 리포트를 생성할 수 없습니다.</div></div>`;return;}
+  const wkVals=[];for(let w=1;w<=sm.weekCount;w++)if(sm.weeks[w])wkVals.push(sm.weeks[w]);
+  let trend="판정 보류(3주 미만)";
+  if(wkVals.length>=3){const inc=wkVals.every((v,i)=>i===0||v>=wkVals[i-1]);const dec=wkVals.every((v,i)=>i===0||v<=wkVals[i-1]);trend=inc&&!dec?"주차별 학업량 상승":dec&&!inc?"주차별 학업량 하락":"주차별 학업량 변동";}
+  let lowDay=null,lowVal=Infinity;[1,2,3,4,5].forEach(i=>{if(sm.dowAvg[i]!=null&&sm.dowAvg[i]<lowVal){lowVal=sm.dowAvg[i];lowDay=i;}});
+  const ms=(S.mocks[sid]||[]).filter(m=>m.date>=start&&m.date<=end);
+  let mockLine=null;
+  if(ms.length){ const last=ms[ms.length-1]; const la=avgGrade(last.grades); const prev=ms.length>1?avgGrade(ms[ms.length-2].grades):null;
+    mockLine=`직전 응시(${last.date.slice(5)}, ${last.source}) 평균 ${la?la.toFixed(1):"–"}등급`+(prev!=null&&la!=null?` (전회 대비 ${(la-prev)<=0?"":"+"}${(la-prev).toFixed(1)})`:""); }
+  // ---- 차트 생성 ----
+  const byDate={}; sm.ls.forEach(l=>byDate[l.date]=l);
+  const maxTot=Math.max(1,...sm.ls.map(l=>l.status!=="결석"?acadTotal(l):0));
+  let rBars="",rLabs=""; const totalDays=daysBetween(start,end)+1;
+  for(let i=0;i<totalDays;i++){ const dt=new Date(start+"T00:00"); dt.setDate(dt.getDate()+i); const ds=mlYmd(dt); const l=byDate[ds];
+    const present=l&&l.status!=="결석"; const tot=present?acadTotal(l):0; const ex=present?extAcad(l):0;
+    const H=tot>0?Math.max(4,Math.round(tot/maxTot*100)):0; const exF=tot>0?Math.round(ex/tot*100):0;
+    rBars+=`<div class="bar" style="height:${H}%"><div class="be" style="height:${exF}%"></div><div class="bc" style="height:${100-exF}%"></div></div>`;
+    rLabs+=`<span>${(i%5===0)?dt.getDate():""}</span>`; }
+  const wkMax=Math.max(1,...Object.values(sm.weeks));
+  let rWk=""; for(let w=1;w<=sm.weekCount;w++){ const v=sm.weeks[w]||0; rWk+=`<div class="wk"><div class="b" style="height:${Math.round(v/wkMax*70)+8}px"></div><div class="val">${fmtMinShort(v)}</div><div class="t">${w}주차</div></div>`; }
+  const dowMax=Math.max(1,...Object.values(sm.dowAvg).filter(v=>v!=null));
+  let rDow=""; [1,2,3,4,5,6,0].forEach(i=>{ const v=sm.dowAvg[i]; if(v==null&&(i===6||i===0))return; const isLow=i===lowDay&&[1,2,3,4,5].includes(i);
+    rDow+=`<div class="dow ${isLow?"low":""}"><div class="lab">${DOW[i]}</div><div class="track"><div class="fill" style="width:${v!=null?Math.round(v/dowMax*100):0}%"></div></div><div class="v">${v!=null?fmtMinShort(v):"–"}</div></div>`; });
+  const _wlogo=(document.querySelector(".brand img")||{}).src||LOGO_NAVY;
+  const _mx=Math.max(1,...sm.ls.map(l=>(Number(l.studyMin)||0)+(l.outings||[]).reduce((a,o)=>a+(["학원수업","보강"].includes(o.cat)?(Number(o.min)||0):0),0)));
+  const goalPct=(st.goalDailyMin&&st.goalDailyMin<=_mx)?Math.round(st.goalDailyMin/_mx*100):null;
+  const avgPct=(sm.dayAvg&&sm.dayAvg<=_mx)?Math.round(sm.dayAvg/_mx*100):null;
+
+  const aca=S.academy||{notices:[],exams:[],admInfo:[]};
+  const repSec=(t,sub)=>`<div class="rep-sec"><span class="mk"></span><div class="t">${t}${sub?` <small>${sub}</small>`:""}</div></div>`;
+  const DL_=["월","화","수","목","금","토","일"];
+  // 모의고사 그래프·통계 (기간 내 응시분만)
+  const mPts=ms.map(m=>({date:m.date,source:m.source||"",g:m.grades||{},avg:avgGrade(m.grades||{})})).filter(x=>x.avg!=null);
+  let mockBlock="";
+  if(mPts.length){
+    const last=mPts[mPts.length-1], first=mPts[0];
+    const best=mPts.reduce((a,b)=>b.avg<a.avg?b:a);
+    const prev=mPts.length>1?mPts[mPts.length-2]:null;
+    const delta=prev?(last.avg-prev.avg):null;
+    const SK={kor:"국어",math:"수학",eng:"영어",sci:"탐구"};
+    const bars=mPts.map(p=>{ const hh=Math.max(6,Math.round((9-p.avg)/8*100)); return `<div class="mk-bar"><div class="mk-av">${p.avg.toFixed(1)}</div><div class="mk-fill" style="height:${hh}%"></div></div>`; }).join("");
+    const dates=mPts.map(p=>`<span>${p.date.slice(5).replace("-","/")}</span>`).join("");
+    const stat=`<div class="stat-grid" style="margin-bottom:12px">
+      <div class="stat"><div class="k">최근 평균 등급</div><div class="v">${last.avg.toFixed(1)}<small>등급</small></div><div class="d ${delta==null?"flat":delta<0?"up":delta>0?"down":"flat"}">${delta==null?"첫 응시":delta<0?("▲ 개선 "+Math.abs(delta).toFixed(1)):delta>0?("▼ 하락 "+Math.abs(delta).toFixed(1)):"유지"}</div></div>
+      <div class="stat"><div class="k">최고 평균 등급</div><div class="v">${best.avg.toFixed(1)}<small>등급</small></div><div class="d flat">${best.date.slice(5).replace("-","/")}</div></div>
+      <div class="stat"><div class="k">응시 횟수</div><div class="v">${mPts.length}<small>회</small></div><div class="d flat">${first.date.slice(5).replace("-","/")} ~ ${last.date.slice(5).replace("-","/")}</div></div>
+      <div class="stat"><div class="k">최근 응시</div><div class="v" style="font-size:15px">${ntEsc(last.source||"-")}</div><div class="d flat">${last.date.replace(/-/g,".")}</div></div>
+    </div>`;
+    const srows=["kor","math","eng","sci"].map(k=>{ const rc=last.g[k]; let sb=null; mPts.forEach(p=>{ if(p.g[k]!=null&&(sb==null||p.g[k]<sb))sb=p.g[k]; }); return (rc!=null||sb!=null)?`<tr><td class="s">${SK[k]}</td><td>${rc!=null?rc+"등급":"–"}</td><td>${sb!=null?sb+"등급":"–"}</td></tr>`:""; }).join("");
+    mockBlock=repSec("모의고사 성적","그래프 · 분석 통계 (기간 내 응시)")+stat+`<div class="mk-graph">${bars}</div><div class="mk-dates">${dates}</div><div class="mk-legend">막대가 높을수록 우수(평균 등급이 낮음) · 막대 위 숫자는 평균 등급</div>`+(srows?`<table class="rep-mini"><thead><tr><th>과목</th><th>최근 등급</th><th>기간 최고</th></tr></thead><tbody>${srows}</tbody></table>`:"");
+  }
+  // 기간의 진단 (규칙 기반 · 추정 없음) — 전월 대비 항목은 없음(비교 기준월이 없으므로)
+  const _dg=[];
+  if(st.goalDailyMin&&sm.dayAvg)_dg.push(sm.dayAvg>=st.goalDailyMin?`일평균이 목표(${fmtMinShort(st.goalDailyMin)})를 <b>충족</b>했습니다.`:`일평균이 목표 대비 <b>${fmtMinShort(st.goalDailyMin-sm.dayAvg)} 부족</b>합니다.`);
+  if(sm.late+sm.absent+sm.early>0)_dg.push(`출결 특이사항 <b>${sm.late+sm.absent+sm.early}건</b>(지각 ${sm.late}·조퇴 ${sm.early}·결석 ${sm.absent})이 있었습니다.`);
+  if(sm.focusRate!=null)_dg.push(`센터 체류 대비 순공률은 <b>${sm.focusRate}%</b>입니다.`);
+  if(mPts.length>1){ const _l=mPts[mPts.length-1],_p=mPts[mPts.length-2]; const d=_l.avg-_p.avg;
+    if(d<0)_dg.push(`모의고사 평균 등급이 <b>${Math.abs(d).toFixed(1)}등급 개선</b>됐습니다.`);
+    else if(d>0)_dg.push(`모의고사 평균 등급이 <b>${Math.abs(d).toFixed(1)}등급 하락</b>했습니다.`); }
+  const diagBlock=_dg.length?`<div class="rp-diag"><div class="dg-k">기간의 진단</div><ul>${_dg.slice(0,4).map(x=>`<li>${x}</li>`).join("")}</ul><div class="dg-f">위 내용은 입력된 출결·학업시간·성적 기록에서 직접 산출된 사실이며, 예측·추정은 포함하지 않습니다.</div></div>`:"";
+  // 생활관리 (실장 코멘트)
+  const lifeNotes=[]; sm.ls.forEach(l=>(l.comments||[]).forEach(c=>{ if(c&&c.role==="실장"&&c.text)lifeNotes.push({date:l.date,text:c.text}); }));
+  lifeNotes.sort((a,b)=>a.date<b.date?-1:1);
+  let lifeBlock="";
+  if(lifeNotes.length){ lifeBlock=repSec("생활 관리","실장 코멘트")+`<div class="rep-notices">`+lifeNotes.map(n=>`<div class="rep-notice"><div class="nd">${n.date.slice(5).replace("-","/")}</div><div class="nb">${ntEsc(n.text).replace(/\n/g,"<br>")}</div></div>`).join("")+`</div>`; }
+  // 멘토링 일지 (기간 내 주차)
+  const mtW=Object.keys((S.mentorlogs||{})[sid]||{}).filter(w=>w>=start&&w<=end).sort();
+  let mentorBlock="";
+  if(mtW.length){ mentorBlock=repSec("멘토링 일지","멘토 기록")+mtW.map(w=>{ const d=S.mentorlogs[sid][w]; const subs=(d.subjects||[]).filter(s=>s.subj||s.content||s.comment); const srw=subs.map(s=>`<tr><td class="s">${ntEsc(s.subj)}</td><td>${ntEsc(s.content)||"–"}</td><td>${s.level||"–"}</td><td>${ntEsc(s.comment)||"–"}</td></tr>`).join(""); const ex=[]; if(d.mockFb)ex.push(`<b>모의 피드백</b> ${ntEsc(d.mockFb)}`); if(d.nextTask)ex.push(`<b>다음주 과제</b> ${ntEsc(d.nextTask)}`); if(d.wake||d.bed)ex.push(`<b>기상/취침</b> ${d.wake||"–"}시 / ${d.bed||"–"}시${d.sleepPractice?" ("+d.sleepPractice+")":""}`); return `<div class="rep-wk">${weekLabelOf(w)}</div>`+(srw?`<table class="rep-mini wide"><thead><tr><th>과목</th><th>학습 내용</th><th>이해</th><th>코멘트</th></tr></thead><tbody>${srw}</tbody></table>`:"")+(ex.length?`<div class="rep-extra">${ex.join("<br>")}</div>`:""); }).join(""); }
+  // 입시 상담 (원장, 기간 종료일까지 최근)
+  const _consArr=(S.consults[sid]||[]);
+  let consAll=_consArr.filter(c=>c.date && c.date<=end);
+  if(!consAll.length && _consArr.length){ consAll=_consArr.slice(); }
+  let consultBlock="";
+  if(consAll.length){ consultBlock=repSec("입시 상담","원장 상담 기록")+consAll.slice(0,2).map(c=>`<div class="rep-consult"><div class="cc-h">${c.date}${c.next?` · 다음 상담 ${c.next}`:""}</div>${c.reach&&c.reach.length?`<div class="cc-l"><span class="tier r">상향</span> ${c.reach.join(" · ")}</div>`:""}${c.fit&&c.fit.length?`<div class="cc-l"><span class="tier f">적정</span> ${c.fit.join(" · ")}</div>`:""}${c.safe&&c.safe.length?`<div class="cc-l"><span class="tier s">안정</span> ${c.safe.join(" · ")}</div>`:""}${c.note?`<div class="cc-note">${ntEsc(c.note).replace(/\n/g,"<br>")}</div>`:""}${c.extNote?`<div class="cc-l" style="margin-top:6px"><span class="tier ext">외부 참고</span> ${c.extSrc?ntEsc(c.extSrc)+" — ":""}${ntEsc(c.extNote).replace(/\n/g,"<br>")}</div>`:""}</div>`).join(""); }
+  const rmArr=((S.roadmaps||{})[sid]||[]);
+  let roadmapBlock="";
+  if(rmArr.length){ roadmapBlock=repSec("연간 스케줄","시기별 학습 계획")+`<div class="rep-road">`+rmArr.map(r=>{ const ml=/^\d{4}-\d{2}$/.test(r.month||"")?r.month.replace("-","년 ")+"월":(r.month||"·"); return `<div class="rep-road-item"><div class="rm-m">${ntEsc(ml)}</div>${r.focus?`<div class="rm-f">${ntEsc(r.focus).replace(/\n/g,"<br>")}</div>`:""}</div>`; }).join("")+`</div>`; }
+  const schW=Object.keys((S.schedules||{})[sid]||{}).filter(w=>w>=start&&w<=end).sort();
+  let schedBlock="";
+  if(schW.length){ schedBlock=repSec("주간 학습 스케줄","과목별 주간 계획")+schW.map(w=>{ const dd=S.schedules[sid][w]; const rows=(dd.rows||[]).filter(r=>r.subject||((r.days||[]).some(x=>x))); if(!rows.length)return ""; const head=`<tr><th>과목</th>${DL_.map(x=>`<th>${x}</th>`).join("")}</tr>`; const body=rows.map(r=>`<tr><td class="s">${ntEsc(r.subject)||"&nbsp;"}</td>${(r.days||[]).map(v=>`<td>${ntEsc(v).replace(/\n/g,"<br>")||""}</td>`).join("")}</tr>`).join(""); return `<div class="rep-wk">${weekLabelOf(w)}</div><div class="rep-sched-wrap"><table class="rep-sched"><thead>${head}</thead><tbody>${body}</tbody></table></div>`; }).join(""); }
+  const _today=ciTodayISO();
+  const exs=(aca.exams||[]).filter(e=>e.date&&e.date>=start).sort((a,b)=>a.date<b.date?-1:1);
+  let examBlock="";
+  if(exs.length){ examBlock=repSec("모의고사 · 학사 일정")+`<div class="rep-exams">`+exs.map(e=>{ const dt=new Date(e.date+"T00:00"); const md=`${dt.getMonth()+1}/${dt.getDate()}`; const dw=DOW[dt.getDay()]; const up=e.date>=_today; return `<div class="rep-exam${up?" up":""}"><div class="dt">${md} <small>(${dw})</small></div><div class="nm">${ntEsc(e.name)}</div>${up?'<span class="up-b">예정</span>':''}</div>`; }).join("")+`</div>`; }
+  const infos=(aca.admInfo||[]).filter(x=>x.title||x.body);
+  let infoBlock="";
+  if(infos.length){ infoBlock=repSec("입시 정보")+infos.map(x=>`<div class="rep-info"><div class="it">${ntEsc(x.title)}</div>${x.body?`<div class="ib">${ntEsc(x.body).replace(/\n/g,"<br>")}</div>`:""}</div>`).join(""); }
+  const nts=(aca.notices||[]).filter(n=>n.text).sort((a,b)=>(a.date||"")<(b.date||"")?1:-1).slice(0,6);
+  let noticeBlock="";
+  if(nts.length){ noticeBlock=repSec("학원 알림")+`<div class="rep-notices">`+nts.map(n=>`<div class="rep-notice"><div class="nd">${n.date?n.date.slice(5).replace("-","/"):"·"}</div><div class="nb">${ntEsc(n.text).replace(/\n/g,"<br>")}</div></div>`).join("")+`</div>`; }
+
+  const _overallObj=((S.summeroverall||{})[sid]||{})[termKey]||null;
+  const _mentor=_overallObj?.mentor||null, _siljang=_overallObj?.siljang||null, _wonjang=_overallObj?.wonjang||null;
+  let overallBlock="";
+  if(_mentor?.text||_siljang?.text||_wonjang?.text){
+    overallBlock='<div class="rp-overall">';
+    if(_mentor?.text){ overallBlock+=`<div class="rp-overall-label">멘토 총평</div><div class="rp-overall-body">${ntEsc(_mentor.text)}</div>`; if(_mentor.by||_mentor.at)overallBlock+=`<div class="rp-overall-by">${_mentor.by?ntEsc(_mentor.by)+' 멘토 작성':""}${_mentor.at?' · '+_mentor.at.slice(0,16).replace('T',' '):""}</div>`; }
+    if(_siljang?.text){ if(_mentor?.text)overallBlock+='<div style="margin:12px 0;border-top:1px dashed #bed0e8"></div>'; overallBlock+=`<div class="rp-overall-label">실장 총평</div><div class="rp-overall-body">${ntEsc(_siljang.text)}</div>`; if(_siljang.by||_siljang.at)overallBlock+=`<div class="rp-overall-by">${_siljang.by?ntEsc(_siljang.by)+' 실장 작성':""}${_siljang.at?' · '+_siljang.at.slice(0,16).replace('T',' '):""}</div>`; }
+    if(_wonjang?.text){ if(_mentor?.text||_siljang?.text)overallBlock+='<div style="margin:12px 0;border-top:1px dashed #bed0e8"></div>'; overallBlock+=`<div class="rp-overall-label">원장 상담</div><div class="rp-overall-body">${ntEsc(_wonjang.text)}</div>`; if(_wonjang.by||_wonjang.at)overallBlock+=`<div class="rp-overall-by">${_wonjang.by?ntEsc(_wonjang.by)+' 원장 작성':""}${_wonjang.at?' · '+_wonjang.at.slice(0,16).replace('T',' '):""}</div>`; }
+    overallBlock+='</div>';
+  }
+  const weekAvg=sm.weekCount?sm.total/sm.weekCount:0;
+  area.innerHTML=`<div class="report" id="rpPrint">
+    <div class="rep-cover">
+      <img src="${_wlogo}" class="rc-logo" alt="써밋대치IDA">
+      <div class="rc-word">써밋대치IDA · 관리형 독학재수센터</div>
+      <div class="rc-en">SUMMER CLASS REPORT</div>
+      <div class="rc-title">썸머클래스 리포트</div>
+      <div class="rc-student"><div class="rc-name">${st.name}<small>${st.school||""} ${st.grade}${st.target?" · 목표 "+st.target:""}</small></div><div class="rc-period">${start} ~ ${end} · ${sm.weekCount}주 · 썸머클래스${termName?" · "+ntEsc(termName):""}</div></div>
+    </div>
+    <div class="rep-body">
+    ${overallBlock}
+    ${diagBlock}
+    ${repSec("핵심 지표","기간 학습 요약")}
+
+    <div class="stat-grid" style="margin:14px 0 8px">
+      <div class="stat"><div class="k">총 학업시간</div><div class="v">${fmtMinShort(sm.total).split(":")[0]}<small>시간 ${fmtMinShort(sm.total).split(":")[1]}분</small></div><div class="d flat">${sm.weekCount}주 누적</div></div>
+      <div class="stat"><div class="k">일평균 학업</div><div class="v">${fmtMinShort(sm.dayAvg)}</div><div class="d flat">등원일 기준</div></div>
+      <div class="stat"><div class="k">주 평균 학업시간</div><div class="v" style="font-size:16px">${fmtMinShort(weekAvg)}</div><div class="d flat">기간 ${sm.weekCount}주 기준</div></div>
+      <div class="stat"><div class="k">출석률</div><div class="v">${sm.attRate}<small>%</small></div><div class="d ${sm.absent?"down":"flat"}">등원 ${sm.presentCount}/${sm.loggedDays} · 지각 ${sm.late} · 결석 ${sm.absent}</div></div>
+      <div class="stat"><div class="k">센터 체류 · 순공률</div><div class="v" style="font-size:16px">${fmtMinShort(sm.totalStay)} <small>·</small> ${sm.focusRate!=null?sm.focusRate+"%":"–"}</div><div class="d flat">실집중 비율</div></div>
+      ${st.goalDailyMin?`<div class="stat"><div class="k">목표 달성률</div><div class="v">${Math.round(sm.dayAvg/st.goalDailyMin*100)}<small>%</small></div><div class="d flat">목표 ${fmtMinShort(st.goalDailyMin)}/일</div></div>`:""}
+    </div>
+
+    ${repSec("학습 추이","일자별 · 주차별 · 요일별")}
+    <div class="rp-chart">
+      <div class="rp-cwrap">
+        ${goalPct!=null?`<div class="rp-goal" style="bottom:${goalPct}%"><span>목표 ${fmtMinShort(st.goalDailyMin)}</span></div>`:""}
+        ${avgPct!=null?`<div class="rp-avg" style="bottom:${avgPct}%"><span>평균 ${fmtMinShort(sm.dayAvg)}</span></div>`:""}
+        <div class="barrow">${rBars}</div>
+      </div>
+      <div class="barlabels">${rLabs}</div>
+    </div>
+    <div class="legend"><span><i style="background:var(--center)"></i>센터 순공</span>${sm.totalExt>0?'<span><i style="background:var(--ext)"></i>외부 학업(학원·보강)</span>':''}<span><i style="background:var(--gold);height:2px;border-radius:0"></i>목표선</span></div>
+
+    <div style="display:flex;gap:26px;flex-wrap:wrap;margin-top:20px">
+      <div style="flex:1;min-width:220px"><div class="rp-sub">주차별 학업량</div><div class="wkbars">${rWk}</div></div>
+      <div style="flex:1;min-width:240px"><div class="rp-sub">요일별 평균</div>${rDow}</div>
+    </div>
+
+    ${repSec("출결 · 시간 상세","핵심 지표")}
+    <div class="stat-grid">
+      <div class="stat"><div class="k">등원</div><div class="v">${sm.presentCount}<small>/${sm.loggedDays}일</small></div><div class="d ${sm.absent?"down":"flat"}">지각 ${sm.late} · 조퇴 ${sm.early} · 결석 ${sm.absent}</div></div>
+      <div class="stat"><div class="k">센터 순공 합계</div><div class="v" style="font-size:19px">${fmtMinShort(sm.totalCenter)}</div><div class="d flat">일평균 ${fmtMinShort(sm.dayAvg)}</div></div>
+      <div class="stat"><div class="k">외부 학업 합계</div><div class="v" style="font-size:19px">${fmtMinShort(sm.totalExt)}</div><div class="d flat">학원·보강 ${sm.acadOutCnt}일</div></div>
+      <div class="stat"><div class="k">센터 체류 · 순공률</div><div class="v" style="font-size:16px">${fmtMinShort(sm.totalStay)} <small>· ${sm.focusRate!=null?sm.focusRate+"%":"–"}</small></div><div class="d flat">실집중 비율</div></div>
+    </div>
+    <div class="rline" style="margin-top:10px"><div class="rk">학업 추세</div><div class="rv">${trend}${wkVals.length>=3?` (${wkVals.map(v=>fmtMinShort(v)).join(" → ")})`:""}${lowDay&&lowVal<Infinity?` · 주중 최저 ${DOW[lowDay]}요일 ${fmtMinShort(lowVal)}`:""}</div></div>
+
+    ${SHOW_WORD_TEST&&sm.vCount?`<div class="grp">단어 테스트</div><div class="rline"><div class="rk">누적</div><div class="rv">총 ${sm.vCount}회${sm.vPct!=null?` · 평균 정답률 ${sm.vPct}%`:""}${sm.vList.length&&sm.vList[sm.vList.length-1].range?` · 최근 ${sm.vList[sm.vList.length-1].range}`:""}</div></div>`:""}
+    ${(sm.tPass+sm.tRetry)>0?`<div class="grp">학습 점검</div><div class="rline"><div class="rk">실시</div><div class="rv">총 ${sm.tPass+sm.tRetry}회 — 통과 ${sm.tPass} / 재점검 ${sm.tRetry}${Object.keys(sm.tSub).length?" · "+Object.entries(sm.tSub).map(([k,v])=>k+" "+v).join(", "):""}</div></div>`:""}
+    ${mockBlock}
+    ${lifeBlock}
+
+    ${roadmapBlock}
+    ${schedBlock}
+    ${consultBlock}
+    ${examBlock}
+    ${infoBlock}
+    ${noticeBlock}
+    <div class="basis">본 리포트의 모든 수치는 입력된 출결·학업시간·단어/학습 점검 기록에서 직접 산출되었으며, 추가 해석·예측은 포함하지 않습니다. 멘토링 일지·주간 스케줄은 주(월요일 기준) 단위로 기록되어 기간 경계에 인접한 일부가 제외될 수 있습니다. · 써밋대치IDA 학습관</div>
+   </div></div>
+   <div class="no-print" style="margin-top:14px;display:flex;gap:9px">
+     <button class="btn" onclick="window.print()">인쇄 / PDF 저장</button>
+     <button class="btn ghost" id="copyReport" type="button">텍스트 복사</button>
+     <button class="btn ghost" id="toggleSummerOverallCard" type="button">기간 총평 입력 (관리자)</button></div>`;
+  $("copyReport").onclick=()=>{ navigator.clipboard.writeText($("rpPrint").innerText).then(()=>toast("복사되었습니다")); };
+  const _oc=$("summerOverallCard"); _oc.hidden=true;
+  $("toggleSummerOverallCard").onclick=(e)=>{ e.preventDefault(); e.stopPropagation(); _oc.hidden=!_oc.hidden; $("toggleSummerOverallCard").textContent=_oc.hidden?"기간 총평 입력 (관리자)":"총평 입력 닫기"; if(!_oc.hidden)_oc.scrollIntoView({behavior:"smooth",block:"start"}); };
+  $("summerOverallCardMeta").textContent=`${start} ~ ${end}${termName?" · "+termName:""} · ${st.name}`;
+  const _mta=$("summerMentorOverallText"), _sta=$("summerSiljangOverallText"), _wta=$("summerWonjangOverallText");
+  const _mos=$("summerMentorOverallStatus"), _sos=$("summerSiljangOverallStatus"), _wos=$("summerWonjangOverallStatus");
+  _mta.value=_mentor?_mentor.text:"";
+  _sta.value=_siljang?_siljang.text:"";
+  _wta.value=_wonjang?_wonjang.text:"";
+  if(_mentor?.at)_mos.textContent=`저장됨 (${_mentor.at.slice(0,16).replace("T"," ")}${_mentor.by?" · "+_mentor.by:""})`;
+  else _mos.textContent="";
+  if(_siljang?.at)_sos.textContent=`저장됨 (${_siljang.at.slice(0,16).replace("T"," ")}${_siljang.by?" · "+_siljang.by:""})`;
+  else _sos.textContent="";
+  if(_wonjang?.at)_wos.textContent=`저장됨 (${_wonjang.at.slice(0,16).replace("T"," ")}${_wonjang.by?" · "+_wonjang.by:""})`;
+  else _wos.textContent="";
+  $("btnSummerMentorSave").onclick=(e)=>{ e.preventDefault(); e.stopPropagation(); saveSummerMentorOverall(sid,termKey); };
+  $("btnSummerSiljangSave").onclick=(e)=>{ e.preventDefault(); e.stopPropagation(); saveSummerSiljangOverall(sid,termKey); };
+  $("btnSummerWonjangSave").onclick=(e)=>{ e.preventDefault(); e.stopPropagation(); saveSummerWonjangOverall(sid,termKey); };
+};
+
 /* ===================================================== 총평 저장 */
 function saveMentorOverall(sid, month){
   const text=$("mentorOverallText").value.trim();
@@ -2971,6 +3352,51 @@ function saveWonjangOverall(sid, month){
     .catch(e=>{ os.textContent=`저장 실패: ${e.message}`; }); }
   else { os.textContent="DB 연결 없음 — 저장되지 않았습니다."; }
 }
+
+/* ===================================================== 기간(썸머클래스) 총평 저장 — monthlyevals와 별개, summerevals 컬렉션 */
+function saveSummerMentorOverall(sid, termKey){
+  const text=$("summerMentorOverallText").value.trim();
+  const os=$("summerMentorOverallStatus");
+  const by=currentUser?(currentUser.displayName||currentUser.email||""):"";
+  const at=new Date().toISOString();
+  S.summeroverall=S.summeroverall||{};
+  const cur=(S.summeroverall[sid]=S.summeroverall[sid]||{});
+  cur[termKey]=cur[termKey]||{mentor:{text:"",at:null,by:""},siljang:{text:"",at:null,by:""},wonjang:{text:"",at:null,by:""}};
+  cur[termKey].mentor={text,at,by};
+  if(db){ db.collection("summerevals").doc(sid+"__"+termKey).set({sid,termKey,mentorOverall:text,mentorOverallAt:at,mentorOverallBy:by},{merge:true})
+    .then(()=>{ os.textContent=`저장됨 (${at.slice(0,16).replace("T"," ")})`; toast("멘토 기간 총평 저장됨"); })
+    .catch(e=>{ os.textContent=`저장 실패: ${e.message}`; }); }
+  else { os.textContent="DB 연결 없음 — 저장되지 않았습니다."; }
+}
+function saveSummerSiljangOverall(sid, termKey){
+  const text=$("summerSiljangOverallText").value.trim();
+  const os=$("summerSiljangOverallStatus");
+  const by=currentUser?(currentUser.displayName||currentUser.email||""):"";
+  const at=new Date().toISOString();
+  S.summeroverall=S.summeroverall||{};
+  const cur=(S.summeroverall[sid]=S.summeroverall[sid]||{});
+  cur[termKey]=cur[termKey]||{mentor:{text:"",at:null,by:""},siljang:{text:"",at:null,by:""},wonjang:{text:"",at:null,by:""}};
+  cur[termKey].siljang={text,at,by};
+  if(db){ db.collection("summerevals").doc(sid+"__"+termKey).set({sid,termKey,siljangOverall:text,siljangOverallAt:at,siljangOverallBy:by},{merge:true})
+    .then(()=>{ os.textContent=`저장됨 (${at.slice(0,16).replace("T"," ")})`; toast("실장 기간 총평 저장됨"); })
+    .catch(e=>{ os.textContent=`저장 실패: ${e.message}`; }); }
+  else { os.textContent="DB 연결 없음 — 저장되지 않았습니다."; }
+}
+function saveSummerWonjangOverall(sid, termKey){
+  const text=$("summerWonjangOverallText").value.trim();
+  const os=$("summerWonjangOverallStatus");
+  const by=currentUser?(currentUser.displayName||currentUser.email||""):"";
+  const at=new Date().toISOString();
+  S.summeroverall=S.summeroverall||{};
+  const cur=(S.summeroverall[sid]=S.summeroverall[sid]||{});
+  cur[termKey]=cur[termKey]||{mentor:{text:"",at:null,by:""},siljang:{text:"",at:null,by:""},wonjang:{text:"",at:null,by:""}};
+  cur[termKey].wonjang={text,at,by};
+  if(db){ db.collection("summerevals").doc(sid+"__"+termKey).set({sid,termKey,wonjangOverall:text,wonjangOverallAt:at,wonjangOverallBy:by},{merge:true})
+    .then(()=>{ os.textContent=`저장됨 (${at.slice(0,16).replace("T"," ")})`; toast("원장 기간 총평 저장됨"); })
+    .catch(e=>{ os.textContent=`저장 실패: ${e.message}`; }); }
+  else { os.textContent="DB 연결 없음 — 저장되지 않았습니다."; }
+}
+
 function draftOverall(sid, month, sm, trend, lowDay, lowVal, ms, mockLine){
   const st=S.students.find(s=>s.id===sid)||{};
   const parts=[];
