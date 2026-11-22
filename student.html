@@ -185,6 +185,21 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
 .lnk:hover{border-color:var(--gold)}
 .cd-dir{font-size:11.5px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
 @media(max-width:640px){ .mastin{padding:12px 14px} .brand h1{font-size:16px} .card{padding:15px 14px} }
+
+.titem .sub{display:block}
+.stt{border-collapse:separate;border-spacing:4px;min-width:760px;width:100%;font-size:12px}
+.stt th{background:none;color:#16294A;font-weight:800;font-size:12.5px;text-align:center;padding:4px 2px;border-bottom:2px solid transparent}
+.stt th.we{color:#B23F2A}.stt th.td{border-bottom-color:#2E4A8B;color:#2E4A8B}
+.stt td{vertical-align:top;border:1px solid #E1E4EA;border-radius:7px;padding:6px 7px;background:#fff}
+.stt td.sl{background:#16294A;color:#fff;text-align:center;vertical-align:middle;border-color:#16294A}
+.stt td.sl b{display:block;font-size:13.5px}.stt td.sl span{font-size:10px;color:#C9D2E6;line-height:1.35;display:block;margin-top:2px}
+.stt td.fx{background:repeating-linear-gradient(-45deg,#F2F3F6 0 7px,#EAECF0 7px 9px);text-align:center;font-weight:700;color:#22304F;border-color:#E3E6EC;vertical-align:middle}
+.stt td.cl.blue{background:#EEF1F9;border-color:#C9D2EA}.stt td.cl.red{background:#FCEFEE;border-color:#EFC3BE}
+.stt .cs{font-weight:900;font-size:13px;color:#16294A}.stt td.red .cs{color:#B23F2A}
+.stt .ct{font-size:10.5px;color:#7C8494;margin-bottom:4px}
+.stt .chk{display:flex;gap:5px;align-items:flex-start;margin:3px 0;cursor:pointer;line-height:1.35}
+.stt .chk input{margin-top:1px;accent-color:#1D7050;flex:0 0 auto}
+.stt .chk.on span{color:#7C8494;text-decoration:line-through}
 </style>
 </head>
 <body>
@@ -336,8 +351,8 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
   <section id="tab-sched" hidden>
     <div class="card">
       <div class="eyebrow">WEEKLY</div>
-      <h2>주간 스케줄</h2>
-      <div class="hint">담당 선생님이 작성한 이번 주 계획입니다. 완료 항목을 체크하세요.</div>
+      <h2>이번 주 시간표</h2>
+      <div class="hint">메디컬 멘토 선생님이 짠 이번 주 시간표입니다. 끝낸 할 일을 체크하면 선생님 화면에 바로 보입니다.</div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
         <button class="btn ghost sm" id="scPrev" type="button">◀ 이전주</button>
         <span id="scLabel" style="font-weight:800;color:var(--ink);background:#f4f2ec;padding:6px 12px;border-radius:8px">—</span>
@@ -541,7 +556,7 @@ function subscribe(){
     const m={}; sn.forEach(d=>{ const x=d.data(); if(x.date)m[x.date]=x; }); S.logs=m; renderAll();
   }, fbErr);
   db.collection("schedules").where("sid","==",SID).onSnapshot(sn=>{
-    const m={}; sn.forEach(d=>{ const x=d.data(); if(x.week)m[x.week]={rows:x.rows||[],keyPoints:x.keyPoints||"",mentorComment:x.mentorComment||""}; }); S.schedules=m; renderAll();
+    const m={}; sn.forEach(d=>{ const x=d.data(); if(x.week)m[x.week]={rows:x.rows||[],keyPoints:x.keyPoints||"",mentorComment:x.mentorComment||"",grid:x.grid||null}; }); S.schedules=m; renderAll();
   }, fbErr);
   db.collection("mocks").where("sid","==",SID).onSnapshot(sn=>{
     const a=[]; sn.forEach(d=>a.push(d.data())); a.sort((x,y)=>x.date<y.date?-1:1); S.mocks=a; renderAll();
@@ -640,7 +655,8 @@ function renderToday(){
   const w=monday(t), sc=S.schedules[w];
   const di=(new Date(t+"T00:00").getDay()+6)%7;
   const items=[];
-  if(sc)(sc.rows||[]).forEach((r,ri)=>{ const txt=(r.days||[])[di]; if(txt&&txt.trim())items.push({key:`${ri}-${di}`,subj:r.subject||"과목",text:txt}); });
+  if(sc&&sc.grid&&sc.grid.slots) stuGridItems(sc.grid,di).forEach(x=>items.push(x));
+  else if(sc)(sc.rows||[]).forEach((r,ri)=>{ const txt=(r.days||[])[di]; if(txt&&txt.trim())items.push({key:`${ri}-${di}`,subj:r.subject||"과목",text:txt}); });
   const done=S.progress[w]||[];
   if(!items.length){ $("tdList").innerHTML=`<div class="empty">오늘 등록된 계획이 없습니다.</div>`; $("tdBar").style.width="0%"; $("tdRate").textContent="이행률 —"; return; }
   const dn=items.filter(i=>done.includes(i.key)).length;
@@ -714,7 +730,8 @@ function renderSched(){
   $("scLabel").textContent=weekLabel(curWeek);
   const sc=S.schedules[curWeek];
   const done=S.progress[curWeek]||[];
-  if(!sc||!(sc.rows||[]).length){
+  if(sc&&sc.grid&&sc.grid.slots){ stuGridSched(sc,done); }
+  else if(!sc||!(sc.rows||[]).length){
     $("scBody").innerHTML=`<div class="empty">이 주에 등록된 스케줄이 없습니다.</div>`;
     $("scNote").innerHTML=""; $("scBar").style.width="0%"; $("scRate").textContent="이행률 —";
   } else {
@@ -748,6 +765,41 @@ function renderSched(){
 }
 $("scPrev").onclick=()=>{ const d=new Date(curWeek+"T00:00"); d.setDate(d.getDate()-7); curWeek=ymd(d); renderSched(); };
 $("scNext").onclick=()=>{ const d=new Date(curWeek+"T00:00"); d.setDate(d.getDate()+7); curWeek=ymd(d); renderSched(); };
+
+
+/* ── 시간표(grid) — 학습관 앱 «연·월·주·일 시간표»와 같은 열쇠: g{시간대}-{요일}-{줄} ── */
+function stuGridItems(g,di){
+  const out=[];
+  (g.slots||[]).forEach((sl,si)=>{ const c=(g.cells||{})[si+"-"+di]; if(!c||c.t!=="study")return;
+    const its=(c.items||[]).filter(x=>String(x||"").trim()); const tm=(c.start||"")+(c.end?"–"+c.end:"");
+    if(its.length) its.forEach((x,ii)=>out.push({key:`g${si}-${di}-${ii}`,subj:(c.subj||"과목")+(ii===0&&tm?` · ${tm}`:""),text:x}));
+    else out.push({key:`g${si}-${di}`,subj:c.subj||"과목",text:tm||sl.name||""}); });
+  return out;
+}
+function stuGridSched(sc,done){
+  const g=sc.grid, today=todayISO(); let total=0,dn=0;
+  const dayOf=i=>{ const d=new Date(curWeek+"T00:00"); d.setDate(d.getDate()+i); return ymd(d); };
+  let h=`<div style="overflow-x:auto"><table class="stt"><thead><tr><th style="width:64px"></th>${DL.map((d,i)=>{ const ds=dayOf(i); return `<th class="${i>=5?"we":""}${ds===today?" td":""}">${d} ${+ds.slice(5,7)}/${+ds.slice(8)}${ds===today?" · 오늘":""}</th>`; }).join("")}</tr></thead><tbody>`;
+  h+=`<tr><td class="sl">고정</td>${[0,1,2,3,4,5,6].map(i=>`<td class="fx">${esc((g.fixed||[])[i]||"").replace(/\n/g,"<br>")}</td>`).join("")}</tr>`;
+  (g.slots||[]).forEach((sl,si)=>{
+    h+=`<tr><td class="sl"><b>${esc(sl.name||"")}</b><span>${esc(sl.sub||"").replace(/\n/g,"<br>")}</span></td>`;
+    for(let di=0;di<7;di++){ const c=(g.cells||{})[si+"-"+di];
+      if(!c){ h+=`<td></td>`; continue; }
+      if(c.t==="away"){ h+=`<td class="fx"><b>${esc(c.subj||"")}</b><br>${esc(c.time||"")}</td>`; continue; }
+      const its=(c.items||[]).filter(x=>String(x||"").trim());
+      const rows=(its.length?its.map((x,ii)=>({k:`g${si}-${di}-${ii}`,t:x})):[{k:`g${si}-${di}`,t:"끝냈어요"}]).map(r=>{ total++; const on=done.includes(r.k); if(on)dn++;
+        return `<label class="chk${on?" on":""}"><input type="checkbox" data-k="${r.k}" ${on?"checked":""}><span>${esc(r.t)}</span></label>`; }).join("");
+      h+=`<td class="cl ${c.tone||""}"><div class="cs">${esc(c.subj||"")}</div><div class="ct">${esc(c.start||"")}${c.end?"–"+esc(c.end):""}</div>${rows}</td>`; }
+    h+=`</tr>`; });
+  h+=`</tbody></table></div>`;
+  $("scBody").innerHTML=h;
+  const pct=total?Math.round(dn/total*100):0;
+  $("scBar").style.width=pct+"%"; $("scRate").textContent=total?`실행률 ${pct}% (${dn}/${total}줄)`:"이번 주 할 일이 없습니다";
+  $("scBody").querySelectorAll("input[type=checkbox]").forEach(c=>c.onchange=()=>toggleDone(curWeek,c.dataset.k,c.checked));
+  const nt=[]; if(sc.keyPoints)nt.push(`<div style="font-size:12.5px;margin-bottom:4px"><b>이번 주 중점</b> · ${esc(sc.keyPoints)}</div>`);
+  if(sc.mentorComment)nt.push(`<div style="font-size:12.5px"><b>선생님 코멘트</b> · ${esc(sc.mentorComment)}</div>`);
+  $("scNote").innerHTML=nt.length?`<div style="background:#faf9f6;border:1px solid var(--line);border-radius:8px;padding:10px 12px">${nt.join("")}</div>`:"";
+}
 
 /* ── 성적 ── */
 function avgG(g){ const v=["kor","math","eng","sci"].map(k=>g&&g[k]).filter(x=>x!=null&&x!==""); if(!v.length)return null; return v.reduce((a,b)=>a+Number(b),0)/v.length; }
