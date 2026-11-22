@@ -905,6 +905,65 @@ body.tt-printing{background:#fff!important}
 .auth-card .a-wait{font-size:13px;color:var(--green);background:var(--green-bg);border-radius:8px;padding:10px 12px;margin-top:10px;line-height:1.5}
 .auth-card .a-link{display:block;margin:12px auto 0;background:none;border:0;color:var(--muted);font-size:12.5px;text-decoration:underline;cursor:pointer}
 
+/* 리포트 «계획 대비 실행» (v2.4) */
+.rx{margin-top:4px}
+.rx-avoid{break-inside:avoid;page-break-inside:avoid}
+.rx-kpis{display:grid;grid-template-columns:1.25fr 1fr 1fr 1fr;gap:10px;margin:4px 0 12px}
+.rx-k{border:1px solid #E3E6EC;border-radius:12px;padding:12px 13px;background:#fff}
+.rx-k.rx-main{background:#16294A;border-color:#16294A;color:#fff}
+.rx-k .rx-kk{font-size:11px;font-weight:700;color:#667085;line-height:1.35}
+.rx-k.rx-main .rx-kk{color:#C9D2EA}
+.rx-k .rx-kv{font-family:"Wanted Sans",Pretendard,sans-serif;font-size:26px;font-weight:800;color:#16294A;margin-top:4px;font-variant-numeric:tabular-nums;line-height:1.1}
+.rx-k.rx-main .rx-kv{color:#fff;font-size:30px}
+.rx-k .rx-kv small{font-size:12px;font-weight:700;margin-left:2px;color:#667085}
+.rx-k.rx-main .rx-kv small{color:#C9D2EA}
+.rx-k .rx-kd{font-size:11px;color:#667085;margin-top:5px;font-weight:600;line-height:1.4}
+.rx-k.rx-main .rx-kd{color:#E4E9F3}
+.rx-meter{height:6px;background:rgba(255,255,255,.18);border-radius:4px;margin-top:8px;overflow:hidden}
+.rx-meter i{display:block;height:100%;background:#D9A033;border-radius:4px}
+.rx-card{border:1px solid #E3E6EC;border-radius:12px;padding:12px 14px;margin-bottom:12px;background:#fff}
+.rx-h{font-size:13px;font-weight:800;color:#16294A;margin-bottom:8px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.rx-h span{font-size:10.5px;font-weight:600;color:#667085}
+.rx-wk{display:grid;grid-template-columns:118px 1fr 70px;gap:12px;align-items:center;padding:8px 0;border-top:1px solid #EEF0F4}
+.rx-h + .rx-wk{border-top:0}
+.rx-wk .rx-l b{display:block;font-size:13px;color:#16294A}
+.rx-wk .rx-l span{display:block;font-size:10.5px;color:#667085;font-weight:600;white-space:nowrap}
+.rx-wk .rx-bars{display:flex;flex-direction:column;gap:4px}
+.rx-wk .rx-bar{position:relative;height:18px;background:#F4F5F7;border-radius:4px;overflow:hidden}
+.rx-wk .rx-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px}
+.rx-wk .rx-bar.rx-plan i{background:#EBD9AE}
+.rx-wk .rx-bar.rx-act i{background:#16294A}
+.rx-wk .rx-bar em{position:absolute;left:7px;top:0;font-style:normal;font-size:10.5px;font-weight:700;line-height:18px;color:#16294A;white-space:nowrap}
+.rx-wk .rx-bar.rx-act em{color:#fff;text-shadow:0 0 3px #16294A,0 0 1px #16294A}
+.rx-wk .rx-r{text-align:right}
+.rx-wk .rx-pct{font-family:"Wanted Sans",Pretendard,sans-serif;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
+.rx-wk .rx-dt{font-size:10.5px;color:#667085;font-weight:600}
+.rx-two{display:grid;grid-template-columns:1fr 1.15fr;gap:12px}
+.rx-two .rx-card{margin-bottom:12px}
+.rx-sb{display:grid;grid-template-columns:62px 1fr 38px 40px;gap:8px;align-items:center;padding:5px 0}
+.rx-sb b{font-size:12.5px;color:#16294A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rx-sb .rx-trk{height:9px;background:#EEF0F4;border-radius:5px;overflow:hidden}
+.rx-sb .rx-trk i{display:block;height:100%;border-radius:5px}
+.rx-sb .rx-p{font-size:12.5px;font-weight:800;text-align:right;font-variant-numeric:tabular-nums}
+.rx-sb .rx-n{font-size:11px;color:#667085;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.rx-lg{display:flex;gap:10px;align-items:center;font-size:10px;color:#667085;margin-top:8px;flex-wrap:wrap}
+.rx-lg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:3px;vertical-align:-1px}
+.rx-hm{width:100%;border-collapse:separate;border-spacing:3px;table-layout:fixed}
+.rx-hm th{font-size:11px;font-weight:800;color:#16294A;padding:2px 0;background:none;border:0;text-align:center}
+.rx-hm th.rx-we{color:#B23F2A}
+.rx-hm th.rx-sl{text-align:left;font-size:10.5px;width:40px}
+.rx-hm td{height:38px;border-radius:6px;text-align:center;vertical-align:middle;border:0;padding:0}
+.rx-hm td b{display:block;font-size:13px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+.rx-hm td span{display:block;font-size:9px;font-weight:600;opacity:.85}
+.rx-hm td.rx-no{background:repeating-linear-gradient(45deg,#F4F5F7 0 4px,#fff 4px 8px)}
+.rx-hm tr.rx-sum td{height:auto;font-size:11px;font-weight:800;color:#16294A;background:#F4F5F7;padding:4px 0}
+.rx-left{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px}
+.rx-left .rx-it{display:grid;grid-template-columns:auto auto 1fr;gap:6px;align-items:baseline;padding:5px 0;border-bottom:1px dashed #E3E6EC;font-size:12px;min-width:0}
+.rx-left .rx-s{font-size:10.5px;font-weight:800;color:#16294A;background:#E8ECF4;border-radius:5px;padding:1px 6px}
+.rx-left .rx-dt{font-size:10.5px;color:#667085;font-weight:700;white-space:nowrap}
+.rx-left .rx-tx{color:#1B2230;overflow-wrap:anywhere}
+.rx-note{font-size:10.5px;color:#667085;line-height:1.5;margin-top:2px}
+
 </style>
 </head>
 <body>
@@ -3549,7 +3608,7 @@ $("genReport").onclick=()=>{
   const schW=Object.keys((S.schedules||{})[sid]||{}).filter(w=>w.slice(0,7)===month).sort();
   let schedBlock="";
   if(schW.length){ schedBlock=repSec("주간 학습 스케줄","과목별 주간 계획")+schW.map(w=>{ const dd=S.schedules[sid][w]; if(dd.grid&&dd.grid.slots) return `<div class="rep-wk">${weekLabelOf(w)}</div>`+ttReportWeek(dd.grid,sid,w); const rows=(dd.rows||[]).filter(r=>r.subject||((r.days||[]).some(x=>x))); if(!rows.length)return ""; const head=`<tr><th>과목</th>${DL_.map(x=>`<th>${x}</th>`).join("")}</tr>`; const body=rows.map(r=>`<tr><td class="s">${ntEsc(r.subject)||"&nbsp;"}</td>${(r.days||[]).map(v=>`<td>${ntEsc(v).replace(/\n/g,"<br>")||""}</td>`).join("")}</tr>`).join(""); return `<div class="rep-wk">${weekLabelOf(w)}</div><div class="rep-sched-wrap"><table class="rep-sched"><thead>${head}</thead><tbody>${body}</tbody></table></div>`; }).join(""); }
-  const execBlock=(()=>{ const r=repExecRows(sid,schW); return r?"<div style=\"break-inside:avoid;page-break-inside:avoid\">"+repSec("계획 실행","학생 앱 체크 기준")+r+"</div>":""; })();
+  const execBlock=rxBlock(sid,schW,repSec);
   const _today=ciTodayISO();
   const exs=(aca.exams||[]).filter(e=>e.date&&e.date>=`${month}-01`).sort((a,b)=>a.date<b.date?-1:1);
   let examBlock="";
@@ -3626,8 +3685,8 @@ $("genReport").onclick=()=>{
     ${lifeBlock}
 
     ${roadmapBlock}
-    ${schedBlock}
     ${execBlock}
+    ${schedBlock}
     ${consultBlock}
     ${examBlock}
     ${infoBlock}
@@ -3781,7 +3840,7 @@ $("genSummerReport").onclick=()=>{
   const schW=Object.keys((S.schedules||{})[sid]||{}).filter(w=>w>=start&&w<=end).sort();
   let schedBlock="";
   if(schW.length){ schedBlock=repSec("주간 학습 스케줄","과목별 주간 계획")+schW.map(w=>{ const dd=S.schedules[sid][w]; if(dd.grid&&dd.grid.slots) return `<div class="rep-wk">${weekLabelOf(w)}</div>`+ttReportWeek(dd.grid,sid,w); const rows=(dd.rows||[]).filter(r=>r.subject||((r.days||[]).some(x=>x))); if(!rows.length)return ""; const head=`<tr><th>과목</th>${DL_.map(x=>`<th>${x}</th>`).join("")}</tr>`; const body=rows.map(r=>`<tr><td class="s">${ntEsc(r.subject)||"&nbsp;"}</td>${(r.days||[]).map(v=>`<td>${ntEsc(v).replace(/\n/g,"<br>")||""}</td>`).join("")}</tr>`).join(""); return `<div class="rep-wk">${weekLabelOf(w)}</div><div class="rep-sched-wrap"><table class="rep-sched"><thead>${head}</thead><tbody>${body}</tbody></table></div>`; }).join(""); }
-  const execBlock=(()=>{ const r=repExecRows(sid,schW); return r?"<div style=\"break-inside:avoid;page-break-inside:avoid\">"+repSec("계획 실행","학생 앱 체크 기준")+r+"</div>":""; })();
+  const execBlock=rxBlock(sid,schW,repSec);
   const _today=ciTodayISO();
   const exs=(aca.exams||[]).filter(e=>e.date&&e.date>=start).sort((a,b)=>a.date<b.date?-1:1);
   let examBlock="";
@@ -3857,8 +3916,8 @@ $("genSummerReport").onclick=()=>{
     ${lifeBlock}
 
     ${roadmapBlock}
-    ${schedBlock}
     ${execBlock}
+    ${schedBlock}
     ${consultBlock}
     ${examBlock}
     ${infoBlock}
@@ -5193,6 +5252,107 @@ function repExecRows(sid,weeks){
   if(!rows.length) return "";
   return rows.join("")+(rows.length>1?`<div class="rline"><div class="rk">합계</div><div class="rv">${T}줄 중 ${D}줄 체크 · <b>${Math.round(D/T*100)}%</b></div></div>`:"")
     +`<div style="font-size:11.5px;color:var(--muted);margin-top:4px">주간 시간표의 할 일을 학생이 학생 앱에서 끝냈다고 체크한 비율입니다.</div>`;
+}
+
+/* ===================================================== 리포트 «계획 대비 실행» (v2.4)
+   기록에 있는 것만 센다: 시간표 할 일(schedules.grid) · 학생 체크(progress) · 실장 기록 센터 순공(logs.studyMin).
+   해석 문장은 붙이지 않는다 — 가장 많이 밀린 과목처럼 «센 결과»만 적는다. 진행 중인 주는 오늘까지만, 시작 전 주는 뺀다. */
+function rxDate(w,di){ return tdShift(w,di); }
+function rxSubOf(subs,text){
+  if(subs.length<=1) return subs[0]||"기타";
+  const t=String(text||"");
+  return subs.find(s=>t.includes(s))||subs.find(s=>s.length>=2&&t.startsWith(s.slice(0,2)))||subs[0];
+}
+/* 한 학생 · 여러 주 → 할 일 한 줄씩 */
+function rxCollect(sid,weeks){
+  const today=tdKey(), items=[], wk=[];
+  (weeks||[]).forEach(w=>{
+    if(w>today) return;
+    const mx=today>=tdShift(w,6)?6:Math.round((new Date(today+"T12:00:00Z")-new Date(w+"T12:00:00Z"))/864e5);
+    const sc=(((S.schedules||{})[sid])||{})[w]; if(!sc) return;
+    const done=exDone(sid,w); let planH=0, actM=0, logged=0; const W={w,mx,total:0,done:0};
+    for(let di=0;di<=mx;di++){
+      const ds=rxDate(w,di), l=((S.logs||{})[sid]||{})[ds];
+      if(l){ actM+=center(l); logged++; }
+      if(sc.grid&&sc.grid.slots){ const g=sc.grid; planH+=ttDayPlanned(g,di);
+        (g.slots||[]).forEach((sl,si)=>{ const c=(g.cells||{})[si+"-"+di]; if(!c||c.t!=="study")return;
+          const subs=String(c.subj||"").split(/[·,\/]/).map(x=>x.trim()).filter(Boolean);
+          const its=(c.items||[]).filter(x=>String(x||"").trim());
+          if(its.length) its.forEach((x,ii)=>items.push({w,di,ds,slot:sl.name||"",si,subj:rxSubOf(subs,x),text:String(x).trim(),done:done.has(`g${si}-${di}-${ii}`)}));
+          else items.push({w,di,ds,slot:sl.name||"",si,subj:subs[0]||"기타",text:(c.start||"")+(c.end?"–"+c.end:""),done:done.has(`g${si}-${di}`)});
+        });
+      } else (sc.rows||[]).forEach((r,ri)=>{ const v=(r.days||[])[di]; if(v&&String(v).trim()) items.push({w,di,ds,slot:"",si:-1,subj:r.subject||"기타",text:String(v).trim(),done:done.has(`${ri}-${di}`)}); });
+    }
+    const mine=items.filter(x=>x.w===w); W.total=mine.length; W.done=mine.filter(x=>x.done).length; W.planH=planH; W.actM=actM; W.logged=logged;
+    if(W.total) wk.push(W);
+  });
+  return {items,wk};
+}
+function rxPct(d,t){ return t?Math.round(d/t*100):null; }
+function rxTone(p){ return p==null?"#C9CED8":p>=80?"#1D7050":p>=50?"#16294A":"#B23F2A"; }
+function rxHM(m){ m=Math.round(m||0); return `${Math.floor(m/60)}:${String(m%60).padStart(2,"0")}`; }
+function rxH(h){ return (Math.round(h*10)/10).toString().replace(/\.0$/,"")+"h"; }
+function rxMD(ds){ const d=new Date(ds+"T12:00:00Z"); return `${d.getUTCMonth()+1}/${d.getUTCDate()}`; }
+function rxDay(ds){ const d=new Date(ds+"T12:00:00Z"); return `${d.getUTCMonth()+1}/${d.getUTCDate()}(${"일월화수목금토"[d.getUTCDay()]})`; }
+
+function rxBlock(sid,weeks,repSec){
+  const {items,wk}=rxCollect(sid,weeks); if(!items.length) return "";
+  const T=items.length, D=items.filter(x=>x.done).length, P=rxPct(D,T);
+  const planH=wk.reduce((a,x)=>a+x.planH,0), actM=wk.reduce((a,x)=>a+x.actM,0), actP=planH?Math.round(actM/60/planH*100):null;
+  // 날 단위
+  const _td=tdKey(), _past=items.some(x=>x.ds<_td)?items.filter(x=>x.ds<_td):items;
+  const byDay={}; _past.forEach(x=>{ const k=x.ds; (byDay[k]=byDay[k]||{t:0,d:0}); byDay[k].t++; if(x.done)byDay[k].d++; });
+  const days=Object.values(byDay), fullDays=days.filter(x=>x.d===x.t).length, zeroDays=days.filter(x=>x.d===0).length;
+  // 과목
+  const bs={}; items.forEach(x=>{ (bs[x.subj]=bs[x.subj]||{s:x.subj,t:0,d:0}); bs[x.subj].t++; if(x.done)bs[x.subj].d++; });
+  const subj=Object.values(bs).sort((a,b)=>b.t-a.t||a.s.localeCompare(b.s,"ko"));
+  const left=items.filter(x=>!x.done);
+  const lb={}; left.forEach(x=>lb[x.subj]=(lb[x.subj]||0)+1); const most=Object.entries(lb).sort((a,b)=>b[1]-a[1])[0];
+  // 요일 × 시간대
+  const slotNames=[]; items.forEach(x=>{ if(x.slot&&!slotNames.includes(x.slot)) slotNames.push(x.slot); });
+  const hm={}; items.forEach(x=>{ if(!x.slot)return; const k=x.slot+"|"+x.di; (hm[k]=hm[k]||{t:0,d:0}); hm[k].t++; if(x.done)hm[k].d++; });
+  const dayRate=[0,1,2,3,4,5,6].map(di=>{ const a=items.filter(x=>x.di===di); return {t:a.length,d:a.filter(x=>x.done).length}; });
+
+  const kpi=`<div class="rx-kpis">
+    <div class="rx-k rx-main"><div class="rx-kk">계획 실행률</div><div class="rx-kv">${P}<small>%</small></div>
+      <div class="rx-meter"><i style="width:${P}%"></i></div><div class="rx-kd">할 일 ${T}줄 중 ${D}줄 체크</div></div>
+    <div class="rx-k"><div class="rx-kk">계획한 자습 대비 실제 순공</div><div class="rx-kv">${actP!=null?actP+"<small>%</small>":"–"}</div>
+      <div class="rx-kd">실제 ${rxHM(actM)} · 계획 ${rxH(planH)}</div></div>
+    <div class="rx-k"><div class="rx-kk">할 일을 모두 끝낸 날</div><div class="rx-kv">${fullDays}<small>/${days.length}일</small></div>
+      <div class="rx-kd">하나도 체크 못 한 날 ${zeroDays}일${_past!==items?" · 오늘 제외":""}</div></div>
+    <div class="rx-k"><div class="rx-kk">끝내지 못한 할 일</div><div class="rx-kv">${left.length}<small>줄</small></div>
+      <div class="rx-kd">${most?`가장 많은 과목 ${esc(most[0])} ${most[1]}줄`:"모두 끝냄"}</div></div>
+  </div>`;
+
+  const maxH=Math.max(1,...wk.map(x=>Math.max(x.planH,x.actM/60)));
+  const weekly=`<div class="rx-card"><div class="rx-h">주별 계획과 실행<span>막대: 계획한 자습 시간 · 실제 센터 순공 / 오른쪽: 할 일 체크</span></div>
+    ${wk.map(x=>{ const d=new Date(x.w+"T00:00"), p=rxPct(x.done,x.total), lab=`${d.getMonth()+1}월 ${Math.ceil(d.getDate()/7)}주`;
+      return `<div class="rx-wk"><div class="rx-l"><b>${lab}</b><span>${rxMD(x.w)}~${rxMD(tdShift(x.w,6))}${x.mx<6?" · 진행 중":""}</span></div>
+        <div class="rx-bars"><div class="rx-bar rx-plan"><i style="width:${x.planH/maxH*100}%"></i><em>계획 ${rxH(x.planH)}</em></div>
+          <div class="rx-bar rx-act"><i style="width:${x.actM/60/maxH*100}%"></i><em>실제 ${rxHM(x.actM)}${x.logged<x.mx+1?` · 기록 ${x.logged}일`:""}</em></div></div>
+        <div class="rx-r"><div class="rx-pct" style="color:${rxTone(p)}">${p}%</div><div class="rx-dt">${x.done}/${x.total}줄</div></div></div>`; }).join("")}
+  </div>`;
+
+  const subjHTML=`<div class="rx-card"><div class="rx-h">과목별 체크<span>줄 수 많은 순</span></div>
+    ${subj.map(x=>{ const p=rxPct(x.d,x.t); return `<div class="rx-sb"><b>${esc(x.s)}</b><div class="rx-trk"><i style="width:${p}%;background:${rxTone(p)}"></i></div><span class="rx-p" style="color:${rxTone(p)}">${p}%</span><span class="rx-n">${x.d}/${x.t}</span></div>`; }).join("")}
+    <div class="rx-lg"><i style="background:#1D7050"></i>80% 이상 <i style="background:#16294A"></i>50~79% <i style="background:#B23F2A"></i>50% 미만</div></div>`;
+
+  const DL=["월","화","수","목","금","토","일"];
+  const heat=slotNames.length?`<div class="rx-card"><div class="rx-h">요일 × 시간대<span>칸 = 그 자리 할 일 체크 비율</span></div>
+    <table class="rx-hm"><tr><th></th>${DL.map((d,i)=>`<th class="${i>=5?"rx-we":""}">${d}</th>`).join("")}</tr>
+    ${slotNames.map(sn=>`<tr><th class="rx-sl">${esc(sn)}</th>${DL.map((_,di)=>{ const c=hm[sn+"|"+di]; if(!c) return `<td class="rx-no"></td>`;
+      const p=rxPct(c.d,c.t), a=0.12+0.88*p/100; return `<td style="background:rgba(22,41,74,${a.toFixed(2)});color:${p>=55?"#fff":"#16294A"}"><b>${p}</b><span>${c.d}/${c.t}</span></td>`; }).join("")}</tr>`).join("")}
+    <tr class="rx-sum"><th class="rx-sl">하루</th>${dayRate.map(r=>`<td>${r.t?rxPct(r.d,r.t)+"%":"–"}</td>`).join("")}</tr></table></div>`:"";
+
+  const LIM=12;
+  const leftHTML=left.length?`<div class="rx-card"><div class="rx-h">끝내지 못한 할 일<span>${left.length>LIM?`앞의 ${LIM}줄 · 나머지 ${left.length-LIM}줄`:`${left.length}줄`} · 날짜순</span></div>
+    <div class="rx-left">${left.slice(0,LIM).map(x=>`<div class="rx-it"><span class="rx-s">${esc(x.subj)}</span><span class="rx-dt">${rxDay(x.ds)}${x.slot?" "+esc(x.slot):""}</span><span class="rx-tx">${esc(x.text)}</span></div>`).join("")}</div></div>`:"";
+
+  return `<div class="rx">${repSec("계획 대비 실행","시간표 할 일 · 학생 체크 · 센터 순공")}
+    <div class="rx-avoid">${kpi}${weekly}</div>
+    <div class="rx-avoid rx-two">${subjHTML}${heat}</div>
+    ${leftHTML?`<div class="rx-avoid">${leftHTML}</div>`:""}
+    <div class="rx-note">체크는 학생이 학생 앱에서 «끝냈다»고 표시한 것이고, 순공은 실장 기록의 센터 순공입니다. 학원 수업(외출) 시간은 계획·실제 모두에서 뺐습니다.</div></div>`;
 }
 
 fbInit();
