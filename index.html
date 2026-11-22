@@ -840,6 +840,71 @@ body.tt-printing{background:#fff!important}
 #tab-sched .tt-toolcard{padding:16px 20px}
 #ttYearExtra .card{margin-top:0}
 
+/* ④ 질문 연결 */
+#tab-qa .qa-tool{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+#tab-qa .qa-seg{display:inline-flex;background:#EEF0F4;border-radius:11px;padding:3px;gap:2px;flex-wrap:wrap}
+#tab-qa .qa-seg button{border:0;background:none;padding:7px 13px;border-radius:9px;font-weight:800;font-size:13px;color:var(--muted);cursor:pointer}
+#tab-qa .qa-seg button b{font-family:"Wanted Sans",Pretendard,sans-serif;margin-left:3px;color:inherit}
+#tab-qa .qa-seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(22,41,74,.12)}
+#tab-qa #qaSubjSel{padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;font-weight:700;color:var(--ink)}
+.qa-item{border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:12px;background:#fff}
+.qa-item.old{border-color:#E9B4A9;box-shadow:inset 4px 0 0 var(--red)}
+.qa-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.qa-n{font-size:15.5px;color:var(--ink)}
+.qa-g{font-size:12.5px;color:var(--muted);font-weight:700}
+.qa-s{display:inline-block;font-size:12px;font-weight:800;color:var(--ink);background:#E8ECF4;border-radius:7px;padding:3px 8px}
+.qa-t{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:600}
+.qa-item.old .qa-t{color:var(--red);font-weight:800}
+.qa-body{display:flex;gap:14px;align-items:flex-start;margin-top:10px;flex-wrap:wrap}
+.qa-q{flex:1 1 260px;min-width:0;font-size:14.5px;line-height:1.65;color:var(--text);white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
+.qa-ph{max-width:240px;max-height:200px;border-radius:10px;border:1px solid var(--line);cursor:zoom-in;object-fit:contain;background:#F6F7F9}
+.qa-note{margin-top:10px;font-size:13px;color:var(--gold);background:var(--gold-soft);border-radius:10px;padding:8px 12px}
+.qa-note b{color:var(--gold)}
+.qa-th{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.qa-a{background:#F3F6FB;border-radius:12px;padding:10px 13px;border-left:3px solid var(--ink)}
+.qa-a.t{border-left-color:var(--gold-accent);background:#FBF7EE}
+.qa-ah{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;font-size:13px}
+.qa-ah b{color:var(--ink)}
+.qa-ah span{color:var(--muted);font-size:12px;font-weight:600}
+.qa-at{margin-top:4px;font-size:14px;line-height:1.65;overflow-wrap:anywhere}
+.qa-form{margin-top:12px}
+.qa-in{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:11px;font:inherit;font-size:14px;resize:vertical;background:#fff}
+.qa-in:focus{outline:none;border-color:var(--ink-2);box-shadow:0 0 0 3px rgba(22,41,74,.1)}
+.qa-btns{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.qa-fw{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap;margin-left:auto}
+.qa-fw select,.qa-fw input{min-height:34px;padding:0 9px;border:1px solid var(--line);border-radius:9px;font:inherit;font-size:13px;background:#fff}
+.qa-fw input{width:190px;max-width:100%}
+.qa-del{color:var(--red)!important}
+.qa-more{margin-top:10px}
+.qa-more summary{cursor:pointer;font-size:13px;font-weight:800;color:var(--ink-2);list-style:none}
+.qa-more summary::-webkit-details-marker{display:none}
+.qa-more summary::before{content:"＋ "}
+.qa-zoom{position:fixed;inset:0;background:rgba(10,22,40,.86);z-index:400;display:flex;align-items:center;justify-content:center;padding:16px;cursor:zoom-out}
+.qa-zoom img{max-width:100%;max-height:100%;border-radius:8px;background:#fff}
+#qaTeach summary{cursor:pointer;list-style:none;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+#qaTeach summary::-webkit-details-marker{display:none}
+#qaTeach summary h2{margin:0}
+#qaTeach summary .m{margin-left:auto;font-size:12.5px;color:var(--muted);font-weight:600}
+#qaTeach summary::after{content:"펼치기";font-size:12px;font-weight:800;color:var(--ink-2);background:#EEF0F4;border-radius:8px;padding:3px 8px}
+#qaTeach details[open] summary::after{content:"접기"}
+.qa-sub{font-size:12.5px;font-weight:800;color:var(--ink-2);margin:16px 0 8px}
+.qa-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 0;border-top:1px solid var(--line-2)}
+.qa-row b{color:var(--ink)}
+.qa-mail{font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
+.qa-row select{margin-left:auto;min-height:34px;padding:0 9px;border:1px solid var(--line);border-radius:9px;font:inherit;font-size:13px;background:#fff}
+.qa-hint{font-size:13px;color:var(--muted);padding:6px 0}
+.qa-guide{font-size:13px;color:var(--muted);line-height:1.6;margin-top:12px;background:#F6F7F9;border-radius:10px;padding:10px 12px}
+@media (max-width:640px){ .qa-fw{margin-left:0;width:100%} .qa-fw input{flex:1} .qa-t{margin-left:0;width:100%} .qa-ph{max-width:100%} .qa-row select{margin-left:0} }
+/* 로그인 화면 — 단과 선생님 가입 신청 */
+.auth-card .a-or{display:flex;align-items:center;gap:10px;margin:18px 0 12px;color:var(--muted);font-size:12px;font-weight:700}
+.auth-card .a-or::before,.auth-card .a-or::after{content:"";flex:1;height:1px;background:var(--line)}
+.auth-card .a-btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.auth-card .a-btn.ghost:hover{background:#F6F7F9}
+.auth-card select{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:8px;margin-bottom:13px;font-size:14px;font-family:inherit;background:#fff}
+.auth-card .a-who{font-size:13px;color:var(--text);background:#F6F7F9;border-radius:8px;padding:10px 12px;margin-bottom:13px;line-height:1.5}
+.auth-card .a-wait{font-size:13px;color:var(--green);background:var(--green-bg);border-radius:8px;padding:10px 12px;margin-top:10px;line-height:1.5}
+.auth-card .a-link{display:block;margin:12px auto 0;background:none;border:0;color:var(--muted);font-size:12.5px;text-decoration:underline;cursor:pointer}
+
 </style>
 </head>
 <body>
@@ -849,10 +914,22 @@ body.tt-printing{background:#fff!important}
     <h2>학습관 관리 시스템</h2>
     <div class="a-sub">써밋대치IDA · 직원 로그인</div>
     <div class="a-msg" id="authMsg"></div>
+    <div id="qaLoginBox">
     <label>이메일</label><input type="email" id="authEmail" autocomplete="username" placeholder="staff@summit-ida">
     <label>비밀번호</label><input type="password" id="authPass" autocomplete="current-password" placeholder="비밀번호">
     <button class="a-btn" id="loginBtn">로그인</button>
     <div class="a-note">계정은 관리자(원장)가 발급합니다.<br>원장·실장은 전체 관리, 메디컬 멘토는 학습 점검만 가능합니다.</div>
+    <div class="a-or">단과 선생님</div>
+    <button class="a-btn ghost" id="tReqBtn" type="button">구글 계정으로 가입 신청</button>
+    </div>
+    <div id="tReqBox" style="display:none">
+      <div class="a-who" id="tReqWho"></div>
+      <label>이름</label><input id="tReqName" autocomplete="name" placeholder="이름">
+      <label>과목</label><select id="tReqSubj"><option>국어</option><option>영어</option><option>수학</option><option>과학</option></select>
+      <button class="a-btn" id="tReqSend" type="button">가입 신청 보내기</button>
+      <div class="a-wait" id="tReqWait" style="display:none">신청했습니다. 원장님이 승인하면 이 화면이 저절로 열립니다.</div>
+      <button class="a-link" id="tReqOut" type="button">다른 계정으로 로그인</button>
+    </div>
   </div>
 </div>
 
@@ -870,6 +947,7 @@ body.tt-printing{background:#fff!important}
     <button data-tab="notice"><span class="mtag">실장</span>공지·일정</button>
     <button data-tab="mentor"><span class="mtag">메디컬 멘토</span>멘토링 일지</button>
     <button data-tab="sched"><span class="mtag">메디컬 멘토</span>연·월·주·일 시간표</button>
+    <button data-tab="qa"><span class="mtag">메디컬 멘토</span>질문</button>
     <button data-tab="tower"><span class="mtag">원장</span>관제탑</button>
     <button data-tab="wonjang"><span class="mtag">원장</span>입시상담</button>
     <button data-tab="analysis">분석</button>
@@ -913,6 +991,22 @@ body.tt-printing{background:#fff!important}
     <div class="cols">
       <div class="card"><div class="card-h"><h2>담당 학생</h2><span class="m">이번 주 일지 · 최근 7일 순공률 · 목표 대비 · 지난주 실행률</span></div><div id="mnTable"></div></div>
       <div class="stack"><div class="card"><div class="card-h"><h2>기한</h2></div><div id="mnDue"></div></div></div>
+    </div>
+  </section>
+
+  <!-- ============ ④ 질문 (메디컬 멘토 · 단과 선생님) ============ -->
+  <section id="tab-qa" hidden>
+    <div class="card" id="qaTeach" hidden>
+      <details>
+        <summary><h2>단과 선생님</h2><span class="m" id="qaTeachSum"></span></summary>
+        <div class="qa-sub">가입 신청</div><div id="qaReq"></div>
+        <div class="qa-sub">등록된 선생님</div><div id="qaTList"></div>
+        <div class="qa-guide">단과 선생님은 직원 로그인 화면 아래 <b>[구글 계정으로 가입 신청]</b>으로 신청합니다. 승인하면 메디컬 멘토가 그 과목으로 넘긴 질문만 보고 답할 수 있습니다. 학생 기록·리포트·상담은 볼 수 없습니다.</div>
+      </details>
+    </div>
+    <div class="card">
+      <div class="qa-tool"><div class="qa-seg" id="qaSeg"></div><select id="qaSubjSel" aria-label="과목"></select></div>
+      <div id="qaList"></div>
     </div>
   </section>
 
@@ -1591,10 +1685,14 @@ function fbInit(){
     currentUser=user;
     try{
       const sdoc=await db.collection("staff").doc(user.uid).get();
-      if(!sdoc.exists){ authError("등록되지 않은 계정입니다. 관리자(원장)에게 문의하세요."); await auth.signOut(); return; }
+      if(!sdoc.exists){ if(qaIsGoogle(user)){ qaShowReq(user); return; } authError("등록되지 않은 계정입니다. 관리자(원장)에게 문의하세요."); await auth.signOut(); return; }
       currentRole=sdoc.data().role||"멘토"; const nm=sdoc.data().name||user.email;
       $("roleSel").value=currentRole; $("roleBadge").textContent=roleLabel(currentRole)+" · "+nm;
-      hideGate(); applyRole(); subscribeAll(); boot();
+      QA.myName=nm; QA.mySubject=sdoc.data().subject||"";
+      if(currentRole==="단과") $("roleBadge").textContent=`${QA.mySubject} 선생님 · ${nm}`;
+      hideGate(); applyRole();
+      if(currentRole==="단과"){ qaTeacherBoot(); }
+      else { subscribeAll(); boot(); qaSubscribe(); }
     }catch(e){ authError("권한 확인 실패: "+(e.message||e)); }
   });
 }
@@ -1604,9 +1702,9 @@ function authError(m){ const x=$("authMsg"); if(x){ x.textContent=m; x.style.dis
 function teardownSubs(){ _unsub.forEach(u=>{try{u();}catch(e){}}); _unsub=[]; }
 
 function applyRole(){
-  const allowed = currentRole==="멘토" ? ["mine","mentor","sched","qa"] : TABS.filter(t=>t!=="mine");
+  const allowed = currentRole==="단과" ? ["qa"] : currentRole==="멘토" ? ["mine","mentor","sched","qa"] : TABS.filter(t=>t!=="mine");
   document.querySelectorAll("nav.tabs button").forEach(b=>{ b.style.display=allowed.includes(b.dataset.tab)?"":"none"; });
-  document.querySelectorAll("nav.tabs .divider").forEach(d=>{ d.style.display=currentRole==="멘토"?"none":""; });
+  document.querySelectorAll("nav.tabs .divider").forEach(d=>{ d.style.display=(currentRole==="멘토"||currentRole==="단과")?"none":""; });
   dsAfterRole();
 }
 
@@ -1806,7 +1904,7 @@ function fillStudentSelects(){
 }
 
 /* ---------- tabs / role ---------- */
-const TABS=["today","mine","siljang","checkin","grid","sms","notice","mentor","sched","tower","wonjang","analysis","mock","summer","report","students","archive","data"];
+const TABS=["today","mine","siljang","checkin","grid","sms","notice","mentor","sched","qa","tower","wonjang","analysis","mock","summer","report","students","archive","data"];
 function switchTab(name){
   document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===name));
   TABS.forEach(t=>$("tab-"+t).hidden=(t!==name));
@@ -4126,7 +4224,7 @@ function dsPageHead(name){
 }
 function dsBuildBnav(){
   const box=$("dsBnav"); if(!box)return;
-  const items = currentRole==="멘토"
+  const items = currentRole==="단과" ? [["qa","q","질문"]] : currentRole==="멘토"
     ? [["mine","users1","내 학생"],["mentor","book","일지"],["sched","cal","시간표"],["qa","q","질문"],["__menu","menu","메뉴"]]
     : [["today","home","오늘"],["siljang","pen","기록"],["checkin","check","출석"],["report","doc","리포트"],["__menu","menu","메뉴"]];
   box.innerHTML=items.filter(([t])=>t==="__menu"||document.querySelector(`#nav button[data-tab="${t}"]`))
@@ -4138,10 +4236,11 @@ function dsAfterSwitch(name){
   document.body.classList.remove("ds-open");
   if(name==="today") renderToday();
   if(name==="mine") renderMine();
+  if(name==="qa"){ qaRender(); qaRenderTeachers(); }
   if(name==="students") dsLoadMentors();
   window.scrollTo(0,0);
 }
-function dsLanding(){ switchTab(currentRole==="멘토" ? "mine" : "today"); }
+function dsLanding(){ switchTab(currentRole==="단과" ? "qa" : currentRole==="멘토" ? "mine" : "today"); }
 
 /* ---------- 3. 학생 검색 · 날짜 넘기기 · 출결 버튼 · 저장 안 된 변경 ---------- */
 function dsActive(){ return (typeof activeStudents==="function") ? activeStudents() : (S.students||[]).filter(s=>s.status!=="퇴원"); }
@@ -4334,7 +4433,7 @@ function renderMine(){
   const nx=mine.filter(s=>((S.schedules||{})[s.id]||{})[nextMon]).length;
   const lastDay=tdShift(tdShift(ymKey+"-01",32).slice(0,7)+"-01",-1);
   $("mnDue").innerHTML=`<div class="mini-row"><i class="dot" style="background:var(--gold-accent)"></i><b>월말 평가</b><span class="t">${tdMD(lastDay)}까지 · ${mine.length}명 중 ${ev}명</span></div>
-    <div class="mini-row"><i class="dot" style="background:var(--ink)"></i><b>다음 주 시간표</b><span class="t">${tdMD(tdShift(nextMon,-1))}까지 · ${mine.length}명 중 ${nx}명</span></div>`;
+    <div class="mini-row"><i class="dot" style="background:var(--ink)"></i><b>다음 주 시간표</b><span class="t">${tdMD(tdShift(nextMon,-1))}까지 · ${mine.length}명 중 ${nx}명</span></div>`+qaDueRow();
 }
 
 /* ---------- 6. 학생 관리: 담당 메디컬 멘토 ---------- */
@@ -4865,6 +4964,218 @@ function ttReportWeek(g,sid,w){
 }
 
 try{ ttInit(); }catch(e){ console.error("ttInit",e); }
+/* ===================================================== ④ 질문 연결 (2026-11-23)
+   학생이 student.html 에서 올린 질문(questions/{자동id})을 메디컬 멘토가 먼저 받는다.
+   메디컬 멘토는 바로 답하거나, [단과 선생님께 넘기기]로 과목 선생님에게 보낸다.
+   단과 선생님(staff.role="단과", staff.subject)은 자기 과목으로 넘어온 질문만 보고 답한다 — 학생 기록·리포트는 못 본다.
+   문서: {sid, sname, grade, mentorUid, subject, text, photo(dataURL), status:"open"|"fwd"|"done",
+          thread:[{by,role,name,subject?,text,at}], seen, ts, fwdSubject, fwdNote, fwdBy, fwdAt, updatedAt} */
+const QA_SUBJ=["국어","영어","수학","과학","기타"], QA_TSUBJ=["국어","영어","수학","과학"];
+const QA={list:{}, filter:"wait", subj:"", teachers:[], reqs:{}, myName:"", mySubject:""};
+ROLE_LABEL["단과"]="단과 선생님";
+DS_PAGE.qa={r:"메디컬 멘토", e:"학생 질문", t:"질문",
+  d:"학생이 학생 앱에서 올린 질문입니다. 메디컬 멘토가 먼저 답하고, 과목 선생님이 볼 것은 [단과 선생님께 넘기기]로 보냅니다."};
+
+function qaIsTeacher(){ return currentRole==="단과"; }
+function qaKST(ms){ return new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit",hour12:false}).format(new Date(ms)); }
+function qaAgo(ms){ if(!ms)return ""; const m=Math.round((Date.now()-ms)/60000);
+  if(m<1)return "방금"; if(m<60)return m+"분 전"; const h=Math.round(m/60); if(h<24)return h+"시간 전"; const d=Math.round(h/24); return d<8?d+"일 전":qaKST(ms); }
+function qaText(t){ return esc(t||"").replace(/>/g,"&gt;").replace(/\n/g,"<br>"); }
+function qaPhotoOK(p){ return typeof p==="string" && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(p); }
+function qaName(q){ try{ const s=(S.students||[]).find(x=>x.id===q.sid); if(s&&s.name) return s.name; }catch(e){} return q.sname||"학생"; }
+function qaWho(a){ const r=a.role==="단과"?`${a.subject||""} 선생님`:roleLabel(a.role||""); return `<b>${esc(a.name||"")}</b><span>${esc(r)} · ${qaKST(a.at)}</span>`; }
+
+/* 내가 볼 질문 — 원장·실장 전부 / 메디컬 멘토는 담당 학생(담당이 하나도 없으면 전부) / 단과는 자기 과목으로 넘어온 것 */
+function qaMine(){
+  const all=Object.values(QA.list||{});
+  if(qaIsTeacher()) return all.filter(q=>q.fwdSubject===QA.mySubject);
+  if(currentRole==="멘토"){ const uid=currentUser&&currentUser.uid;
+    const has=(typeof dsActive==="function")&&dsActive().some(s=>s.mentorUid===uid);
+    return has?all.filter(q=>!q.mentorUid||q.mentorUid===uid):all; }
+  return all;
+}
+function qaWaiting(q){ return qaIsTeacher()?q.status==="fwd":q.status==="open"; }
+
+/* ---------- 구독 ---------- */
+function qaSubscribe(){
+  if(!db)return;
+  const q=qaIsTeacher()? db.collection("questions").where("fwdSubject","==",QA.mySubject||"-")
+                       : db.collection("questions").where("ts",">=",Date.now()-120*864e5);
+  _unsub.push(q.onSnapshot(snap=>{ const m={}; snap.forEach(d=>{ m[d.id]=Object.assign({id:d.id},d.data()); }); QA.list=m; qaRender(); }, fbErr));
+  if(isMgr()){
+    _unsub.push(db.collection("staffRequests").onSnapshot(snap=>{ const m={}; snap.forEach(d=>m[d.id]=d.data()); QA.reqs=m; qaRenderTeachers(); }, fbErr));
+    _unsub.push(db.collection("staff").where("role","==","단과").onSnapshot(snap=>{ QA.teachers=snap.docs.map(d=>Object.assign({uid:d.id},d.data())).sort((a,b)=>String(a.subject+a.name).localeCompare(String(b.subject+b.name),"ko")); qaRenderTeachers(); }, fbErr));
+  }
+}
+function qaTeacherBoot(){
+  teardownSubs();
+  S={students:[],logs:{},mocks:{},consults:{},mentorlogs:{},monthlyevals:{},monthlyoverall:{},schedules:{},roadmaps:{},conductor:{},vocasum:{},usage:{},summerTerms:{},summerevals:{},summeroverall:{},alertAcks:{},progress:{},academy:{notices:[],exams:[],admInfo:[]}};
+  const sb=document.querySelector("#dsSide .search"); if(sb) sb.style.display="none";
+  document.querySelectorAll("#nav .grp-l").forEach(l=>l.style.display="none");
+  const ms=$("monthSel"); if(ms&&ms.parentElement) ms.parentElement.style.display="none";
+  DS_PAGE.qa.r="단과 선생님"; DS_PAGE.qa.e=`단과 선생님 · ${QA.mySubject||"과목 미정"}`;
+  DS_PAGE.qa.d=`메디컬 멘토가 ${QA.mySubject||""} 선생님께 넘긴 질문만 보입니다. 답을 보내면 학생 앱에 바로 뜹니다.`;
+  qaSubscribe(); switchTab("qa");
+}
+
+/* ---------- 질문 목록 ---------- */
+function qaRender(){
+  qaBadge();
+  const box=$("qaList"); if(!box||$("tab-qa").hidden) return;
+  const mine=qaMine();
+  const cnt={wait:mine.filter(qaWaiting).length, fwd:mine.filter(q=>q.status==="fwd").length, done:mine.filter(q=>q.status==="done").length, all:mine.length};
+  const fl=qaIsTeacher()?[["wait","답 기다림"],["done","답함"],["all","전체"]]:[["wait","답 기다림"],["fwd","단과 선생님께"],["done","답함"],["all","전체"]];
+  if(!fl.some(f=>f[0]===QA.filter)) QA.filter="wait";
+  $("qaSeg").innerHTML=fl.map(([k,l])=>`<button type="button" data-qf="${k}" class="${QA.filter===k?"on":""}">${l} <b>${cnt[k]}</b></button>`).join("");
+  const ss=$("qaSubjSel"); if(ss){ ss.style.display=qaIsTeacher()?"none":""; }
+  let list=mine.filter(q=>QA.filter==="all"?true:QA.filter==="wait"?qaWaiting(q):q.status===QA.filter);
+  if(QA.subj&&!qaIsTeacher()) list=list.filter(q=>q.subject===QA.subj);
+  list.sort((a,b)=> QA.filter==="wait" ? (a.ts||0)-(b.ts||0) : (b.updatedAt||b.ts||0)-(a.updatedAt||a.ts||0));
+  if(DS_PAGE.qa && !qaIsTeacher()) DS_PAGE.qa.t=cnt.wait?`질문 <span class="g">답 기다림 ${cnt.wait}개</span>`:`질문 <span class="g">모두 답함</span>`;
+  if(qaIsTeacher()) DS_PAGE.qa.t=cnt.wait?`${esc(QA.mySubject)} 질문 <span class="g">답 기다림 ${cnt.wait}개</span>`:`${esc(QA.mySubject)} 질문 <span class="g">모두 답함</span>`;
+  dsPageHead("qa");
+  const empty={wait:qaIsTeacher()?"넘어온 질문이 없습니다.":"답을 기다리는 질문이 없습니다.",fwd:"단과 선생님께 넘긴 질문이 없습니다.",done:"아직 답한 질문이 없습니다.",all:"아직 질문이 없습니다."}[QA.filter];
+  const keep={}; box.querySelectorAll(".qa-item").forEach(it=>{ const t=it.querySelector(".qa-in"), n=it.querySelector(".qa-fn"), d=it.querySelector("details");
+    keep[it.dataset.q]={t:t?t.value:"", n:n?n.value:"", d:!!(d&&d.open), f:it.contains(document.activeElement)?document.activeElement.className:""}; });
+  box.innerHTML=list.length?list.map(qaItemHTML).join(""):`<div class="empty">${empty}</div>`;
+  box.querySelectorAll(".qa-item").forEach(it=>{ const k=keep[it.dataset.q]; if(!k)return; const t=it.querySelector(".qa-in"), n=it.querySelector(".qa-fn"), d=it.querySelector("details");
+    if(t&&k.t) t.value=k.t; if(n&&k.n) n.value=k.n; if(d&&(k.d||k.t)) d.open=true; if(k.f){ const el=it.querySelector("."+k.f.split(" ")[0]); if(el) el.focus(); } });
+}
+function qaItemHTML(q){
+  const st=q.status==="done"?`<span class="sg green">답함</span>`:q.status==="fwd"?`<span class="sg gold">${esc(q.fwdSubject||"")} 선생님께</span>`:`<span class="sg red">답 기다림</span>`;
+  const old=qaWaiting(q)&&q.ts&&(Date.now()-q.ts>24*36e5);
+  const th=(q.thread||[]).map(a=>`<div class="qa-a${a.role==="단과"?" t":""}"><div class="qa-ah">${qaWho(a)}</div><div class="qa-at">${qaText(a.text)}</div></div>`).join("");
+  const note=q.status!=="open"&&q.fwdSubject&&(q.fwdNote||q.fwdBy)?`<div class="qa-note"><b>${esc(q.fwdBy||"메디컬 멘토")}</b> → ${esc(q.fwdSubject)} 선생님${q.fwdNote?" · "+qaText(q.fwdNote):""}</div>`:"";
+  const def=QA_TSUBJ.includes(q.subject)?q.subject:QA_TSUBJ[0];
+  const tools=[];
+  if(!qaIsTeacher()&&q.status==="open") tools.push(`<span class="qa-fw"><select class="qa-fs">${QA_TSUBJ.map(s=>`<option${s===def?" selected":""}>${s}</option>`).join("")}</select><input class="qa-fn" placeholder="선생님께 남길 메모 (선택)"><button class="btn sm ghost" type="button" data-qa-fwd>단과 선생님께 넘기기</button></span>`);
+  if(!qaIsTeacher()&&q.status==="fwd") tools.push(`<button class="btn sm ghost" type="button" data-qa-back>넘기기 취소</button>`);
+  if(isMgr()) tools.push(`<button class="btn sm ghost qa-del" type="button" data-qa-del>지우기</button>`);
+  const form=`<div class="qa-form"><textarea class="qa-in" rows="3" placeholder="답을 적어 주세요. 풀이는 단계별로 나눠 적으면 학생이 따라가기 쉽습니다."></textarea>
+      <div class="qa-btns"><button class="btn sm" type="button" data-qa-ans>답 보내기</button>${tools.join("")}</div></div>`;
+  const canAnswer=!qaIsTeacher()||q.status!=="open";
+  const act=!canAnswer?"":(q.status==="done"?`<details class="qa-more"><summary>답 더 쓰기</summary>${form}</details>`:form);
+  const ph=qaPhotoOK(q.photo)?`<img class="qa-ph" src="${q.photo}" alt="질문 사진" data-qa-zoom>`:"";
+  return `<article class="qa-item${old?" old":""}" data-q="${esc(q.id)}">
+    <div class="qa-h"><b class="qa-n">${esc(qaName(q))}</b><span class="qa-g">${esc(q.grade||"")}</span><span class="qa-s">${esc(q.subject||"기타")}</span>${st}
+      <span class="qa-t" title="${q.ts?qaKST(q.ts):""}">${qaAgo(q.ts)}${old?" · 24시간 넘음":""}</span></div>
+    <div class="qa-body">${q.text?`<div class="qa-q">${qaText(q.text)}</div>`:""}${ph}</div>
+    ${note}${th?`<div class="qa-th">${th}</div>`:""}${act}</article>`;
+}
+function qaBadge(){
+  const n=qaMine().filter(qaWaiting).length;
+  try{ dsNavBadge("qa",n,qaIsTeacher()?"gold":"red"); }catch(e){}
+}
+function qaDueRow(){
+  const n=qaMine().filter(qaWaiting).length;
+  return `<div class="mini-row"><i class="dot" style="background:var(--red)"></i><b>답 기다리는 질문</b><span class="t">${n?n+"개":"없음"}</span></div>`;
+}
+
+/* ---------- 쓰기 ---------- */
+function qaUpd(id,upd,msg){
+  const q=QA.list[id]; if(q) Object.assign(q,upd); qaRender();
+  db.collection("questions").doc(id).update(upd).then(()=>msg&&toast(msg)).catch(fbErr);
+}
+function qaAnswer(id,text){
+  const q=QA.list[id]; text=(text||"").trim(); if(!q)return; if(!text) return toast("답을 적어 주세요");
+  const a={by:currentUser.uid, role:currentRole, name:QA.myName||"", text, at:Date.now()}; if(qaIsTeacher()) a.subject=QA.mySubject;
+  const el=document.querySelector(`.qa-item[data-q="${CSS.escape(id)}"] .qa-in`); if(el) el.value="";
+  qaUpd(id,{thread:(q.thread||[]).concat([a]), status:"done", seen:false, updatedAt:Date.now()},"답을 보냈습니다 — 학생 앱에 바로 뜹니다");
+}
+function qaForward(id,subj,note){
+  if(!QA_TSUBJ.includes(subj)) return toast("과목을 골라 주세요");
+  qaUpd(id,{status:"fwd", fwdSubject:subj, fwdNote:(note||"").trim(), fwdBy:QA.myName||"", fwdAt:Date.now(), updatedAt:Date.now()},`${subj} 선생님께 넘겼습니다`);
+}
+function qaBack(id){ qaUpd(id,{status:"open", fwdSubject:"", fwdNote:"", updatedAt:Date.now()},"넘기기를 취소했습니다"); }
+function qaDel(id){
+  if(!confirm("이 질문을 지울까요? 학생 앱에서도 사라지고 되돌릴 수 없습니다.")) return;
+  delete QA.list[id]; qaRender(); db.collection("questions").doc(id).delete().then(()=>toast("지웠습니다")).catch(fbErr);
+}
+function qaZoom(src){
+  const z=document.createElement("div"); z.className="qa-zoom"; z.innerHTML=`<img src="${src}" alt="">`; z.onclick=()=>z.remove(); document.body.appendChild(z);
+}
+
+/* ---------- 단과 선생님 관리 (원장·실장) ---------- */
+function qaRenderTeachers(){
+  const box=$("qaTeach"); if(!box)return;
+  if(!isMgr()){ box.hidden=true; return; } box.hidden=false;
+  const reqs=Object.entries(QA.reqs||{}).sort((a,b)=>(a[1].at||0)-(b[1].at||0));
+  const opt=v=>QA_TSUBJ.map(s=>`<option${s===v?" selected":""}>${s}</option>`).join("");
+  $("qaReq").innerHTML=reqs.length?reqs.map(([uid,r])=>`<div class="qa-row" data-uid="${esc(uid)}"><span class="sg gold">가입 신청</span>
+      <b>${esc(r.name||"")}</b><span class="qa-mail">${esc(r.email||"")}</span>
+      <select class="qa-rs">${opt(r.subject)}</select>
+      <button class="btn sm" type="button" data-qa-ok>승인</button><button class="btn sm ghost" type="button" data-qa-no>거절</button></div>`).join("")
+    :`<div class="qa-hint">새 가입 신청이 없습니다.</div>`;
+  $("qaTList").innerHTML=QA.teachers.length?QA.teachers.map(t=>`<div class="qa-row" data-uid="${esc(t.uid)}"><span class="qa-s">${esc(t.subject||"")}</span>
+      <b>${esc(t.name||"")}</b><span class="qa-mail">${esc(t.email||"")}</span>
+      <select class="qa-ts">${opt(t.subject)}</select><button class="btn sm ghost" type="button" data-qa-rm>해제</button></div>`).join("")
+    :`<div class="qa-hint">아직 등록된 단과 선생님이 없습니다.</div>`;
+  const n=reqs.length; const sm=$("qaTeachSum"); if(sm) sm.textContent=`선생님 ${QA.teachers.length}명${n?` · 가입 신청 ${n}건`:""}`;
+  if(n){ const d=box.querySelector("details"); if(d) d.open=true; }
+}
+function qaApprove(uid,subject){
+  const r=(QA.reqs||{})[uid]; if(!r)return;
+  db.collection("staff").doc(uid).set({role:"단과", subject, name:r.name||"", email:r.email||"", approvedAt:Date.now(), approvedBy:QA.myName||""})
+    .then(()=>db.collection("staffRequests").doc(uid).delete()).then(()=>toast(`${r.name||"선생님"} — ${subject} 단과 선생님으로 승인했습니다`)).catch(fbErr);
+}
+function qaReject(uid){ if(!confirm("이 가입 신청을 거절할까요?"))return; db.collection("staffRequests").doc(uid).delete().then(()=>toast("거절했습니다")).catch(fbErr); }
+function qaSetSubj(uid,subject){ db.collection("staff").doc(uid).update({role:"단과", subject}).then(()=>toast(`과목을 ${subject}(으)로 바꿨습니다`)).catch(fbErr); }
+function qaRemove(uid){ const t=QA.teachers.find(x=>x.uid===uid);
+  if(!confirm(`${t&&t.name||"이 선생님"}의 단과 선생님 권한을 해제할까요? 해제하면 바로 로그인할 수 없습니다.`))return;
+  db.collection("staff").doc(uid).delete().then(()=>toast("해제했습니다")).catch(fbErr); }
+
+/* ---------- 로그인 화면: 단과 선생님 가입 신청 ---------- */
+let _qaReqUnsub=null;
+function qaIsGoogle(u){ return !!(u&&(u.providerData||[]).some(p=>p&&p.providerId==="google.com")); }
+async function qaShowReq(user){
+  const g=$("authGate"); if(g) g.style.display="flex";
+  $("authMsg").style.display="none"; $("qaLoginBox").style.display="none"; $("tReqBox").style.display="block";
+  $("tReqWho").innerHTML=`<b>${esc(user.displayName||"구글 계정")}</b><br>${esc(user.email||"")}`;
+  if(!$("tReqName").value) $("tReqName").value=user.displayName||"";
+  try{ const r=await db.collection("staffRequests").doc(user.uid).get();
+    if(r.exists){ $("tReqName").value=r.data().name||""; $("tReqSubj").value=r.data().subject||"국어"; qaReqWaiting(); } }catch(e){}
+  if(_qaReqUnsub) _qaReqUnsub();
+  _qaReqUnsub=db.collection("staff").doc(user.uid).onSnapshot(d=>{ if(d.exists){ _qaReqUnsub&&_qaReqUnsub(); location.reload(); } },()=>{});
+}
+function qaReqWaiting(){ $("tReqSend").style.display="none"; $("tReqWait").style.display="block"; $("tReqName").disabled=true; $("tReqSubj").disabled=true; }
+function qaGateInit(){
+  if(!$("tReqBtn"))return;
+  $("tReqBtn").onclick=async()=>{ try{ await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }catch(e){ authError("구글 로그인 실패: "+(e.code||e.message||e)); } };
+  $("tReqSend").onclick=async()=>{ const u=auth&&auth.currentUser; if(!u)return;
+    const name=$("tReqName").value.trim(), subject=$("tReqSubj").value; if(!name) return authError("이름을 적어 주세요.");
+    try{ await db.collection("staffRequests").doc(u.uid).set({uid:u.uid, email:u.email||"", name, subject, at:Date.now()}); qaReqWaiting(); }
+    catch(e){ authError("신청을 보내지 못했습니다: "+(e.code||e.message||e)); } };
+  $("tReqOut").onclick=()=>{ if(_qaReqUnsub){_qaReqUnsub();_qaReqUnsub=null;} $("tReqBox").style.display="none"; $("qaLoginBox").style.display="block";
+    $("tReqSend").style.display=""; $("tReqWait").style.display="none"; $("tReqName").disabled=false; $("tReqSubj").disabled=false; if(auth) auth.signOut(); };
+}
+
+/* ---------- 초기화 ---------- */
+function qaInit(){
+  qaGateInit();
+  const tab=$("tab-qa"); if(!tab)return;
+  if($("qaSubjSel")){ $("qaSubjSel").innerHTML=`<option value="">전체 과목</option>`+QA_SUBJ.map(s=>`<option>${s}</option>`).join(""); $("qaSubjSel").onchange=()=>{ QA.subj=$("qaSubjSel").value; qaRender(); }; }
+  tab.addEventListener("click",e=>{
+    const f=e.target.closest("[data-qf]"); if(f){ QA.filter=f.dataset.qf; qaRender(); return; }
+    const z=e.target.closest("[data-qa-zoom]"); if(z){ qaZoom(z.src); return; }
+    const it=e.target.closest(".qa-item"), id=it&&it.dataset.q;
+    if(id){
+      if(e.target.closest("[data-qa-ans]")) qaAnswer(id,it.querySelector(".qa-in").value);
+      if(e.target.closest("[data-qa-fwd]")) qaForward(id,it.querySelector(".qa-fs").value,it.querySelector(".qa-fn").value);
+      if(e.target.closest("[data-qa-back]")) qaBack(id);
+      if(e.target.closest("[data-qa-del]")) qaDel(id);
+      return;
+    }
+    const row=e.target.closest(".qa-row"), uid=row&&row.dataset.uid;
+    if(uid){
+      if(e.target.closest("[data-qa-ok]")) qaApprove(uid,row.querySelector(".qa-rs").value);
+      if(e.target.closest("[data-qa-no]")) qaReject(uid);
+      if(e.target.closest("[data-qa-rm]")) qaRemove(uid);
+    }
+  });
+  tab.addEventListener("change",e=>{ const s=e.target.closest(".qa-ts"); if(s){ const row=s.closest(".qa-row"); qaSetSubj(row.dataset.uid,s.value); } });
+}
+qaInit();
+
 fbInit();
 </script>
   <div id="scPrintArea" class="pr-area"></div>
