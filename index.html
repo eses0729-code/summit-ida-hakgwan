@@ -3549,6 +3549,7 @@ $("genReport").onclick=()=>{
   const schW=Object.keys((S.schedules||{})[sid]||{}).filter(w=>w.slice(0,7)===month).sort();
   let schedBlock="";
   if(schW.length){ schedBlock=repSec("주간 학습 스케줄","과목별 주간 계획")+schW.map(w=>{ const dd=S.schedules[sid][w]; if(dd.grid&&dd.grid.slots) return `<div class="rep-wk">${weekLabelOf(w)}</div>`+ttReportWeek(dd.grid,sid,w); const rows=(dd.rows||[]).filter(r=>r.subject||((r.days||[]).some(x=>x))); if(!rows.length)return ""; const head=`<tr><th>과목</th>${DL_.map(x=>`<th>${x}</th>`).join("")}</tr>`; const body=rows.map(r=>`<tr><td class="s">${ntEsc(r.subject)||"&nbsp;"}</td>${(r.days||[]).map(v=>`<td>${ntEsc(v).replace(/\n/g,"<br>")||""}</td>`).join("")}</tr>`).join(""); return `<div class="rep-wk">${weekLabelOf(w)}</div><div class="rep-sched-wrap"><table class="rep-sched"><thead>${head}</thead><tbody>${body}</tbody></table></div>`; }).join(""); }
+  const execBlock=(()=>{ const r=repExecRows(sid,schW); return r?"<div style=\"break-inside:avoid;page-break-inside:avoid\">"+repSec("계획 실행","학생 앱 체크 기준")+r+"</div>":""; })();
   const _today=ciTodayISO();
   const exs=(aca.exams||[]).filter(e=>e.date&&e.date>=`${month}-01`).sort((a,b)=>a.date<b.date?-1:1);
   let examBlock="";
@@ -3626,6 +3627,7 @@ $("genReport").onclick=()=>{
 
     ${roadmapBlock}
     ${schedBlock}
+    ${execBlock}
     ${consultBlock}
     ${examBlock}
     ${infoBlock}
@@ -3779,6 +3781,7 @@ $("genSummerReport").onclick=()=>{
   const schW=Object.keys((S.schedules||{})[sid]||{}).filter(w=>w>=start&&w<=end).sort();
   let schedBlock="";
   if(schW.length){ schedBlock=repSec("주간 학습 스케줄","과목별 주간 계획")+schW.map(w=>{ const dd=S.schedules[sid][w]; if(dd.grid&&dd.grid.slots) return `<div class="rep-wk">${weekLabelOf(w)}</div>`+ttReportWeek(dd.grid,sid,w); const rows=(dd.rows||[]).filter(r=>r.subject||((r.days||[]).some(x=>x))); if(!rows.length)return ""; const head=`<tr><th>과목</th>${DL_.map(x=>`<th>${x}</th>`).join("")}</tr>`; const body=rows.map(r=>`<tr><td class="s">${ntEsc(r.subject)||"&nbsp;"}</td>${(r.days||[]).map(v=>`<td>${ntEsc(v).replace(/\n/g,"<br>")||""}</td>`).join("")}</tr>`).join(""); return `<div class="rep-wk">${weekLabelOf(w)}</div><div class="rep-sched-wrap"><table class="rep-sched"><thead>${head}</thead><tbody>${body}</tbody></table></div>`; }).join(""); }
+  const execBlock=(()=>{ const r=repExecRows(sid,schW); return r?"<div style=\"break-inside:avoid;page-break-inside:avoid\">"+repSec("계획 실행","학생 앱 체크 기준")+r+"</div>":""; })();
   const _today=ciTodayISO();
   const exs=(aca.exams||[]).filter(e=>e.date&&e.date>=start).sort((a,b)=>a.date<b.date?-1:1);
   let examBlock="";
@@ -3855,6 +3858,7 @@ $("genSummerReport").onclick=()=>{
 
     ${roadmapBlock}
     ${schedBlock}
+    ${execBlock}
     ${consultBlock}
     ${examBlock}
     ${infoBlock}
@@ -4161,10 +4165,10 @@ const DS_GROUPS = [
   { g:"실장",          c:"#7E95C2", tabs:["siljang","checkin","grid","sms","notice"] },
   { g:"메디컬 멘토",    c:"#3FA37A", tabs:["mentor","sched","qa"] },
   { g:"원장",          c:"#D9A033", tabs:["tower","wonjang"] },
-  { g:"리포트 · 분석",  c:"#8E9AB3", tabs:["report","analysis","mock"] },
-  { g:"관리",          c:"#8E9AB3", tabs:["students","data"] }
+  { g:"리포트 · 분석",  c:"#8E9AB3", tabs:["report","summer","analysis","mock"] },
+  { g:"관리",          c:"#8E9AB3", tabs:["students","archive","data"] }
 ];
-const DS_TAB_ICON = { today:"home", mine:"users1", siljang:"pen", checkin:"check", grid:"grid", sms:"msg", notice:"bell",
+const DS_TAB_ICON = { archive:"users", summer:"doc", today:"home", mine:"users1", siljang:"pen", checkin:"check", grid:"grid", sms:"msg", notice:"bell",
   mentor:"book", sched:"cal", qa:"q", tower:"radar", wonjang:"cap", report:"doc", analysis:"chart", mock:"exam", students:"users", data:"db" };
 
 function dsBuildNav(){
@@ -4210,7 +4214,9 @@ const DS_PAGE = {
   analysis:{r:"분석", e:"한 달", t:"월간 분석", d:"학업 시간 추이와 요일별 평균을 봅니다."},
   mock:    {r:"분석", e:"모의고사", t:"모의고사", d:"응시 기록과 등급 흐름을 관리합니다."},
   students:{r:"관리", e:"관리", t:"학생 관리", d:"학생 등록·수정, 담당 메디컬 멘토 지정, 학생 앱 연결."},
-  data:    {r:"관리", e:"관리", t:"데이터", d:"백업 · 가져오기 · 정리."}
+  data:    {r:"관리", e:"관리", t:"데이터", d:"백업 · 가져오기 · 정리."},
+  archive: {r:"관리", e:"관리", t:"퇴원생 보관", d:"퇴원 처리한 학생의 기록을 보관합니다. 필요하면 재원으로 되돌립니다."},
+  summer:  {r:"리포트 · 분석", e:"방학 기간 · 학부모", t:"썸머클래스", d:"방학 기간에만 수강한 학생의 기간 리포트를 만듭니다. 월간 리포트와 별개입니다."}
 };
 function dsPageHead(name){
   const p=DS_PAGE[name]; const btn=document.querySelector(`#nav button[data-tab="${name}"]`);
@@ -4958,7 +4964,7 @@ function ttReportWeek(g,sid,w){
     h+="</tr>"; });
   const T=ttWeekTotals(g);
   h+=`</tbody></table></div>`;
-  const _ex=(sid&&w)?exRate(sid,w,6):{total:0};
+  const _td=tdKey(), _mx=!(sid&&w)||w>_td?-1:(_td>=tdShift(w,6)?6:Math.round((new Date(_td+"T12:00:00Z")-new Date(w+"T12:00:00Z"))/864e5)), _ex=_mx<0?{total:0}:exRate(sid,w,_mx);
   if(T.arr.length) h+=`<div style="font-size:12px;color:#5E6673;margin:6px 0 10px">계획 합계 <b style="color:#16294A">${ttHfmt(T.total)}</b> — ${T.arr.map(x=>`${ttE(x.s)} ${ttHfmt(x.h)}`).join(" · ")}${_ex.total?` · 학생 체크 <b style="color:#1D7050">${_ex.done}/${_ex.total}줄 (${_ex.pct}%)</b>`:""}</div>`;
   return h;
 }
@@ -5175,6 +5181,19 @@ function qaInit(){
   tab.addEventListener("change",e=>{ const s=e.target.closest(".qa-ts"); if(s){ const row=s.closest(".qa-row"); qaSetSubj(row.dataset.uid,s.value); } });
 }
 qaInit();
+
+/* 리포트 «계획 실행» — 학생 앱 체크(progress)를 그 주 시간표 할 일과 맞댄 수만 싣는다. 해석은 붙이지 않는다.
+   진행 중인 주는 오늘까지만 센다. 시작 전인 주와 할 일이 없는 주는 싣지 않는다. */
+function repExecRows(sid,weeks){
+  const today=tdKey(), rows=[]; let T=0,D=0;
+  (weeks||[]).forEach(w=>{ if(w>today) return;
+    const end=tdShift(w,6), mx=today>=end?6:Math.round((new Date(today+"T12:00:00Z")-new Date(w+"T12:00:00Z"))/864e5);
+    const e=exRate(sid,w,mx); if(!e.total) return; T+=e.total; D+=e.done;
+    const d=new Date(w+"T00:00"); rows.push(`<div class="rline"><div class="rk">${d.getMonth()+1}월 ${Math.ceil(d.getDate()/7)}주</div><div class="rv">할 일 ${e.total}줄 중 ${e.done}줄 체크 · <b>${e.pct}%</b>${mx<6?` <span style="color:var(--muted);font-size:12px">(${tdMD(tdShift(w,mx))}까지)</span>`:""}</div></div>`); });
+  if(!rows.length) return "";
+  return rows.join("")+(rows.length>1?`<div class="rline"><div class="rk">합계</div><div class="rv">${T}줄 중 ${D}줄 체크 · <b>${Math.round(D/T*100)}%</b></div></div>`:"")
+    +`<div style="font-size:11.5px;color:var(--muted);margin-top:4px">주간 시간표의 할 일을 학생이 학생 앱에서 끝냈다고 체크한 비율입니다.</div>`;
+}
 
 fbInit();
 </script>
