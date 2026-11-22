@@ -187,6 +187,35 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
 @media(max-width:640px){ .mastin{padding:12px 14px} .brand h1{font-size:16px} .card{padding:15px 14px} }
 
 .titem .sub{display:block}
+
+/* ④ 질문 */
+.qa-nb{display:inline-block;min-width:18px;padding:0 5px;border-radius:9px;background:#B23F2A;color:#fff;font-size:11px;font-weight:800;line-height:18px;text-align:center;margin-left:3px}
+.qa-ban{display:flex;align-items:center;gap:12px;justify-content:space-between;background:#FFFBF2;border:1px solid #E9C98A;border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:14px;color:#16294A}
+.qa-ban b{color:#7F5C12}
+.qa-pick{display:flex;align-items:center;gap:10px;margin-top:4px}
+.qa-pick label.btn{cursor:pointer;display:inline-block}
+.qa-pn{font-size:12px;color:var(--muted)}
+.qa-prev{display:flex;align-items:flex-start;gap:10px;margin-top:10px}
+.qa-prev img{max-width:220px;max-height:200px;border-radius:9px;border:1px solid var(--line)}
+.qa-x{background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12.5px;font-weight:700;color:#B23F2A}
+.qa-it{border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-bottom:10px;background:#fff}
+.qa-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.qa-s{font-size:11.5px;font-weight:800;color:#16294A;background:#E8ECF4;border-radius:6px;padding:2px 8px}
+.qa-st{font-size:12px;font-weight:800;border-radius:999px;padding:3px 9px}
+.qa-st.w{background:#EEF0F4;color:#16294A}
+.qa-st.fw{background:#F6EBCF;color:#7F5C12}
+.qa-st.ok{background:#E5F2EA;color:#1D7050}
+.qa-st.new{background:#B23F2A;color:#fff}
+.qa-t{margin-left:auto;font-size:12px;color:var(--muted);font-weight:600}
+.qa-q{margin-top:8px;font-size:14px;line-height:1.65;overflow-wrap:anywhere}
+.qa-ph{display:block;margin-top:8px;max-width:100%;max-height:220px;border-radius:9px;border:1px solid var(--line);cursor:zoom-in}
+.qa-th{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.qa-a{background:#F3F6FB;border-left:3px solid #16294A;border-radius:10px;padding:9px 12px}
+.qa-a.t{border-left-color:#D9A033;background:#FBF7EE}
+.qa-ah{font-size:12.5px}.qa-ah b{color:#16294A}.qa-ah span{color:var(--muted);font-weight:600}
+.qa-at{margin-top:3px;font-size:14px;line-height:1.65;overflow-wrap:anywhere}
+.qa-zoom{position:fixed;inset:0;background:rgba(10,22,40,.86);z-index:400;display:flex;align-items:center;justify-content:center;padding:14px;cursor:zoom-out}
+.qa-zoom img{max-width:100%;max-height:100%;border-radius:8px;background:#fff}
 .stt{border-collapse:separate;border-spacing:4px;min-width:760px;width:100%;font-size:12px}
 .stt th{background:none;color:#16294A;font-weight:800;font-size:12.5px;text-align:center;padding:4px 2px;border-bottom:2px solid transparent}
 .stt th.we{color:#B23F2A}.stt th.td{border-bottom-color:#2E4A8B;color:#2E4A8B}
@@ -265,6 +294,7 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
     <button data-tab="explore">세특 탐색</button>
     <button data-tab="record">내 기록</button>
     <button data-tab="sched">스케줄</button>
+    <button data-tab="qa">질문</button>
     <button data-tab="mock">성적</button>
     <button data-tab="voca">단어</button>
     <button data-tab="plan">학습계획서</button>
@@ -273,6 +303,7 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
 
   <!-- 오늘 -->
   <section id="tab-today">
+    <div id="tdQa"></div>
     <div id="tdOverall" hidden></div>
     <div class="card">
       <div class="eyebrow">TODAY</div>
@@ -287,6 +318,26 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
       <div class="prog"><i id="tdBar" style="width:0%"></i></div>
       <div style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:10px" id="tdRate">이행률 —</div>
       <div class="todo" id="tdList"></div>
+    </div>
+  </section>
+
+  <!-- 질문 -->
+  <section id="tab-qa" hidden>
+    <div class="card">
+      <div class="eyebrow">ASK</div>
+      <h2>질문하기</h2>
+      <div class="hint">모르는 문제를 적거나 사진으로 찍어 올리세요. 메디컬 멘토 선생님이 먼저 보고, 필요하면 과목 선생님께 전달합니다.</div>
+      <div class="field"><label for="qaSubj">과목</label><select id="qaSubj"></select></div>
+      <div class="field"><label for="qaText">질문</label><textarea id="qaText" rows="4" placeholder="예: 수능특강 3강 12번 — 해설의 두 번째 줄에서 왜 부호가 바뀌는지 모르겠어요."></textarea></div>
+      <div class="qa-pick"><label class="btn ghost sm" for="qaFile">사진 찍기 · 고르기</label><input type="file" id="qaFile" accept="image/*" hidden><span class="qa-pn">사진 1장까지</span></div>
+      <div id="qaPrev" class="qa-prev"></div>
+      <button class="btn" id="qaSend" type="button" style="margin-top:12px">질문 보내기</button>
+    </div>
+    <div class="card">
+      <div class="eyebrow">MY QUESTIONS</div>
+      <h2>내 질문</h2>
+      <div class="hint">선생님 답이 오면 여기와 [오늘] 화면에 표시됩니다.</div>
+      <div id="qaMyList"></div>
     </div>
   </section>
 
@@ -564,6 +615,7 @@ function subscribe(){
   db.collection("progress").where("sid","==",SID).onSnapshot(sn=>{
     const m={}; sn.forEach(d=>{ const x=d.data(); if(x.week)m[x.week]=x.done||[]; }); S.progress=m; renderAll();
   }, fbErr);
+  qaSub();
   db.collection("roadmaps").doc(SID).onSnapshot(d=>{ S.roadmap=d.exists?(d.data().items||[]):[]; renderAll(); }, fbErr);
   db.collection("plans").doc(SID).onSnapshot(d=>{ S.plans=d.exists?(d.data().items||[]):[]; renderPlan(); }, fbErr);
   db.collection("usage").doc(SID).get().then(d=>{ if(d.exists){ const x=d.data(); _use={tabs:x.tabs||{},days:x.days||[],lastSeen:x.lastSeen}; } }).catch(()=>{});
@@ -578,12 +630,13 @@ function subscribe(){
 }
 
 /* ── 탭 ── */
-const TABS=["today","cond","explore","record","sched","mock","voca","plan","notice"];
+const TABS=["today","cond","explore","record","sched","qa","mock","voca","plan","notice"];
 function switchTab(n){
   TABS.forEach(t=>{ const el=$("tab-"+t); if(el)el.hidden=(t!==n); });
   document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===n));
   window.scrollTo(0,0);
   trackTab(n);
+  if(n==="qa") qaMarkSeen();
 }
 /* ── 사용 기록 (파일럿 측정용) — 어떤 화면을 실제로 쓰는지만 셈한다 ── */
 let _use={tabs:{},days:[]}, _useT=null;
@@ -1162,6 +1215,90 @@ function setVocaGo(url){
   else { a.style.display="none"; if(hint)hint.style.display="none"; }
 }
 function renderAll(){ renderToday(); renderRecord(); renderSched(); renderMock(); renderCond(); renderExplore(); renderVoca(); }
+/* ── ④ 질문 (2026-11-23) — 내가 올린 질문과 선생님 답. 메디컬 멘토가 먼저 보고, 필요하면 과목 선생님께 넘긴다 ── */
+const QA_SUBJ=["국어","영어","수학","과학","기타"];
+const QAS={list:{}, photo:"", sending:false};
+function qaSub(){
+  db.collection("questions").where("sid","==",SID).onSnapshot(sn=>{
+    const m={}; sn.forEach(d=>{ m[d.id]=Object.assign({id:d.id},d.data()); }); QAS.list=m; qaRenderS();
+    const t=$("tab-qa"); if(t&&!t.hidden) qaMarkSeen();
+  }, fbErr);
+}
+function qaKST(ms){ return new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit",hour12:false}).format(new Date(ms)); }
+function qaTxt(t){ return esc(t||"").replace(/>/g,"&gt;").replace(/\n/g,"<br>"); }
+function qaPhotoOK(p){ return typeof p==="string" && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(p); }
+function qaRole(a){ return a.role==="단과"?`${a.subject||""} 선생님`:a.role==="멘토"?"메디컬 멘토":(a.role||"선생님"); }
+function qaUnseen(){ return Object.values(QAS.list).filter(q=>q.status==="done"&&q.seen===false).length; }
+
+function qaRenderS(){
+  const n=qaUnseen();
+  const tb=document.querySelector('nav.tabs button[data-tab="qa"]'); if(tb) tb.innerHTML=`질문${n?` <span class="qa-nb">${n}</span>`:""}`;
+  const bn=$("tdQa"); if(bn) bn.innerHTML=n?`<div class="qa-ban"><span>선생님 답이 <b>${n}개</b> 왔어요</span><button class="btn sm" type="button" onclick="switchTab('qa')">보러 가기</button></div>`:"";
+  const box=$("qaMyList"); if(!box)return;
+  const list=Object.values(QAS.list).sort((a,b)=>(b.updatedAt||b.ts||0)-(a.updatedAt||a.ts||0));
+  if(!list.length){ box.innerHTML=`<div class="empty">아직 올린 질문이 없습니다.</div>`; return; }
+  box.innerHTML=list.map(q=>{
+    const st=q.status==="done"?(q.seen===false?`<span class="qa-st new">새 답</span>`:`<span class="qa-st ok">답 왔어요</span>`)
+           :q.status==="fwd"?`<span class="qa-st fw">${esc(q.fwdSubject||"")} 선생님께 전달됨</span>`:`<span class="qa-st w">답 기다리는 중</span>`;
+    const th=(q.thread||[]).map(a=>`<div class="qa-a${a.role==="단과"?" t":""}"><div class="qa-ah"><b>${esc(a.name||"")}</b> <span>${esc(qaRole(a))} · ${qaKST(a.at)}</span></div><div class="qa-at">${qaTxt(a.text)}</div></div>`).join("");
+    const canDel=q.status==="open"&&!(q.thread||[]).length;
+    return `<div class="qa-it"><div class="qa-h"><span class="qa-s">${esc(q.subject||"기타")}</span>${st}<span class="qa-t">${q.ts?qaKST(q.ts):""}</span></div>
+      ${q.text?`<div class="qa-q">${qaTxt(q.text)}</div>`:""}${qaPhotoOK(q.photo)?`<img class="qa-ph" src="${q.photo}" alt="질문 사진" onclick="qaZoom(this.src)">`:""}
+      ${th?`<div class="qa-th">${th}</div>`:""}
+      ${canDel?`<div style="margin-top:8px"><button class="btn sm ghost" type="button" onclick="qaCancel('${esc(q.id)}')">질문 취소</button></div>`:""}</div>`;
+  }).join("");
+}
+function qaMarkSeen(){
+  Object.values(QAS.list).filter(q=>q.status==="done"&&q.seen===false).forEach(q=>{
+    db.collection("questions").doc(q.id).update({seen:true}).catch(()=>{});
+  });
+}
+function qaZoom(src){ const z=document.createElement("div"); z.className="qa-zoom"; z.innerHTML=`<img src="${src}" alt="">`; z.onclick=()=>z.remove(); document.body.appendChild(z); }
+function qaCancel(id){
+  if(!confirm("이 질문을 취소할까요?"))return;
+  db.collection("questions").doc(id).delete().then(()=>toast("질문을 취소했습니다")).catch(fbErr);
+}
+/* 사진은 앱에서 줄여 글자(data URL)로 저장한다 — 450KB 아래가 될 때까지 화질·크기를 낮춘다 */
+function qaPick(file){
+  if(!file)return;
+  if(!/^image\//.test(file.type||"")) return toast("사진 파일만 붙일 수 있습니다");
+  const url=URL.createObjectURL(file), img=new Image();
+  img.onload=()=>{
+    let max=1400, ql=.8, out="";
+    for(let i=0;i<10;i++){
+      const k=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight)), c=document.createElement("canvas");
+      c.width=Math.max(1,Math.round(img.naturalWidth*k)); c.height=Math.max(1,Math.round(img.naturalHeight*k));
+      const x=c.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,c.width,c.height); x.drawImage(img,0,0,c.width,c.height);
+      out=c.toDataURL("image/jpeg",ql); if(out.length<450000)break;
+      if(ql>.55) ql-=.1; else max=Math.round(max*.8);
+    }
+    URL.revokeObjectURL(url);
+    if(out.length>=450000) return toast("사진이 너무 큽니다. 문제 부분만 다시 찍어 주세요");
+    QAS.photo=out; $("qaPrev").innerHTML=`<img src="${out}" alt="붙인 사진"><button type="button" class="qa-x" onclick="qaClearPhoto()" aria-label="사진 빼기">사진 빼기</button>`;
+  };
+  img.onerror=()=>{ URL.revokeObjectURL(url); toast("사진을 읽지 못했습니다"); };
+  img.src=url;
+}
+function qaClearPhoto(){ QAS.photo=""; $("qaPrev").innerHTML=""; $("qaFile").value=""; }
+async function qaSend(){
+  if(QAS.sending)return;
+  const subject=$("qaSubj").value, text=$("qaText").value.trim();
+  if(!text&&!QAS.photo) return toast("질문을 적거나 사진을 붙여 주세요");
+  QAS.sending=true; $("qaSend").disabled=true;
+  const now=Date.now();
+  const doc={sid:SID, sname:(ME&&ME.name)||"", grade:(ME&&ME.grade)||"", mentorUid:(ME&&ME.mentorUid)||"", subject, text, photo:QAS.photo||"",
+             status:"open", thread:[], seen:true, ts:now, updatedAt:now, fwdSubject:"", createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  try{ await db.collection("questions").add(doc); toast("질문을 보냈습니다"); $("qaText").value=""; qaClearPhoto(); }
+  catch(e){ fbErr(e); }
+  finally{ QAS.sending=false; $("qaSend").disabled=false; }
+}
+function qaInitS(){
+  if(!$("qaSubj"))return;
+  $("qaSubj").innerHTML=QA_SUBJ.map(s=>`<option>${s}</option>`).join("");
+  $("qaFile").onchange=e=>qaPick(e.target.files&&e.target.files[0]);
+  $("qaSend").onclick=qaSend;
+}
+qaInitS();
 </script>
 </body>
 </html>
