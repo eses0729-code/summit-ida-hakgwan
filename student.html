@@ -606,9 +606,9 @@ function renderToday(){
     let _oh='<div class="card" style="border-left:4px solid #3d6b9e;background:#f0f5fb">';
     _oh+='<div class="eyebrow" style="color:#3d6b9e">MONTHLY COMMENT</div>';
     if(_ovm?.text){
-      _oh+='<div style="font-size:14px;font-weight:800;color:#22304f;margin-bottom:5px">멘토 총평</div>';
+      _oh+='<div style="font-size:14px;font-weight:800;color:#22304f;margin-bottom:5px">메디컬 멘토 총평</div>';
       _oh+='<div style="font-size:13px;line-height:1.8;color:#2a3040;white-space:pre-wrap">'+esc(_ovm.text)+'</div>';
-      if(_ovm.by||_ovm.at){_oh+='<div style="font-size:10.5px;color:#7a8ba0;margin-top:6px">'+(_ovm.by?esc(_ovm.by)+' 멘토 작성':'')+(_ovm.at?' · '+_ovm.at.slice(0,7).replace('-','년 ')+'월':'')+'</div>';}
+      if(_ovm.by||_ovm.at){_oh+='<div style="font-size:10.5px;color:#7a8ba0;margin-top:6px">'+(_ovm.by?esc(_ovm.by)+' 메디컬 멘토 작성':'')+(_ovm.at?' · '+_ovm.at.slice(0,7).replace('-','년 ')+'월':'')+'</div>';}
     }
     if(_ovs?.text){
       if(_ovm?.text)_oh+='<div style="margin:12px 0;border-top:1px dashed #bed0e8"></div>';
