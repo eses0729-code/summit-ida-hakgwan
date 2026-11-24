@@ -70,6 +70,14 @@ nav.tabs button.active{color:var(--ink);border-bottom-color:var(--gold)}
 .tm-row{display:grid;grid-template-columns:64px 1fr 72px;align-items:center;gap:8px;font-size:13px}
 .tm-row .tm-b{height:10px;border-radius:5px;background:var(--line-2);overflow:hidden}
 .tm-row .tm-b i{display:block;height:100%;background:var(--ok)}
+.tg-row{display:grid;grid-template-columns:48px 1fr 92px;align-items:center;gap:8px;font-size:13px;padding:6px 0;border-bottom:1px solid var(--line-2)}
+.tg-row:last-child{border-bottom:0}
+.tg-row .tm-b{height:10px;border-radius:5px;background:var(--line-2);overflow:hidden}
+.tg-row .tm-b i{display:block;height:100%;background:var(--ink)}
+.tg-t{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tg-g{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
+.tg-g.up{color:var(--ok)}.tg-g.down{color:var(--alert)}.tg-g.same{color:var(--muted)}
+.tg-sub{font-size:12.5px;color:var(--muted);margin:12px 0 6px;font-weight:700}
 .tm-row em{font-style:normal;text-align:right;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
 .field{margin-bottom:12px}
 .field label{display:block;font-size:11.5px;font-weight:700;color:var(--ink-2);margin-bottom:5px}
@@ -457,6 +465,12 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
         <div class="axis" id="mkAxis"></div>
       </div>
       <div id="mkTable" style="margin-top:16px"></div>
+    </div>
+    <div class="card" id="tgCard">
+      <div class="eyebrow">TIME → GRADE</div>
+      <h2>시간 → 성적</h2>
+      <div class="hint" id="tgHint"></div>
+      <div id="tgBody"></div>
     </div>
   </section>
 
@@ -1248,8 +1262,54 @@ const TM_CAP=360;
 let TM={docs:{},pick:"",tick:null};
 function tmSub(){
   db.collection("studytimer").where("sid","==",SID).onSnapshot(sn=>{
-    const m={}; sn.forEach(d=>{ const x=d.data(); if(x.date)m[x.date]=x; }); TM.docs=m; tmRender();
+    const m={}; sn.forEach(d=>{ const x=d.data(); if(x.date)m[x.date]=x; }); TM.docs=m; tmRender(); tgRender();
   }, e=>{ const el=$("tmCard"); if(el){ el.querySelector(".hint").textContent="타이머 기록을 읽지 못했습니다 — 선생님께 알려 주세요."; } console.warn(e); });
+}
+/* ── 시간 → 성적 (v2.6) ─────────────────────────────────────────────
+   ★ 왜 — 기획 «노력이 수로 보이게»: 두 모의고사 사이에 과목별로 잰 공부 시간과 등급 변화를 한 장에.
+   ★ 지키는 것
+   1. 나란히 놓기만 한다 — «시간 때문에 올랐다»고 말하지 않는다. 지면이 그 말을 함께 적는다.
+   2. 시간은 공부 타이머(studytimer)에 학생이 잰 것만. 재지 않은 날은 0이 아니라 «기록 없음»이다.
+   3. 과목 이름은 아래 표로만 국어·수학·영어·탐구에 잇는다. 표에 없는 이름(한국사·기타 …)은 «그 밖»으로 따로 센다. */
+const TG_K={kor:"국어",math:"수학",eng:"영어",sci:"탐구"};
+function tgKey(n){ n=String(n||"");
+  if(/국어|문학|독서|화법|작문|언어와|매체/.test(n))return "kor";
+  if(/수학|미적|확률|기하|대수/.test(n))return "math";
+  if(/영어/.test(n))return "eng";
+  if(/탐구|과학|물리|화학|생명|생물|지구|사회|지리|윤리|경제|정치|법과|세계사|동아시아|사회문화|사회·문화/.test(n))return "sci";
+  return null; }
+function tgSum(from,to){ // from 포함 · to 제외(YYYY-MM-DD). to 없으면 오늘까지
+  const o={kor:0,math:0,eng:0,sci:0,그밖:0}; let 날=0;
+  for(const d of Object.values(TM.docs||{})){ if(!d.date||d.date<from||(to&&d.date>=to))continue;
+    let 있다=false; for(const [s,m] of Object.entries(d.totals||{})){ const v=Number(m)||0; if(!v)continue; 있다=true; const k=tgKey(s); o[k||"그밖"]+=v; }
+    if(있다)날++; }
+  o.날=날; return o; }
+function tgRender(){
+  if(!$("tgBody"))return;
+  const pts=(S.mocks||[]).filter(m=>m.date&&m.grades&&Object.values(m.grades).some(v=>v!=null&&v!==""));
+  const md=s=>s.slice(5).replace("-","/");
+  const 줄=(o,변)=>{ const 큰=Math.max(1,...Object.keys(TG_K).map(k=>o[k]));
+    return Object.keys(TG_K).map(k=>{ const m=o[k];
+      let g=""; if(변){ const a=변.a[k],b=변.b[k];
+        if(a!=null&&a!==""&&b!=null&&b!==""){ const d=Number(a)-Number(b);
+          g=`<div class="tg-g ${d>0?"up":d<0?"down":"same"}">${a}→${b}등급${d>0?` ▲${d}`:d<0?` ▼${-d}`:""}</div>`; }
+        else g=`<div class="tg-g same">–</div>`; }
+      return `<div class="tg-row"><b>${TG_K[k]}</b><div><div class="tm-b"><i style="width:${Math.round(m/큰*100)}%"></i></div><span class="tg-t">${m?fmtMin(m):"기록 없음"}</span></div>${변?g:"<div></div>"}</div>`; }).join("")
+      +(o.그밖?`<div class="hint" style="margin-top:6px">그 밖 과목(한국사·기타 등) ${fmtMin(o.그밖)}</div>`:""); };
+  let h="";
+  if(pts.length>=2){
+    const a=pts[pts.length-2], b=pts[pts.length-1], o=tgSum(a.date,b.date);
+    $("tgHint").textContent=`${md(a.date)} ${a.source||"모의고사"} → ${md(b.date)} ${b.source||"모의고사"} 사이에 잰 공부 시간과 등급 변화입니다.`;
+    h+= o.날 ? 줄(o,{a:a.grades,b:b.grades})
+      : `<div class="empty">두 시험 사이에는 타이머 기록이 없습니다. 「오늘」 탭 공부 타이머로 재면 다음 시험 뒤에 여기에 과목별 시간이 채워집니다.</div>`;
+  } else {
+    $("tgHint").textContent="모의고사가 두 번 쌓이면, 두 시험 사이에 과목별로 잰 공부 시간과 등급 변화를 나란히 보여 줍니다.";
+  }
+  const 뒤=pts.length?pts[pts.length-1].date:null, o2=뒤?tgSum(뒤,null):null;
+  if(o2&&o2.날){ h+=`<div class="tg-sub">${md(뒤)} 모의고사 뒤로 지금까지 (${o2.날}일 기록)</div>`+줄(o2,null); }
+  else if(!pts.length){ const o3=tgSum("0000-00-00",null); if(o3.날) h+=`<div class="tg-sub">지금까지 잰 시간 (${o3.날}일 기록)</div>`+줄(o3,null); }
+  if(h) h+=`<div class="hint" style="margin-top:10px">시간과 등급을 나란히 놓은 것입니다 — 시간만으로 등급이 바뀐다는 뜻은 아닙니다.</div>`;
+  $("tgBody").innerHTML=h;
 }
 function tmRunning(){ for(const d of Object.values(TM.docs)){ if(d.running&&d.running.s) return {date:d.date,...d.running}; } return null; }
 function tmFmt(ms){ const t=Math.max(0,Math.floor(ms/1000)); const h=Math.floor(t/3600),m=Math.floor(t%3600/60),x=t%60; return `${h}:${String(m).padStart(2,"0")}:${String(x).padStart(2,"0")}`; }
@@ -1302,7 +1362,7 @@ function tmStop(run){
   ref.update(patch).then(()=>toast(min>0?`${run.subj} ${fmtMin(min)} 기록`+(cut?" (6시간까지만 셌습니다)":""):"1분이 안 되어 기록하지 않았습니다")).catch(fbErr);
 }
 
-function renderAll(){ renderToday(); tmRender(); renderRecord(); renderSched(); renderMock(); renderCond(); renderExplore(); renderVoca(); }
+function renderAll(){ renderToday(); tmRender(); renderRecord(); renderSched(); renderMock(); tgRender(); renderCond(); renderExplore(); renderVoca(); }
 /* ── ④ 질문 (2026-11-23) — 내가 올린 질문과 선생님 답. 메디컬 멘토가 먼저 보고, 필요하면 과목 선생님께 넘긴다 ── */
 const QA_SUBJ=["국어","영어","수학","과학","기타"];
 const QAS={list:{}, photo:"", sending:false};
