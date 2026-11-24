@@ -57,6 +57,20 @@ nav.tabs button.active{color:var(--ink);border-bottom-color:var(--gold)}
 .btn{background:var(--ink);color:#fff;border:1px solid var(--ink);border-radius:8px;padding:9px 15px;font-size:13.5px;font-weight:700}
 .btn.ghost{background:#fff;color:var(--ink);border-color:var(--line)}
 .btn.sm{padding:6px 11px;font-size:12.5px}
+/* ── 공부 타이머 (2026-11-24) ── */
+.tm-now{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:4px 0 10px}
+.tm-now b{font-size:34px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.tm-now span{font-size:13px;color:var(--muted);font-weight:700}
+.tm-subs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.tm-subs button{min-height:44px;min-width:64px;padding:0 14px;border-radius:22px;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:13.5px;font-weight:700;cursor:pointer}
+.tm-subs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tm-go{width:100%;min-height:52px;border-radius:12px;font-size:16px}
+.tm-go.stop{background:var(--alert);border-color:var(--alert)}
+.tm-sum{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.tm-row{display:grid;grid-template-columns:64px 1fr 72px;align-items:center;gap:8px;font-size:13px}
+.tm-row .tm-b{height:10px;border-radius:5px;background:var(--line-2);overflow:hidden}
+.tm-row .tm-b i{display:block;height:100%;background:var(--ok)}
+.tm-row em{font-style:normal;text-align:right;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
 .field{margin-bottom:12px}
 .field label{display:block;font-size:11.5px;font-weight:700;color:var(--ink-2);margin-bottom:5px}
 .field input,.field textarea,.field select{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:var(--rs);background:#fff;color:var(--text)}
@@ -318,6 +332,15 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
       <div class="prog"><i id="tdBar" style="width:0%"></i></div>
       <div style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:10px" id="tdRate">이행률 —</div>
       <div class="todo" id="tdList"></div>
+    </div>
+    <div class="card" id="tmCard">
+      <div class="eyebrow">STUDY TIMER</div>
+      <h2>공부 타이머</h2>
+      <div class="hint">과목을 고르고 시작하세요. 화면을 꺼도 시간이 이어집니다. <span class="tag">선생님 기록(순공시간)과 따로 쌓입니다</span></div>
+      <div class="tm-now"><b id="tmClock">0:00:00</b><span id="tmState">멈춤</span></div>
+      <div class="tm-subs" id="tmSubs" role="group" aria-label="과목 고르기"></div>
+      <button class="btn tm-go" id="tmGo" type="button">시작</button>
+      <div class="tm-sum" id="tmSum"></div>
     </div>
   </section>
 
@@ -616,6 +639,7 @@ function subscribe(){
     const m={}; sn.forEach(d=>{ const x=d.data(); if(x.week)m[x.week]=x.done||[]; }); S.progress=m; renderAll();
   }, fbErr);
   qaSub();
+  tmSub();
   db.collection("roadmaps").doc(SID).onSnapshot(d=>{ S.roadmap=d.exists?(d.data().items||[]):[]; renderAll(); }, fbErr);
   db.collection("plans").doc(SID).onSnapshot(d=>{ S.plans=d.exists?(d.data().items||[]):[]; renderPlan(); }, fbErr);
   db.collection("usage").doc(SID).get().then(d=>{ if(d.exists){ const x=d.data(); _use={tabs:x.tabs||{},days:x.days||[],lastSeen:x.lastSeen}; } }).catch(()=>{});
@@ -1214,7 +1238,71 @@ function setVocaGo(url){
   if(url){ a.href=url; a.style.display="block"; if(hint)hint.style.display="block"; }
   else { a.style.display="none"; if(hint)hint.style.display="none"; }
 }
-function renderAll(){ renderToday(); renderRecord(); renderSched(); renderMock(); renderCond(); renderExplore(); renderVoca(); }
+/* ── 공부 타이머 (2026-11-24) ────────────────────────────────
+   ★ 시작 «시각»을 저장하고 지금 시각에서 뺀다 — 휴대폰이 잠기거나 새로 고쳐도 시간이 틀리지 않는다.
+   ★ 한 번에 6시간을 넘게 켜 두면 6시간까지만 센다(끄는 것을 잊은 타이머) — 그 사실을 기록에 남긴다.
+   ★ 문서: studytimer/{SID}__{날짜} = {sid, date, totals:{과목:분}, sessions:[{subj,s,e,min,cut}], running:{subj,s}|null}
+     학생 본인만 쓴다(규칙 게시 필요 — 원장님). 선생님이 적는 logs.studyMin 과 섞지 않는다. */
+const TM_SUBJ=["국어","수학","영어","탐구","한국사","기타"];
+const TM_CAP=360;
+let TM={docs:{},pick:"",tick:null};
+function tmSub(){
+  db.collection("studytimer").where("sid","==",SID).onSnapshot(sn=>{
+    const m={}; sn.forEach(d=>{ const x=d.data(); if(x.date)m[x.date]=x; }); TM.docs=m; tmRender();
+  }, e=>{ const el=$("tmCard"); if(el){ el.querySelector(".hint").textContent="타이머 기록을 읽지 못했습니다 — 선생님께 알려 주세요."; } console.warn(e); });
+}
+function tmRunning(){ for(const d of Object.values(TM.docs)){ if(d.running&&d.running.s) return {date:d.date,...d.running}; } return null; }
+function tmFmt(ms){ const t=Math.max(0,Math.floor(ms/1000)); const h=Math.floor(t/3600),m=Math.floor(t%3600/60),x=t%60; return `${h}:${String(m).padStart(2,"0")}:${String(x).padStart(2,"0")}`; }
+function tmSubjects(){
+  const t=todayISO(), w=monday(t), sc=S.schedules[w], di=(new Date(t+"T00:00").getDay()+6)%7, out=[];
+  try{ if(sc&&sc.grid&&sc.grid.slots) stuGridItems(sc.grid,di).forEach(x=>{ if(x.subj&&out.indexOf(x.subj)<0)out.push(x.subj); });
+       else if(sc)(sc.rows||[]).forEach(r=>{ const txt=(r.days||[])[di]; if(txt&&txt.trim()&&r.subject&&out.indexOf(r.subject)<0)out.push(r.subject); }); }catch(e){}
+  TM_SUBJ.forEach(x=>{ if(out.indexOf(x)<0)out.push(x); });
+  return out.slice(0,10);
+}
+function tmRender(){
+  if(!$("tmCard"))return;
+  const run=tmRunning();
+  if(run) TM.pick=run.subj;
+  const subs=tmSubjects(); if(!TM.pick) TM.pick=subs[0];
+  $("tmSubs").innerHTML=subs.map(x=>`<button type="button" class="${x===TM.pick?"on":""}" aria-pressed="${x===TM.pick}" ${run?"disabled":""} data-s="${esc(x)}">${esc(x)}</button>`).join("");
+  $("tmSubs").querySelectorAll("button").forEach(b=>b.onclick=()=>{ TM.pick=b.dataset.s; tmRender(); });
+  const go=$("tmGo"); go.textContent=run?`${run.subj} 멈추기`:`${TM.pick} 시작`; go.classList.toggle("stop",!!run);
+  go.onclick=()=> run?tmStop(run):tmStart(TM.pick);
+  clearInterval(TM.tick);
+  const draw=()=>{ $("tmClock").textContent=run?tmFmt(Date.now()-run.s):"0:00:00"; };
+  draw(); if(run) TM.tick=setInterval(draw,1000);
+  $("tmState").textContent=run?`${run.subj} 공부 중 · ${new Date(run.s).toTimeString().slice(0,5)}부터`:"멈춤";
+  // 오늘·이번 주 과목별 합
+  const t=todayISO(), w=monday(t), wk={}, td={};
+  Object.values(TM.docs).forEach(d=>{ if(!d.date||d.date<w)return; Object.entries(d.totals||{}).forEach(([k,v])=>{ wk[k]=(wk[k]||0)+(Number(v)||0); if(d.date===t)td[k]=(td[k]||0)+(Number(v)||0); }); });
+  const keys=Object.keys(wk).sort((a,b)=>wk[b]-wk[a]);
+  if(!keys.length){ $("tmSum").innerHTML=`<div class="empty">아직 잰 시간이 없습니다. 과목을 고르고 시작해 보세요.</div>`; return; }
+  const mx=Math.max(...keys.map(k=>wk[k]));
+  const todaySum=Object.values(td).reduce((a,b)=>a+b,0), weekSum=keys.reduce((a,k)=>a+wk[k],0);
+  $("tmSum").innerHTML=`<div style="font-size:12px;font-weight:700;color:var(--ink-2)">오늘 ${fmtMin(todaySum)} · 이번 주 ${fmtMin(weekSum)}</div>`+
+    keys.map(k=>`<div class="tm-row"><span>${esc(k)}</span><span class="tm-b"><i style="width:${Math.round(wk[k]/mx*100)}%"></i></span><em>${fmtShort(wk[k])}</em></div>`).join("");
+}
+function tmStart(subj){
+  subj=String(subj||"").replace(/[.~*/\[\]]/g,"·").trim().slice(0,20);   // 필드 경로에 못 쓰는 글자를 바꾼다
+  if(!subj||tmRunning())return;
+  const t=todayISO(), now=Date.now();
+  db.collection("studytimer").doc(SID+"__"+t).set({sid:SID,date:t,running:{subj,s:now},updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})
+    .then(()=>toast(subj+" 시작")).catch(fbErr);
+}
+function tmStop(run){
+  const now=Date.now(); let min=Math.round((now-run.s)/60000), cut=false;
+  if(min>TM_CAP){ min=TM_CAP; cut=true; }
+  const ref=db.collection("studytimer").doc(SID+"__"+run.date);
+  const patch={running:null,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  if(min>0){
+    patch["totals."+run.subj]=firebase.firestore.FieldValue.increment(min);
+    patch.sessions=firebase.firestore.FieldValue.arrayUnion({subj:run.subj,s:run.s,e:now,min,cut});
+  }
+  ref.update(patch).then(()=>toast(min>0?`${run.subj} ${fmtMin(min)} 기록`+(cut?" (6시간까지만 셌습니다)":""):"1분이 안 되어 기록하지 않았습니다")).catch(fbErr);
+}
+
+function renderAll(){ renderToday(); tmRender(); renderRecord(); renderSched(); renderMock(); renderCond(); renderExplore(); renderVoca(); }
 /* ── ④ 질문 (2026-11-23) — 내가 올린 질문과 선생님 답. 메디컬 멘토가 먼저 보고, 필요하면 과목 선생님께 넘긴다 ── */
 const QA_SUBJ=["국어","영어","수학","과학","기타"];
 const QAS={list:{}, photo:"", sending:false};
