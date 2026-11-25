@@ -1233,6 +1233,12 @@ body.tt-printing{background:#fff!important}
         <div class="wk-jump" id="mlWkJump"></div>
       </div>
 
+      <div class="form-sec" id="mlIpsi">
+        <div class="form-sec-h"><span class="n">+</span><span class="t">써밋 앱 공부 기록</span><span class="m">학생이 써밋 앱에서 잰·적은 시간 · 이 주</span></div>
+        <div id="mlIpsiBody" class="hint" style="margin:0 0 8px">학생과 주차를 고른 뒤 불러오세요.</div>
+        <button class="btn ghost sm" id="mlIpsiGo" type="button">불러오기</button>
+      </div>
+
       <div class="form-sec">
         <div class="form-sec-h"><span class="n">2</span><span class="t">과목별 진도 및 성취도</span><span class="m">수행률 · 상중하 · 학습 단원 · 코멘트</span></div>
         <div id="mlSubjTable"></div>
@@ -2511,6 +2517,39 @@ $("mlAddSubj").onclick=()=>{ if(mlReadOnly())return; mlSubjects=mlReadSubjects()
 $("mlPrev").onclick=()=>{ const d=new Date(mlMonday($("mtDate").value)+"T00:00"); d.setDate(d.getDate()-7); $("mtDate").value=mlYmd(d); renderMentorLog(); };
 $("mlNext").onclick=()=>{ const d=new Date(mlMonday($("mtDate").value)+"T00:00"); d.setDate(d.getDate()+7); $("mtDate").value=mlYmd(d); renderMentorLog(); };
 $("mtStudent").onchange=renderMentorLog;
+/* ── 써밋 앱 공부 기록 (2026-11-25 원장 결정 — 공부 타이머는 써밋 입시앱으로 모으고, 멘토는 여기서 본다) ──
+   ★ 써밋 앱 서버 함수(getIpsiStudyForHakgwan)를 학습관 로그인 그대로 부른다. 학생은 «같은 이메일»로만 잇고,
+     못 이으면 서버가 까닭을 돌려준다 — 그대로 적는다. 누를 때만 부른다(학생·주차를 바꿀 때마다 부르지 않는다). */
+const IPSI_FN="https://asia-northeast3-summit-studio-4042d.cloudfunctions.net/getIpsiStudyForHakgwan";
+function mlIpsiReset(){ const b=$("mlIpsiBody"); if(b) b.textContent="학생과 주차를 고른 뒤 불러오세요."; }
+async function mlIpsiLoad(){
+  const box=$("mlIpsiBody"), sid=$("mtStudent").value;
+  if(!sid){ box.textContent="학생을 먼저 고르세요."; return; }
+  const from=mlMonday($("mtDate").value), e=new Date(from+"T00:00"); e.setDate(e.getDate()+6); const to=mlYmd(e);
+  box.textContent="써밋 앱에서 불러오는 중…"; $("mlIpsiGo").disabled=true;
+  try{
+    const idToken=await auth.currentUser.getIdToken();
+    const r=await fetch(IPSI_FN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:{idToken,sid,from,to}})});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok||j.error) throw new Error((j.error&&j.error.message)||("응답 "+r.status));
+    const x=j.result||{};
+    if(!x.ok){ box.textContent=x.까닭||"불러오지 못했습니다"; return; }
+    const 합={}; let 날=0, 모두=0;
+    (x.일||[]).forEach(d=>{ let 있다=false; for(const [k,v] of Object.entries(d.min||{})){ const n=Number(v)||0; if(n>0){ 합[k]=(합[k]||0)+n; 모두+=n; 있다=true; } } if(있다)날++; });
+    const 줄=Object.entries(합).sort((a,b)=>b[1]-a[1]);
+    box.innerHTML=줄.length
+      ? `<div style="margin-bottom:6px"><b>${from.slice(5).replace("-","/")} ~ ${to.slice(5).replace("-","/")}</b> · 적은 날 ${날}일 · 합 <b>${fmtMin(모두)}</b></div>`
+        +줄.map(([k,v])=>`<div style="display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid var(--line-2,#eee)"><span>${esc(k)}</span><b>${fmtMin(v)}</b></div>`).join("")
+        +`<div style="margin-top:6px">학생이 써밋 앱에서 잰·적은 시간입니다(센터 순공과 따로입니다).</div>`
+      : "이 주에 써밋 앱에 적은 공부 기록이 없습니다.";
+  }catch(err){ box.textContent="불러오지 못했습니다 — "+err.message; }
+  finally{ $("mlIpsiGo").disabled=false; }
+}
+$("mlIpsiGo").onclick=mlIpsiLoad;
+$("mtStudent").addEventListener("change",mlIpsiReset);
+$("mtDate").addEventListener("change",mlIpsiReset);
+$("mlPrev").addEventListener("click",mlIpsiReset);
+$("mlNext").addEventListener("click",mlIpsiReset);
 $("mtDate").onchange=renderMentorLog;
 mlBuildOax("sleep");
 
