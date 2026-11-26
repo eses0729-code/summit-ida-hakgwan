@@ -962,6 +962,12 @@ body.tt-printing{background:#fff!important}
 .rx-left .rx-s{font-size:10.5px;font-weight:800;color:#16294A;background:#E8ECF4;border-radius:5px;padding:1px 6px}
 .rx-left .rx-dt{font-size:10.5px;color:#667085;font-weight:700;white-space:nowrap}
 .rx-left .rx-tx{color:#1B2230;overflow-wrap:anywhere}
+.rx-mk{font-style:normal;font-size:10px;font-weight:800;border-radius:5px;padding:0 5px;white-space:nowrap}
+.rx-mk.part{background:#F6EEDB;color:#7F5C12}.rx-mk.miss{background:#F6E4E0;color:#B23F2A}
+.rp-talk{border:1px solid #E3D6B8;border-left:4px solid #B08840;border-radius:0 10px 10px 0;background:#FBF8F1;padding:12px 18px;margin:0 0 18px;break-inside:avoid}
+.rp-talk-label{font-size:11.5px;font-weight:800;color:#7F5C12;letter-spacing:.02em}
+.rp-talk-body{font-size:14px;line-height:1.7;color:#1B2230;margin-top:4px;white-space:pre-wrap}
+.rp-talk-by{font-size:10.5px;color:#667085;margin-top:4px}
 .rx-note{font-size:10.5px;color:#667085;line-height:1.5;margin-top:2px}
 
 </style>
@@ -1802,13 +1808,13 @@ function refresh(){
   },140);
 }
 function subscribeAll(){
-  teardownSubs(); S={students:[],logs:{},mocks:{},consults:{},mentorlogs:{},monthlyevals:{},monthlyoverall:{},schedules:{},roadmaps:{},conductor:{},vocasum:{},usage:{},summerTerms:{},summerevals:{},summeroverall:{},alertAcks:{},academy:{notices:[],exams:[],admInfo:[]}};
+  teardownSubs(); S={progressPart:{},progressMiss:{},talk:{},students:[],logs:{},mocks:{},consults:{},mentorlogs:{},monthlyevals:{},monthlyoverall:{},schedules:{},roadmaps:{},conductor:{},vocasum:{},usage:{},summerTerms:{},summerevals:{},summeroverall:{},alertAcks:{},academy:{notices:[],exams:[],admInfo:[]}};
   _unsub.push(db.collection("students").onSnapshot(snap=>{ S.students=snap.docs.map(d=>({id:d.id,...d.data()})); _hashFrom("students"); refresh(); }, fbErr));
   _unsub.push(db.collection("logs").onSnapshot(snap=>{ const logs={}; snap.forEach(d=>{ const x=d.data(); if(!x.sid||!x.date)return; (logs[x.sid]=logs[x.sid]||{})[x.date]={status:x.status,inTime:x.inTime||"",outTime:x.outTime||"",reason:x.reason||"",outings:x.outings||[],studyMin:x.studyMin||0,vocab:x.vocab||null,tests:x.tests||[],comments:x.comments||[],outStart:x.outStart||""}; }); S.logs=logs; _hashFrom("logs"); refresh(); }, fbErr));
   _unsub.push(db.collection("mentorlogs").onSnapshot(snap=>{ const m={}; snap.forEach(dd=>{ const x=dd.data(); if(!x.sid||!x.week)return; (m[x.sid]=m[x.sid]||{})[x.week]={subjects:x.subjects||[],nextTask:x.nextTask||"",wake:x.wake||"",bed:x.bed||"",sleepPractice:x.sleepPractice||"",sleepComment:x.sleepComment||"",mockFb:x.mockFb||""}; }); S.mentorlogs=m; refresh(); }, fbErr));
   _unsub.push(db.collection("monthlyevals").onSnapshot(snap=>{ const m={},mo={}; snap.forEach(dd=>{ const x=dd.data(); if(!x.sid||!x.ym)return; (m[x.sid]=m[x.sid]||{})[x.ym]=x.text||""; const mt=x.mentorOverall||x.overall||"",mat=x.mentorOverallAt||x.overallAt||null,mby=x.mentorOverallBy||x.overallBy||"",st=x.siljangOverall||"",sat=x.siljangOverallAt||null,sby=x.siljangOverallBy||"",wt=x.wonjangOverall||"",wat=x.wonjangOverallAt||null,wby=x.wonjangOverallBy||""; if(mt||st||wt){(mo[x.sid]=mo[x.sid]||{})[x.ym]={mentor:{text:mt,at:mat,by:mby},siljang:{text:st,at:sat,by:sby},wonjang:{text:wt,at:wat,by:wby}};} }); S.monthlyevals=m; S.monthlyoverall=mo; refresh(); }, fbErr));
   _unsub.push(db.collection("schedules").onSnapshot(snap=>{ const m={}; snap.forEach(dd=>{ const x=dd.data(); if(!x.sid||!x.week)return; (m[x.sid]=m[x.sid]||{})[x.week]={rows:x.rows||[],keyPoints:x.keyPoints||"",mentorComment:x.mentorComment||"",grid:x.grid||null,plan4:x.plan4||null}; }); S.schedules=m; refresh(); }, fbErr));
-  _unsub.push(db.collection("progress").onSnapshot(snap=>{ const m={}; snap.forEach(d=>{ const x=d.data(); if(!x.sid||!x.week)return; (m[x.sid]=m[x.sid]||{})[x.week]=x.done||[]; }); S.progress=m; refresh(); try{ if($("tab-today")&&!$("tab-today").hidden)renderToday(); if($("tab-mine")&&!$("tab-mine").hidden)renderMine(); }catch(e){} }, fbErr));
+  _unsub.push(db.collection("progress").onSnapshot(snap=>{ const m={},pp={},pm={},tk={}; snap.forEach(d=>{ const x=d.data(); if(!x.sid)return; /* ★ v2.9 학생 «한마디»(kind:talk) · 실행 기록 3택(part·miss) */ if(x.kind==="talk"&&x.ym){ (tk[x.sid]=tk[x.sid]||{})[x.ym]={text:x.text||"",at:x.at||""}; return; } if(!x.week)return; (m[x.sid]=m[x.sid]||{})[x.week]=x.done||[]; (pp[x.sid]=pp[x.sid]||{})[x.week]=x.part||[]; (pm[x.sid]=pm[x.sid]||{})[x.week]=x.miss||[]; }); S.progress=m; S.progressPart=pp; S.progressMiss=pm; S.talk=tk; refresh(); try{ if($("tab-today")&&!$("tab-today").hidden)renderToday(); if($("tab-mine")&&!$("tab-mine").hidden)renderMine(); }catch(e){} }, fbErr));
   _unsub.push(db.collection("vocasummary").onSnapshot(snap=>{ const m={}; snap.forEach(d=>{ const x=d.data(); if(!x.sid||!x.period)return; (m[x.sid]=m[x.sid]||{})[x.period]=x; }); S.vocasum=m; refresh(); }, fbErr));
   _unsub.push(db.collection("linkRequests").onSnapshot(snap=>{ const m={}; snap.forEach(d=>{ m[d.id]=d.data(); }); _lreq=m; try{ renderLinkReqs(); }catch(e){} }, fbErr));
   _unsub.push(db.collection("usage").onSnapshot(snap=>{ const m={}; snap.forEach(d=>{ const x=d.data(); if(x.sid)m[x.sid]=x; }); S.usage=m; try{ if($("tab-tower")&&!$("tab-tower").hidden)renderUsage(); }catch(e){} }, fbErr));
@@ -3669,6 +3675,9 @@ $("genReport").onclick=()=>{
     if(_wonjang?.text){ if(_mentor?.text||_siljang?.text)overallBlock+='<div style="margin:12px 0;border-top:1px dashed #bed0e8"></div>'; overallBlock+=`<div class="rp-overall-label">원장 상담</div><div class="rp-overall-body">${ntEsc(_wonjang.text)}</div>`; if(_wonjang.by||_wonjang.at)overallBlock+=`<div class="rp-overall-by">${_wonjang.by?ntEsc(_wonjang.by)+' 원장 작성':""}${_wonjang.at?' · '+_wonjang.at.slice(0,16).replace('T',' '):""}</div>`; }
     overallBlock+='</div>';
   }
+  /* ★ v2.9 «학생 한마디» — 학생이 학생 앱 «내 기록»에 직접 쓴 글. 고치지 않고 그대로 싣는다. 없으면 칸을 세우지 않는다. */
+  const _talk=((S.talk||{})[sid]||{})[month];
+  const talkBlock=_talk&&_talk.text?`<div class="rp-talk"><div class="rp-talk-label">학생 한마디 · ${+month.slice(5)}월</div><div class="rp-talk-body">${ntEsc(_talk.text)}</div><div class="rp-talk-by">학생이 학생 앱에 직접 쓴 글입니다${_talk.at?" · "+String(_talk.at).slice(5,10).replace("-","/"):""}</div></div>`:"";
   area.innerHTML=`<div class="report" id="rpPrint">
     <div class="rep-cover">
       <img src="${_wlogo}" class="rc-logo" alt="써밋대치IDA">
@@ -3679,6 +3688,7 @@ $("genReport").onclick=()=>{
     </div>
     <div class="rep-body">
     ${overallBlock}
+    ${talkBlock}
     ${diagBlock}
     ${repSec("핵심 지표","이번 달 학습 요약")}
 
@@ -4606,6 +4616,8 @@ function exKeysDay(sc,di){
   return ks;
 }
 function exDone(sid,week){ return new Set(((((S.progress||{})[sid])||{})[week])||[]); }
+/* ★ v2.9 학생이 할 일에 남긴 표시 — "part"(조금 했다) · "miss"(못 했다) · ""(표시 없음). 끝냈다는 exDone. */
+function exMark(sid,week,key){ const g=(o)=>((((o||{})[sid])||{})[week])||[]; return g(S.progressPart).includes(key)?"part":g(S.progressMiss).includes(key)?"miss":""; }
 /* 한 주: maxDi 요일(0=월)까지 */
 function exRate(sid,week,maxDi){
   const sc=(((S.schedules||{})[sid])||{})[week]; if(!sc) return {total:0,done:0,pct:null};
@@ -5317,10 +5329,10 @@ function rxCollect(sid,weeks){
         (g.slots||[]).forEach((sl,si)=>{ const c=(g.cells||{})[si+"-"+di]; if(!c||c.t!=="study")return;
           const subs=String(c.subj||"").split(/[·,\/]/).map(x=>x.trim()).filter(Boolean);
           const its=(c.items||[]).filter(x=>String(x||"").trim());
-          if(its.length) its.forEach((x,ii)=>items.push({w,di,ds,slot:sl.name||"",si,subj:rxSubOf(subs,x),text:String(x).trim(),done:done.has(`g${si}-${di}-${ii}`)}));
-          else items.push({w,di,ds,slot:sl.name||"",si,subj:subs[0]||"기타",text:(c.start||"")+(c.end?"–"+c.end:""),done:done.has(`g${si}-${di}`)});
+          if(its.length) its.forEach((x,ii)=>items.push({w,di,ds,slot:sl.name||"",si,subj:rxSubOf(subs,x),text:String(x).trim(),done:done.has(`g${si}-${di}-${ii}`),mk:exMark(sid,w,`g${si}-${di}-${ii}`)}));
+          else items.push({w,di,ds,slot:sl.name||"",si,subj:subs[0]||"기타",text:(c.start||"")+(c.end?"–"+c.end:""),done:done.has(`g${si}-${di}`),mk:exMark(sid,w,`g${si}-${di}`)});
         });
-      } else (sc.rows||[]).forEach((r,ri)=>{ const v=(r.days||[])[di]; if(v&&String(v).trim()) items.push({w,di,ds,slot:"",si:-1,subj:r.subject||"기타",text:String(v).trim(),done:done.has(`${ri}-${di}`)}); });
+      } else (sc.rows||[]).forEach((r,ri)=>{ const v=(r.days||[])[di]; if(v&&String(v).trim()) items.push({w,di,ds,slot:"",si:-1,subj:r.subject||"기타",text:String(v).trim(),done:done.has(`${ri}-${di}`),mk:exMark(sid,w,`${ri}-${di}`)}); });
     }
     const mine=items.filter(x=>x.w===w); W.total=mine.length; W.done=mine.filter(x=>x.done).length; W.planH=planH; W.actM=actM; W.logged=logged;
     if(W.total) wk.push(W);
@@ -5360,7 +5372,7 @@ function rxBlock(sid,weeks,repSec){
     <div class="rx-k"><div class="rx-kk">할 일을 모두 끝낸 날</div><div class="rx-kv">${fullDays}<small>/${days.length}일</small></div>
       <div class="rx-kd">하나도 체크 못 한 날 ${zeroDays}일${_past!==items?" · 오늘 제외":""}</div></div>
     <div class="rx-k"><div class="rx-kk">끝내지 못한 할 일</div><div class="rx-kv">${left.length}<small>줄</small></div>
-      <div class="rx-kd">${most?`가장 많은 과목 ${esc(most[0])} ${most[1]}줄`:"모두 끝냄"}</div></div>
+      <div class="rx-kd">${most?`가장 많은 과목 ${esc(most[0])} ${most[1]}줄`:"모두 끝냄"}</div>${left.length?`<div class="rx-kd">학생 표시 — 조금 했다 ${left.filter(x=>x.mk==="part").length} · 못 했다 ${left.filter(x=>x.mk==="miss").length} · 표시 없음 ${left.filter(x=>!x.mk).length}</div>`:""}</div>
   </div>`;
 
   const maxH=Math.max(1,...wk.map(x=>Math.max(x.planH,x.actM/60)));
@@ -5384,14 +5396,17 @@ function rxBlock(sid,weeks,repSec){
     <tr class="rx-sum"><th class="rx-sl">하루</th>${dayRate.map(r=>`<td>${r.t?rxPct(r.d,r.t)+"%":"–"}</td>`).join("")}</tr></table></div>`:"";
 
   const LIM=12;
-  const leftHTML=left.length?`<div class="rx-card"><div class="rx-h">끝내지 못한 할 일<span>${left.length>LIM?`앞의 ${LIM}줄 · 나머지 ${left.length-LIM}줄`:`${left.length}줄`} · 날짜순</span></div>
-    <div class="rx-left">${left.slice(0,LIM).map(x=>`<div class="rx-it"><span class="rx-s">${esc(x.subj)}</span><span class="rx-dt">${rxDay(x.ds)}${x.slot?" "+esc(x.slot):""}</span><span class="rx-tx">${esc(x.text)}</span></div>`).join("")}</div></div>`:"";
+  /* ★ v2.9 학생이 «못 했다» · «조금 했다»를 남긴 줄을 먼저(그 안에서는 날짜순). 표시는 학생 말이라 종이에 먼저 보일 값이다. */
+  const _mo={miss:0,part:1,"":2}, leftS=left.map((x,i)=>[x,i]).sort((a,b)=>_mo[a[0].mk||""]-_mo[b[0].mk||""]||a[1]-b[1]).map(a=>a[0]);
+  const _nm=left.filter(x=>x.mk).length;
+  const leftHTML=left.length?`<div class="rx-card"><div class="rx-h">끝내지 못한 할 일<span>${left.length>LIM?`앞의 ${LIM}줄 · 나머지 ${left.length-LIM}줄`:`${left.length}줄`} · ${_nm?"학생이 표시한 줄 먼저, 그다음 ":""}날짜순</span></div>
+    <div class="rx-left">${leftS.slice(0,LIM).map(x=>`<div class="rx-it"><span class="rx-s">${esc(x.subj)}</span><span class="rx-dt">${rxDay(x.ds)}${x.slot?" "+esc(x.slot):""}</span><span class="rx-tx">${esc(x.text)}${x.mk?` <i class="rx-mk ${x.mk}">${x.mk==="part"?"조금 했다":"못 했다"}</i>`:""}</span></div>`).join("")}</div></div>`:"";
 
   return `<div class="rx">${repSec("계획 대비 실행","시간표 할 일 · 학생 체크 · 센터 순공")}
     <div class="rx-avoid">${kpi}${weekly}</div>
     <div class="rx-avoid rx-two">${subjHTML}${heat}</div>
     ${leftHTML?`<div class="rx-avoid">${leftHTML}</div>`:""}
-    <div class="rx-note">체크는 학생이 학생 앱에서 «끝냈다»고 표시한 것이고, 순공은 실장 기록의 센터 순공입니다. 학원 수업(외출) 시간은 계획·실제 모두에서 뺐습니다.</div></div>`;
+    <div class="rx-note">체크는 학생이 학생 앱에서 «끝냈다»고 표시한 것이고(«조금 했다» · «못 했다»는 끝낸 것으로 세지 않고 끝내지 못한 할 일 옆에 적었습니다), 순공은 실장 기록의 센터 순공입니다. 학원 수업(외출) 시간은 계획·실제 모두에서 뺐습니다.</div></div>`;
 }
 
 fbInit();
