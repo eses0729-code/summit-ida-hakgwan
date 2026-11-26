@@ -97,6 +97,19 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
 .titem .sub{font-size:11px;color:var(--muted);font-weight:700;margin-bottom:2px}
 .titem .bd{font-size:13.5px;line-height:1.5}
 .titem.done .bd{color:var(--muted);text-decoration:line-through}
+/* ★ v2.9 (2026-11-26) 실행 기록 3택 — 끝냈다 / 조금 했다 / 못 했다. «못 했다»도 기록이다(빈칸과 다르다). */
+.titem.part{background:var(--warn-bg);border-color:#e6d3a8}
+.titem.miss{background:var(--alert-bg);border-color:#ecc9c1}
+.mk3{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.mk3 button{font:inherit;font-size:12px;font-weight:700;padding:6px 11px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink-2);cursor:pointer;min-height:34px}
+.mk3 button.on.done{background:var(--ok);border-color:var(--ok);color:#fff}
+.mk3 button.on.part{background:var(--warn);border-color:var(--warn);color:#fff}
+.mk3 button.on.miss{background:var(--alert);border-color:var(--alert);color:#fff}
+.chk .mkt{font-size:10px;font-weight:800;border-radius:5px;padding:0 5px;margin-left:4px}
+.chk .mkt.part{background:var(--warn-bg);color:var(--warn)}
+.chk .mkt.miss{background:var(--alert-bg);color:var(--alert)}
+.talk-ta{width:100%;box-sizing:border-box;font:inherit;font-size:14px;line-height:1.55;border:1px solid var(--line);border-radius:9px;padding:10px 12px;resize:vertical}
+.talk-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;font-size:12px;color:var(--muted)}
 .prog{height:9px;background:var(--line-2);border-radius:6px;overflow:hidden;margin:8px 0 4px}
 .prog i{display:block;height:100%;background:linear-gradient(90deg,#c9a24a,var(--gold))}
 
@@ -336,7 +349,7 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
     <div class="card">
       <div class="eyebrow">TODAY'S PLAN</div>
       <h2>오늘 할 일</h2>
-      <div class="hint">주간 스케줄에서 오늘 요일 항목입니다. 완료하면 체크하세요. <span class="tag">체크는 나만 가능</span></div>
+      <div class="hint">주간 스케줄에서 오늘 요일 항목입니다. 할 일마다 <b>끝냈다 · 조금 했다 · 못 했다</b> 중 하나를 눌러 두세요 — 못 한 날도 적어 두면 다음 계획이 정확해져요. <span class="tag">기록은 나만 가능</span></div>
       <div class="prog"><i id="tdBar" style="width:0%"></i></div>
       <div style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:10px" id="tdRate">이행률 —</div>
       <div class="todo" id="tdList"></div>
@@ -407,6 +420,13 @@ td.s{font-weight:700;color:var(--ink);background:#faf9f6;white-space:nowrap}
 
   <!-- 내 기록 -->
   <section id="tab-record" hidden>
+    <div class="card">
+      <div class="eyebrow">MY WORD</div>
+      <h2>이번 달 나에게 한마디</h2>
+      <div class="hint">이번 달을 돌아보며 한 줄 — 잘한 것, 아쉬운 것, 다음 달 다짐. 월말 리포트에 <b>내가 쓴 글 그대로</b> 실립니다. <span class="tag">선생님은 고치지 않아요</span></div>
+      <textarea id="talkTa" class="talk-ta" rows="3" maxlength="200" placeholder="예) 수학 오답 정리는 매일 했는데 영어 단어를 자주 미뤘다. 다음 달엔 아침 첫 시간에 단어부터."></textarea>
+      <div class="talk-row"><span id="talkInfo">—</span><button class="btn" id="talkSave" style="min-height:36px">저장</button></div>
+    </div>
     <div class="card">
       <div class="eyebrow">CUMULATIVE</div>
       <h2>학습 누적</h2>
@@ -513,7 +533,7 @@ const $=(id)=>document.getElementById(id);
 const DOW=["일","월","화","수","목","금","토"];
 const DL=["월","화","수","목","금","토","일"];
 let db=null,auth=null,SID=null,ME=null;
-let S={logs:{},schedules:{},roadmap:[],mocks:[],progress:{},plans:[],conductor:{stages:{},explore:[]},voca:{},monthlyoverall:{},academy:{notices:[],exams:[]}};
+let S={logs:{},schedules:{},roadmap:[],mocks:[],progress:{},progressPart:{},progressMiss:{},talk:{},plans:[],conductor:{stages:{},explore:[]},voca:{},monthlyoverall:{},academy:{notices:[],exams:[]}};
 let curWeek=null,curMonth=null;
 
 function toast(m){ const t=$("toast"); t.textContent=m; t.classList.add("on"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("on"),2200); }
@@ -641,7 +661,11 @@ function subscribe(){
     const a=[]; sn.forEach(d=>a.push(d.data())); a.sort((x,y)=>x.date<y.date?-1:1); S.mocks=a; renderAll();
   }, fbErr);
   db.collection("progress").where("sid","==",SID).onSnapshot(sn=>{
-    const m={}; sn.forEach(d=>{ const x=d.data(); if(x.week)m[x.week]=x.done||[]; }); S.progress=m; renderAll();
+    /* ★ v2.9 — 한 주 문서에 done(끝냈다) · part(조금 했다) · miss(못 했다). «한마디»는 같은 모음에 kind:"talk" · ym 으로 둔다(규칙 변경 없이 학생이 쓸 수 있는 자리). */
+    const m={},pp={},pm={},tk={}; sn.forEach(d=>{ const x=d.data();
+      if(x.kind==="talk"&&x.ym){ tk[x.ym]={text:x.text||"",at:x.at||""}; return; }
+      if(x.week){ m[x.week]=x.done||[]; pp[x.week]=x.part||[]; pm[x.week]=x.miss||[]; } });
+    S.progress=m; S.progressPart=pp; S.progressMiss=pm; S.talk=tk; renderAll(); talkRender();
   }, fbErr);
   qaSub();
   /* tmSub(); — 2026-11-25 원장 결정: 공부 타이머·시간→성적은 써밋 입시앱 「이번 주」로 옮겼다. 학생 화면에서 내리고 studytimer 를 읽지 않는다. */
@@ -742,25 +766,35 @@ function renderToday(){
   const done=S.progress[w]||[];
   if(!items.length){ $("tdList").innerHTML=`<div class="empty">오늘 등록된 계획이 없습니다.</div>`; $("tdBar").style.width="0%"; $("tdRate").textContent="이행률 —"; return; }
   const dn=items.filter(i=>done.includes(i.key)).length;
+  const np=items.filter(i=>markOf(w,i.key)==="part").length, nm=items.filter(i=>markOf(w,i.key)==="miss").length;
   const pct=Math.round(dn/items.length*100);
-  $("tdBar").style.width=pct+"%"; $("tdRate").textContent=`이행률 ${pct}% (${dn}/${items.length})`;
+  $("tdBar").style.width=pct+"%"; $("tdRate").textContent=`이행률 ${pct}% (끝냈다 ${dn}/${items.length})`+(np?` · 조금 했다 ${np}`:"")+(nm?` · 못 했다 ${nm}`:"");
+  const MK=[["done","끝냈다"],["part","조금 했다"],["miss","못 했다"]];
   $("tdList").innerHTML=items.map(i=>{
-    const on=done.includes(i.key);
-    return `<label class="titem${on?" done":""}"><input type="checkbox" data-k="${i.key}" data-w="${w}" ${on?"checked":""}><span class="tx"><span class="sub">${esc(i.subj)}</span><span class="bd">${esc(i.text).replace(/\n/g,"<br>")}</span></span></label>`;
+    const st=markOf(w,i.key);
+    return `<div class="titem${st?" "+st:""}"><span class="tx"><span class="sub">${esc(i.subj)}</span><span class="bd">${esc(i.text).replace(/\n/g,"<br>")}</span>
+      <span class="mk3" role="group" aria-label="실행 기록">${MK.map(([k,l])=>`<button type="button" class="${k}${st===k?" on":""}" aria-pressed="${st===k}" data-k="${i.key}" data-w="${w}" data-m="${k}">${l}</button>`).join("")}</span></span></div>`;
   }).join("");
-  $("tdList").querySelectorAll("input[type=checkbox]").forEach(c=>c.onchange=()=>toggleDone(c.dataset.w,c.dataset.k,c.checked));
+  $("tdList").querySelectorAll(".mk3 button").forEach(b=>b.onclick=()=>{ const cur=markOf(b.dataset.w,b.dataset.k); setMark(b.dataset.w,b.dataset.k,cur===b.dataset.m?"":b.dataset.m); });
 }
 
-function toggleDone(week,key,on){
-  const cur=(S.progress[week]||[]).slice();
-  const i=cur.indexOf(key);
-  if(on&&i<0)cur.push(key);
-  if(!on&&i>=0)cur.splice(i,1);
-  S.progress[week]=cur;
-  db.collection("progress").doc(SID+"__"+week).set({sid:SID,week,done:cur})
-    .then(()=>toast(on?"완료 체크":"체크 해제")).catch(fbErr);
+/* ★ v2.9 실행 기록 3택. 한 할 일은 셋 가운데 하나만(또는 아무것도 아님). 세 줄을 «함께» 적는다 — 하나만 적으면 나머지가 지워진다. */
+function markOf(week,key){
+  if((S.progress[week]||[]).includes(key)) return "done";
+  if((S.progressPart[week]||[]).includes(key)) return "part";
+  if((S.progressMiss[week]||[]).includes(key)) return "miss";
+  return "";
+}
+function setMark(week,key,m){
+  const out=a=>(a||[]).filter(k=>k!==key);
+  const done=out(S.progress[week]), part=out(S.progressPart[week]), miss=out(S.progressMiss[week]);
+  if(m==="done")done.push(key); if(m==="part")part.push(key); if(m==="miss")miss.push(key);
+  S.progress[week]=done; S.progressPart[week]=part; S.progressMiss[week]=miss;
+  db.collection("progress").doc(SID+"__"+week).set({sid:SID,week,done,part,miss})
+    .then(()=>toast(m==="done"?"끝냈다":m==="part"?"조금 했다":m==="miss"?"못 했다 — 기록해 둘게요":"기록 지움")).catch(fbErr);
   renderToday(); renderSched();
 }
+function toggleDone(week,key,on){ setMark(week,key,on?"done":(markOf(week,key)==="done"?"":markOf(week,key))); }
 
 /* ── 내 기록 ── */
 function renderRecord(){
@@ -870,7 +904,8 @@ function stuGridSched(sc,done){
       if(c.t==="away"){ h+=`<td class="fx"><b>${esc(c.subj||"")}</b><br>${esc(c.time||"")}</td>`; continue; }
       const its=(c.items||[]).filter(x=>String(x||"").trim());
       const rows=(its.length?its.map((x,ii)=>({k:`g${si}-${di}-${ii}`,t:x})):[{k:`g${si}-${di}`,t:"끝냈어요"}]).map(r=>{ total++; const on=done.includes(r.k); if(on)dn++;
-        return `<label class="chk${on?" on":""}"><input type="checkbox" data-k="${r.k}" ${on?"checked":""}><span>${esc(r.t)}</span></label>`; }).join("");
+        const mk=on?"":markOf(curWeek,r.k);
+        return `<label class="chk${on?" on":""}"><input type="checkbox" data-k="${r.k}" ${on?"checked":""}><span>${esc(r.t)}${mk?`<i class="mkt ${mk}">${mk==="part"?"조금":"못함"}</i>`:""}</span></label>`; }).join("");
       h+=`<td class="cl ${c.tone||""}"><div class="cs">${esc(c.subj||"")}</div><div class="ct">${esc(c.start||"")}${c.end?"–"+esc(c.end):""}</div>${rows}</td>`; }
     h+=`</tr>`; });
   h+=`</tbody></table></div>`;
@@ -1353,6 +1388,21 @@ function tmStop(run){
   ref.update(patch).then(()=>toast(min>0?`${run.subj} ${fmtMin(min)} 기록`+(cut?" (6시간까지만 셌습니다)":""):"1분이 안 되어 기록하지 않았습니다")).catch(fbErr);
 }
 
+/* ★ v2.9 «이번 달 나에게 한마디» — 학생이 쓴 글이 월말 리포트에 그대로 실린다. 달이 바뀌면 새 칸. */
+let _talkDirty=false;
+function talkYM(){ return todayISO().slice(0,7); }
+function talkRender(){
+  const ta=$("talkTa"); if(!ta) return;
+  const ym=talkYM(), t=(S.talk||{})[ym];
+  if(!_talkDirty) ta.value=t?t.text:"";
+  $("talkInfo").textContent=`${+ym.slice(5)}월 · `+(t&&t.text?`저장됨${t.at?" "+String(t.at).slice(5,16).replace("T"," "):""}`:"아직 안 썼어요")+` · ${ta.value.length}/200`;
+}
+function talkSave(){
+  const ta=$("talkTa"), text=ta.value.trim().slice(0,200), ym=talkYM(), at=new Date(Date.now()+9*36e5).toISOString().slice(0,16);
+  db.collection("progress").doc(SID+"__talk__"+ym).set({sid:SID,kind:"talk",ym,text,at})
+    .then(()=>{ _talkDirty=false; S.talk[ym]={text,at}; talkRender(); toast(text?"한마디 저장":"한마디 지움"); }).catch(fbErr);
+}
+document.addEventListener("DOMContentLoaded",()=>{ const ta=$("talkTa"); if(!ta) return; ta.oninput=()=>{ _talkDirty=true; talkRender(); }; $("talkSave").onclick=talkSave; });
 function renderAll(){ renderToday(); tmRender(); renderRecord(); renderSched(); renderMock(); tgRender(); renderCond(); renderExplore(); renderVoca(); }
 /* ── ④ 질문 (2026-11-23) — 내가 올린 질문과 선생님 답. 메디컬 멘토가 먼저 보고, 필요하면 과목 선생님께 넘긴다 ── */
 const QA_SUBJ=["국어","영어","수학","과학","기타"];
